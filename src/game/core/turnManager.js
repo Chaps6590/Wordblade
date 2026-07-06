@@ -1,14 +1,20 @@
-import { generateRandomTile } from '../data/letters.js'
+import { generateLetters } from '../data/letters.js'
 
 // Manejo del avance de turnos: reposición de letras usadas,
 // reducción de bloqueos y detección de fin de batalla.
 
-// Reemplaza las fichas usadas por letras nuevas aleatorias (misma posición).
-export function replaceUsedTiles(state, usedTiles) {
-  const usedIds = new Set(usedTiles.map((t) => t.id))
-  state.letters = state.letters.map((tile) =>
-    usedIds.has(tile.id) ? generateRandomTile() : tile
-  )
+// Después de una palabra válida se descarta el tablero completo. Se evita
+// repetir exactamente la misma secuencia, aunque una letra sí puede volver
+// a aparecer y puede haber duplicados dentro del nuevo tablero.
+export function refreshLetterRack(state) {
+  const previous = state.letters.map((tile) => tile.value).join('')
+  let next
+
+  do {
+    next = generateLetters(state.letters.length)
+  } while (next.map((tile) => tile.value).join('') === previous)
+
+  state.letters = next
 }
 
 // Reduce la duración de los bloqueos al final de cada turno completo.

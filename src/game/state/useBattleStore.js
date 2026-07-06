@@ -47,6 +47,10 @@ export const useBattleStore = create((set, get) => ({
   },
 
   tick: () => {
+    // La espera del validador depende de la red, no del jugador: mientras
+    // la API responde, el reloj de la batalla queda completamente pausado.
+    if (get().validating) return
+
     const current = get().battle
     if (!current || current.status !== 'playing') return
 

@@ -34,7 +34,7 @@ export async function getRecentResults(limit = 10) {
 }
 
 // Valida la ortografía de una palabra (el backend consulta LanguageTool).
-// Devuelve { isCorrect, suggestions } o null si el backend no responde
+// Devuelve { isCorrect, correctedWord, suggestions } o null si el backend no responde
 // (en ese caso el juego valida solo con el diccionario local).
 export async function checkWord(word, language = 'es') {
   try {

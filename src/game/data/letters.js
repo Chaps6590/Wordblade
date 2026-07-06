@@ -30,6 +30,7 @@ export const LETTER_DATA = {
 }
 
 export const VOWELS = ['A', 'E', 'I', 'O', 'U']
+const VOWEL_FREQUENCY_MULTIPLIER = 2
 
 // Letras con habilidad, para la leyenda de la UI
 export const SKILL_LETTERS = Object.entries(LETTER_DATA)
@@ -46,7 +47,8 @@ function buildPool(filterFn) {
   const pool = []
   for (const [value, data] of Object.entries(LETTER_DATA)) {
     if (filterFn && !filterFn(value)) continue
-    for (let i = 0; i < data.frequency; i++) pool.push(value)
+    const multiplier = VOWELS.includes(value) ? VOWEL_FREQUENCY_MULTIPLIER : 1
+    for (let i = 0; i < data.frequency * multiplier; i++) pool.push(value)
   }
   return pool
 }
@@ -70,13 +72,21 @@ export function generateRandomTile({ vowelOnly = false, consonantOnly = false } 
   return createTile(randomFromPool(buildPool(filter)))
 }
 
-// Genera el set inicial de letras garantizando un mínimo de vocales
-// para que siempre sea posible formar palabras.
+// Genera cada tablero desde cero. Todas las extracciones son independientes,
+// por lo que pueden aparecer letras repetidas. Las vocales tienen doble peso
+// y además se garantiza que al menos la mitad del tablero sean vocales.
 export function generateLetters(count) {
-  const minVowels = count >= 9 ? 4 : 3
-  const tiles = []
-  for (let i = 0; i < minVowels; i++) tiles.push(generateRandomTile({ vowelOnly: true }))
-  for (let i = minVowels; i < count; i++) tiles.push(generateRandomTile({ consonantOnly: true }))
+  const minVowels = Math.ceil(count / 2)
+  const tiles = Array.from({ length: count }, () => generateRandomTile())
+  let vowelCount = tiles.filter((tile) => VOWELS.includes(tile.value)).length
+
+  while (vowelCount < minVowels) {
+    const consonantIndex = tiles.findIndex((tile) => !VOWELS.includes(tile.value))
+    if (consonantIndex === -1) break
+    tiles[consonantIndex] = generateRandomTile({ vowelOnly: true })
+    vowelCount += 1
+  }
+
   // Mezclar
   for (let i = tiles.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1))

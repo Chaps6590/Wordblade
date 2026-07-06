@@ -4,7 +4,7 @@ import { validateWord } from './wordValidator.js'
 import { calculateDamage } from './damageCalculator.js'
 import { applyLetterEffects, tickStatuses } from './letterEffects.js'
 import { enemyTurn, getEnemyDef } from './enemyAI.js'
-import { replaceUsedTiles, advanceTurn, checkBattleEnd } from './turnManager.js'
+import { refreshLetterRack, advanceTurn, checkBattleEnd } from './turnManager.js'
 
 // Motor principal de la batalla. Funciones puras sobre battleState:
 // el estado entra, se procesa el turno completo y salen los eventos
@@ -66,12 +66,14 @@ export function playWord(state, rawWord, precomputedValidation = null) {
 
   // Fin por victoria antes de que el enemigo responda
   if (!checkBattleEnd(state, events)) {
+    // La palabra válida consume todo el tablero. El enemigo actúa luego
+    // sobre las letras nuevas para que sus bloqueos/maldiciones persistan.
+    if (result.valid) refreshLetterRack(state)
     runEnemyPhase(state, events, lastWordLength)
     checkBattleEnd(state, events)
   }
 
   if (state.status === 'playing') {
-    if (result.valid) replaceUsedTiles(state, result.usedTiles)
     advanceTurn(state)
   }
 

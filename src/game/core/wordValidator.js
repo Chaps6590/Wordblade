@@ -7,10 +7,8 @@ import { checkWord } from '../../services/api.js'
 //
 // Hay dos modos:
 //  - validateWord: síncrona, solo diccionario local (fallback offline).
-//  - validateWordHybrid: primero diccionario local; si la palabra no
-//    está, consulta la ortografía en el backend (LanguageTool) para
-//    distinguir "mal escrita" (con sugerencias) de "bien escrita pero
-//    no aceptada en el juego".
+//  - validateWordHybrid: consulta la ortografía completa en el backend
+//    (LanguageTool). El diccionario local solo se usa si no hay conexión.
 
 export function validateWord(rawWord, tiles, playedWords) {
   const word = normalizeWord(rawWord)
@@ -19,7 +17,7 @@ export function validateWord(rawWord, tiles, playedWords) {
     return invalid(word, 'La palabra es demasiado corta.')
   }
 
-  if (playedWords.some((p) => p.word === word)) {
+  if (playedWords.some((p) => normalizeWord(p.word) === word)) {
     return invalid(word, `Ya usaste la palabra ${word}.`)
   }
 
@@ -32,7 +30,7 @@ export function validateWord(rawWord, tiles, playedWords) {
     return invalid(word, `"${word}" no existe en el diccionario.`)
   }
 
-  return { valid: true, reason: null, word, usedTiles }
+  return { valid: true, reason: null, word: displayWord(rawWord), usedTiles }
 }
 
 export async function validateWordHybrid(rawWord, tiles, playedWords, language = 'es') {
@@ -42,7 +40,7 @@ export async function validateWordHybrid(rawWord, tiles, playedWords, language =
     return invalid(word, 'La palabra es demasiado corta.')
   }
 
-  if (playedWords.some((p) => p.word === word)) {
+  if (playedWords.some((p) => normalizeWord(p.word) === word)) {
     return invalid(word, `Ya usaste la palabra ${word}.`)
   }
 
@@ -51,17 +49,15 @@ export async function validateWordHybrid(rawWord, tiles, playedWords, language =
     return invalid(word, 'No tenés las letras necesarias (o están bloqueadas).')
   }
 
-  // 1. Diccionario del juego: si está, se acepta directo
-  if (wordExists(word)) {
-    return { valid: true, reason: null, word, usedTiles }
-  }
-
-  // 2. Ortografía vía backend (LanguageTool)
-  const spelling = await checkWord(word, language)
+  // Ortografía vía backend (LanguageTool). Se consulta incluso cuando la
+  // palabra está en el fallback local para poder restaurar sus tildes.
+  const spelling = await checkWord(String(rawWord).trim(), language)
 
   if (!spelling) {
-    // Sin backend o sin red: vale solo el diccionario local
-    return invalid(word, `"${word}" no existe en el diccionario.`)
+    if (wordExists(word)) {
+      return { valid: true, reason: null, word: displayWord(rawWord), usedTiles }
+    }
+    return invalid(word, `No se pudo verificar "${word}" porque el validador no está disponible.`)
   }
 
   if (!spelling.isCorrect) {
@@ -74,7 +70,18 @@ export async function validateWordHybrid(rawWord, tiles, playedWords, language =
     return result
   }
 
-  return invalid(word, `"${word}" está bien escrita, pero no está en el diccionario del juego.`)
+  // LanguageTool la reconoce como correcta: se acepta aunque todavía
+  // no forme parte del pequeño diccionario disponible sin conexión.
+  return {
+    valid: true,
+    reason: null,
+    word: spelling.correctedWord || displayWord(rawWord),
+    usedTiles
+  }
+}
+
+function displayWord(word) {
+  return String(word).trim().toLocaleUpperCase('es')
 }
 
 function invalid(word, reason) {
