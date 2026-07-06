@@ -37,6 +37,33 @@ En dos pasos (`validateWordHybrid` en `src/game/core/wordValidator.js`):
 2. **Bosque Maldito** (media, 75s) — Garrapata Chamán (bloquea y maldice letras)
 3. **Templo de la Reina Garrapata** (alta, 60s) — jefa con 3 fases
 
+## Producción
+
+El juego vive en **https://wordblade.chapstech.com** y la API en **https://wordblade-api.chapstech.com**.
+
+```bash
+npm run build   # genera dist/ usando .env.production (VITE_API_URL apunta a la API)
+```
+
+`dist/` se sirve como estático. Como el router usa rutas de navegador (`/battle/...`), el servidor debe devolver `index.html` para cualquier ruta. Ejemplo con nginx:
+
+```nginx
+server {
+  server_name wordblade.chapstech.com;
+  root /var/www/wordblade/dist;
+  index index.html;
+
+  location / {
+    try_files $uri $uri/ /index.html;
+  }
+}
+```
+
+Dos cosas a tener en cuenta:
+
+- La PWA solo se puede instalar sobre **HTTPS** (el service worker no corre en http).
+- El backend debe tener `CORS_ORIGIN=https://wordblade.chapstech.com` en su `.env` para aceptar las llamadas del juego.
+
 ## Próximos pasos
 
 Sprites y animaciones finales, sonidos, diccionario más grande, progresión, ranking, modo inglés y PWA instalable en Android (el manifest ya está configurado con `vite-plugin-pwa`).

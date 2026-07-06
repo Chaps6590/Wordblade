@@ -1,8 +1,11 @@
-// Cliente del backend (Express + Prisma). En dev, Vite proxya /api
-// hacia http://localhost:3001. El juego funciona igual si el backend
-// está apagado: los errores se registran y se sigue.
+// Cliente del backend (Express + Prisma). En dev, VITE_API_URL queda
+// vacía y Vite proxya /api hacia http://localhost:3001; en producción
+// se define en .env.production (https://wordblade-api.chapstech.com).
+// El juego funciona igual si el backend está apagado: los errores se
+// registran y se sigue.
 
-const BASE_URL = '/api'
+const API_ORIGIN = import.meta.env.VITE_API_URL ?? ''
+const BASE_URL = `${API_ORIGIN}/api`
 
 export async function saveBattleResult(result) {
   try {
