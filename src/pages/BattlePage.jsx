@@ -10,6 +10,9 @@ import { HealthBar } from '../components/HealthBar.jsx'
 import { BattleLog } from '../components/BattleLog.jsx'
 import { SkillLegend } from '../components/SkillLegend.jsx'
 import { eventBus } from '../game/phaser/eventBus.js'
+import { WILDCARD_VALUE } from '../game/data/letters.js'
+
+const WILDCARD_ALPHABET = [...'ABCDEFGHIJKLMNÑOPQRSTUVWXYZ']
 
 export function BattlePage() {
   const { scenarioId } = useParams()
@@ -24,6 +27,7 @@ export function BattlePage() {
 
   const [word, setWord] = useState('')
   const [selectedTileIds, setSelectedTileIds] = useState([])
+  const [wildcardTileId, setWildcardTileId] = useState(null)
 
   // Iniciar batalla al entrar
   useEffect(() => {
@@ -31,6 +35,9 @@ export function BattlePage() {
       navigate('/scenarios')
       return
     }
+    setWord('')
+    setSelectedTileIds([])
+    setWildcardTileId(null)
     startBattle(scenarioId)
   }, [scenarioId, scenario, startBattle, navigate])
 
@@ -56,21 +63,34 @@ export function BattlePage() {
   const playing = battle.status === 'playing'
 
   const handleTileClick = (tile) => {
-    if (!playing || validating || tile.locked || selectedTileIds.includes(tile.id)) return
+    if (!playing || validating || wildcardTileId || tile.locked || selectedTileIds.includes(tile.id)) return
+    if (tile.value === WILDCARD_VALUE) {
+      setWildcardTileId(tile.id)
+      return
+    }
     setWord((currentWord) => currentWord.length < 12 ? currentWord + tile.value : currentWord)
     setSelectedTileIds((currentIds) => [...currentIds, tile.id])
+  }
+
+  const handleWildcardChoice = (letter) => {
+    if (!wildcardTileId || word.length >= 12) return
+    setWord((currentWord) => currentWord + letter)
+    setSelectedTileIds((currentIds) => [...currentIds, wildcardTileId])
+    setWildcardTileId(null)
   }
 
   const handleSubmit = (value) => {
     submitWord(value)
     setWord('')
     setSelectedTileIds([])
+    setWildcardTileId(null)
   }
 
   const handleClear = () => {
     if (!playing || validating || !word) return
     setWord('')
     setSelectedTileIds([])
+    setWildcardTileId(null)
     eventBus.emit('battle-event', { kind: 'enemyLaugh' })
   }
 
@@ -100,6 +120,12 @@ export function BattlePage() {
         side="left"
       />
 
+      <section className="hidden-word-challenge" aria-label={`Palabra oculta de ${battle.hiddenWordLength} letras`}>
+        <span>PALABRA OCULTA</span>
+        <strong>{'◆'.repeat(battle.hiddenWordLength)}</strong>
+        <small>Descubrila para sumar +35 de daño</small>
+      </section>
+
       <section className="letters-row">
         {battle.letters.map((tile) => (
           <LetterTile
@@ -111,6 +137,20 @@ export function BattlePage() {
           />
         ))}
       </section>
+
+      {wildcardTileId && (
+        <section className="wildcard-picker" role="dialog" aria-label="Elegir letra para el comodín">
+          <p>Elegí una letra para el comodín ★</p>
+          <div>
+            {WILDCARD_ALPHABET.map((letter) => (
+              <button key={letter} type="button" onClick={() => handleWildcardChoice(letter)}>
+                {letter}
+              </button>
+            ))}
+          </div>
+          <button type="button" className="btn" onClick={() => setWildcardTileId(null)}>Cancelar</button>
+        </section>
+      )}
 
       <WordInput
         value={word}

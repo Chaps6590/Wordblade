@@ -8,7 +8,13 @@ import { LETTER_DATA } from '../data/letters.js'
 export const CURSE_MULTIPLIER = 0.7 // cada letra maldita usada multiplica el daño por 0.7
 
 export function lengthBonus(length) {
-  if (length >= 7) return 10
+  if (length >= 12) return 75
+  if (length === 11) return 60
+  if (length === 10) return 46
+  if (length === 9) return 34
+  if (length === 8) return 24
+  if (length === 7) return 15
+  if (length === 6) return 9
   if (length >= 5) return 5
   if (length === 4) return 2
   return 0

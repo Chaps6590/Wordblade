@@ -1,4 +1,4 @@
-import { LETTER_DATA } from '../game/data/letters.js'
+import { LETTER_DATA, WILDCARD_VALUE } from '../game/data/letters.js'
 
 // Ficha de letra. Estados visuales: normal, bloqueada (🔒 gris),
 // envenenada (verde) y maldita (violeta).
@@ -11,9 +11,10 @@ export function LetterTile({ tile, onClick, disabled, selected = false }) {
   if (tile.cursed) classes.push('cursed')
   if (data?.effect) classes.push('has-skill')
   if (selected) classes.push('selected')
+  if (tile.value === WILDCARD_VALUE) classes.push('wildcard')
 
   const title = [
-    `${tile.value} · ${data?.points ?? 1} pts`,
+    tile.value === WILDCARD_VALUE ? 'Comodín · elegí cualquier letra' : `${tile.value} · ${data?.points ?? 1} pts`,
     data?.effectDesc,
     tile.locked ? `Bloqueada (${tile.lockTurns} turnos)` : null,
     tile.poisoned ? 'Envenenada: usarla daña a Kael' : null,

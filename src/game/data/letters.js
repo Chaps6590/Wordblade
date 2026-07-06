@@ -1,6 +1,8 @@
 // Datos de cada letra: puntos, efecto especial (si tiene) y frecuencia
 // con la que aparece al generar letras aleatorias.
 
+export const WILDCARD_VALUE = '★'
+
 export const LETTER_DATA = {
   A: { points: 1, effect: 'heal',      effectName: 'Curación',     effectDesc: 'Cura 4 HP a Kael',            frequency: 12 },
   B: { points: 3, effect: null,        frequency: 2 },
@@ -26,11 +28,14 @@ export const LETTER_DATA = {
   V: { points: 4, effect: null,        frequency: 1 },
   X: { points: 8, effect: null,        frequency: 1 },
   Y: { points: 4, effect: null,        frequency: 1 },
-  Z: { points: 10, effect: 'lightning', effectName: 'Rayo',        effectDesc: '+15 daño mágico (ignora escudo)', frequency: 1 }
+  Z: { points: 10, effect: 'lightning', effectName: 'Rayo',        effectDesc: '+15 daño mágico (ignora escudo)', frequency: 1 },
+  [WILDCARD_VALUE]: { points: 0, effect: null, effectDesc: 'Comodín: elegí cualquier letra', frequency: 0 }
 }
 
 export const VOWELS = ['A', 'E', 'I', 'O', 'U']
 const VOWEL_FREQUENCY_MULTIPLIER = 2
+const RARE_LETTERS = ['B', 'F', 'G', 'H', 'J', 'Ñ', 'Q', 'V', 'X', 'Z']
+const ACCENT_MAP = { Á: 'A', É: 'E', Í: 'I', Ó: 'O', Ú: 'U', Ü: 'U' }
 
 // Letras con habilidad, para la leyenda de la UI
 export const SKILL_LETTERS = Object.entries(LETTER_DATA)
@@ -72,6 +77,39 @@ export function generateRandomTile({ vowelOnly = false, consonantOnly = false } 
   return createTile(randomFromPool(buildPool(filter)))
 }
 
+function shuffleTiles(tiles) {
+  for (let i = tiles.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[tiles[i], tiles[j]] = [tiles[j], tiles[i]]
+  }
+  return tiles
+}
+
+export function normalizeChallengeWord(word) {
+  return String(word)
+    .trim()
+    .toLocaleUpperCase('es')
+    .replace(/[ÁÉÍÓÚÜ]/g, (letter) => ACCENT_MAP[letter])
+}
+
+// Tablero especial: contiene todas las letras de una palabra secreta y
+// cuatro extras. Dos extras son comodines y otra fuerza la aparición de
+// letras menos frecuentes para que el tablero siga teniendo dificultad.
+export function generateChallengeLetters(secretWord, extraCount = 4) {
+  const targetLetters = [...normalizeChallengeWord(secretWord)]
+  const extras = []
+  const wildcardCount = Math.min(2, extraCount)
+
+  for (let i = 0; i < wildcardCount; i++) extras.push(createTile(WILDCARD_VALUE))
+  if (extras.length < extraCount) extras.push(createTile(randomFromPool(RARE_LETTERS)))
+  while (extras.length < extraCount) extras.push(generateRandomTile())
+
+  return shuffleTiles([
+    ...targetLetters.map((letter) => createTile(letter)),
+    ...extras
+  ])
+}
+
 // Genera cada tablero desde cero. Todas las extracciones son independientes,
 // por lo que pueden aparecer letras repetidas. Las vocales tienen doble peso
 // y además se garantiza que al menos la mitad del tablero sean vocales.
@@ -87,10 +125,5 @@ export function generateLetters(count) {
     vowelCount += 1
   }
 
-  // Mezclar
-  for (let i = tiles.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1))
-    ;[tiles[i], tiles[j]] = [tiles[j], tiles[i]]
-  }
-  return tiles
+  return shuffleTiles(tiles)
 }

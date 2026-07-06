@@ -2,18 +2,29 @@ import { create } from 'zustand'
 import { createBattleState, playWord, tickTime } from '../core/battleEngine.js'
 import { validateWordHybrid } from '../core/wordValidator.js'
 import { eventBus } from '../phaser/eventBus.js'
+import { getScenario } from '../data/scenarios.js'
+import { getWordChallenges } from '../../services/api.js'
 
 // Store global de la batalla. El motor (battleEngine) trabaja sobre un
 // clon del estado y el store publica el resultado; los eventos de
 // animación se reenvían a Phaser por el eventBus.
+
+let startRequestId = 0
 
 export const useBattleStore = create((set, get) => ({
   battle: null,
   validating: false, // true mientras se consulta la ortografía en el backend
   language: 'es',
 
-  startBattle: (scenarioId) => {
-    set({ battle: createBattleState(scenarioId), validating: false })
+  startBattle: async (scenarioId) => {
+    const requestId = ++startRequestId
+    const scenario = getScenario(scenarioId)
+    if (!scenario) return
+
+    set({ battle: null, validating: true })
+    const challenges = await getWordChallenges(scenario.hiddenWordLength, scenario.wordDifficulty)
+    if (requestId !== startRequestId) return
+    set({ battle: createBattleState(scenarioId, challenges), validating: false })
   },
 
   submitWord: async (rawWord) => {

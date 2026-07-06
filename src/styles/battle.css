@@ -150,6 +150,65 @@
   border-color: var(--accent-2);
 }
 
+.letter-tile.wildcard {
+  border-color: #ffd166;
+  color: #ffd166;
+  background: radial-gradient(circle, #443719, var(--bg-panel));
+  box-shadow: 0 0 14px rgba(255, 209, 102, 0.35);
+}
+
+.hidden-word-challenge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+  padding: 0.55rem 0.8rem;
+  border: 1px solid rgba(255, 209, 102, 0.45);
+  border-radius: 8px;
+  background: rgba(255, 209, 102, 0.06);
+  color: #ffd166;
+  text-align: center;
+}
+
+.hidden-word-challenge span,
+.hidden-word-challenge small { font-size: 0.75rem; }
+.hidden-word-challenge strong { letter-spacing: 0.22rem; }
+.hidden-word-challenge small { color: var(--text-dim); }
+
+.wildcard-picker {
+  padding: 0.8rem;
+  border: 1px solid #ffd166;
+  border-radius: 10px;
+  background: var(--bg-panel);
+  text-align: center;
+}
+
+.wildcard-picker p { margin-bottom: 0.6rem; color: #ffd166; }
+.wildcard-picker > div {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  margin-bottom: 0.7rem;
+}
+
+.wildcard-picker > div button {
+  width: 2rem;
+  height: 2rem;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  background: var(--bg-panel-2);
+  color: var(--text);
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.wildcard-picker > div button:hover {
+  border-color: #ffd166;
+  color: #ffd166;
+}
+
 .letter-value {
   font-size: 1.5rem;
   font-weight: bold;

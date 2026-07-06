@@ -126,6 +126,13 @@ export class BattleScene extends Phaser.Scene {
       ease: 'Power2',
       onYoyo: () => {
         showSlash(this, this.enemy.x - 20, this.enemy.y, { color: event.magic ? 0xffee55 : 0xd6e6ff })
+        if (event.secret) {
+          showFloatingText(this, this.enemy.x, this.enemy.y - 110, '¡PALABRA SECRETA!', {
+            color: '#ffd700',
+            fontSize: 20
+          })
+          this.flash(0xffd700)
+        }
         showFloatingText(this, this.enemy.x, this.enemy.y - 70, `-${event.amount}`, {
           color: event.critical ? '#ffd700' : '#ff5555',
           fontSize: event.critical ? 32 : 24

@@ -1,5 +1,5 @@
 import { getScenario } from '../data/scenarios.js'
-import { generateLetters } from '../data/letters.js'
+import { generateChallengeLetters, normalizeChallengeWord } from '../data/letters.js'
 import { validateWord } from './wordValidator.js'
 import { calculateDamage } from './damageCalculator.js'
 import { applyLetterEffects, tickStatuses } from './letterEffects.js'
@@ -10,10 +10,18 @@ import { refreshLetterRack, advanceTurn, checkBattleEnd } from './turnManager.js
 // el estado entra, se procesa el turno completo y salen los eventos
 // (para el log de React y las animaciones de Phaser).
 
-export function createBattleState(scenarioId) {
+const DEFAULT_CHALLENGES = ['AVENTURA', 'CABALLOS', 'DIAMANTE', 'ELEFANTE', 'FANTASMA']
+const HIDDEN_WORD_BONUS = 35
+
+export function createBattleState(scenarioId, challengeWords = DEFAULT_CHALLENGES) {
   const scenario = getScenario(scenarioId)
   if (!scenario) throw new Error(`Escenario desconocido: ${scenarioId}`)
   const enemyDef = getEnemyDef(scenario.enemyId)
+  const validChallenges = challengeWords
+    .map(normalizeChallengeWord)
+    .filter((word) => word.length === scenario.hiddenWordLength)
+  const targets = validChallenges.length > 0 ? validChallenges : DEFAULT_CHALLENGES
+  const hiddenWord = targets[0]
 
   return {
     scenarioId,
@@ -33,7 +41,12 @@ export function createBattleState(scenarioId) {
       statuses: [],
       phaseIndex: 0
     },
-    letters: generateLetters(scenario.letterCount),
+    letters: generateChallengeLetters(hiddenWord, scenario.extraLetterCount),
+    hiddenWord,
+    hiddenWordLength: scenario.hiddenWordLength,
+    extraLetterCount: scenario.extraLetterCount,
+    challengeWords: targets,
+    challengeIndex: 0,
     playedWords: [],
     turn: 1,
     timeLeft: scenario.time,
@@ -85,9 +98,11 @@ function attackWithWord(state, { word, usedTiles }, events) {
   const usableCount = state.letters.filter((t) => !t.locked).length
   const damage = calculateDamage(word, usedTiles, usableCount)
   const { effects, extraPhysical, magicDamage } = applyLetterEffects(state, usedTiles)
+  const foundHiddenWord = normalizeChallengeWord(word) === normalizeChallengeWord(state.hiddenWord)
+  const secretBonus = foundHiddenWord ? HIDDEN_WORD_BONUS : 0
 
   // Daño físico: lo absorbe primero el escudo enemigo
-  const physical = damage.total + extraPhysical
+  const physical = damage.total + extraPhysical + secretBonus
   const absorbed = Math.min(state.enemy.shield, physical)
   state.enemy.shield -= absorbed
   const physicalDealt = physical - absorbed
@@ -98,9 +113,10 @@ function attackWithWord(state, { word, usedTiles }, events) {
 
   state.playedWords.push({ word, damage: totalDealt, points: damage.letterPoints })
   state.totalDamage += totalDealt
-  state.score += damage.letterPoints + damage.lengthBonus + (damage.isCritical ? 10 : 0)
+  state.score += damage.letterPoints + damage.lengthBonus + secretBonus + (damage.isCritical ? 10 : 0)
 
   let text = `Kael usó ${word} e hizo ${totalDealt} de daño.`
+  if (foundHiddenWord) text = `¡PALABRA OCULTA DESCUBIERTA! +${secretBonus} de daño. ${text}`
   if (damage.isCritical) text = `¡CRÍTICO! ${text} (usó todas las letras)`
   if (damage.cursedCount > 0) text += ` Las letras malditas redujeron el daño en ${damage.curseReduction}.`
   events.push({
@@ -108,6 +124,7 @@ function attackWithWord(state, { word, usedTiles }, events) {
     amount: totalDealt,
     critical: damage.isCritical,
     magic: magicDamage > 0,
+    secret: foundHiddenWord,
     word,
     text
   })

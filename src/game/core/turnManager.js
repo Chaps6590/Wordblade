@@ -1,4 +1,4 @@
-import { generateLetters } from '../data/letters.js'
+import { generateChallengeLetters } from '../data/letters.js'
 
 // Manejo del avance de turnos: reposición de letras usadas,
 // reducción de bloqueos y detección de fin de batalla.
@@ -7,14 +7,9 @@ import { generateLetters } from '../data/letters.js'
 // repetir exactamente la misma secuencia, aunque una letra sí puede volver
 // a aparecer y puede haber duplicados dentro del nuevo tablero.
 export function refreshLetterRack(state) {
-  const previous = state.letters.map((tile) => tile.value).join('')
-  let next
-
-  do {
-    next = generateLetters(state.letters.length)
-  } while (next.map((tile) => tile.value).join('') === previous)
-
-  state.letters = next
+  state.challengeIndex = (state.challengeIndex + 1) % state.challengeWords.length
+  state.hiddenWord = state.challengeWords[state.challengeIndex]
+  state.letters = generateChallengeLetters(state.hiddenWord, state.extraLetterCount)
 }
 
 // Reduce la duración de los bloqueos al final de cada turno completo.

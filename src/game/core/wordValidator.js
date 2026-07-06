@@ -1,4 +1,5 @@
 import { wordExists, normalizeWord } from '../data/dictionary-es.js'
+import { WILDCARD_VALUE } from '../data/letters.js'
 import { checkWord } from '../../services/api.js'
 
 // Valida una palabra contra el diccionario y las letras disponibles.
@@ -95,7 +96,8 @@ function matchTiles(word, tiles) {
   const used = []
 
   for (const char of word) {
-    const idx = available.findIndex((t) => t.value === char)
+    let idx = available.findIndex((tile) => tile.value === char)
+    if (idx === -1) idx = available.findIndex((tile) => tile.value === WILDCARD_VALUE)
     if (idx === -1) return null
     used.push(available[idx])
     available.splice(idx, 1)
