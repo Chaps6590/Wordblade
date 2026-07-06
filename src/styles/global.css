@@ -1,14 +1,20 @@
 /* Estilos base: tema oscuro/fantasía */
 
+/* Paleta inspirada en el ícono del juego: espada de acero con runas
+   de azul eléctrico sobre fondo azul noche con energía violeta. */
 :root {
-  --bg: #12101a;
-  --bg-panel: #1c1928;
-  --bg-panel-2: #241f33;
-  --border: #3a3352;
-  --text: #e8e4f0;
-  --text-dim: #9a92b0;
-  --accent: #c9a227;
+  --bg: #050817;
+  --bg-panel: #0a1124;
+  --bg-panel-2: #101b38;
+  --border: #23335c;
+  --text: #e6ecf8;
+  --text-dim: #8b9ac2;
+  --steel: #c9d4e6;
+  --accent: #2d7eff;
+  --accent-bright: #5cb2ff;
   --accent-2: #7c5cff;
+  --glow: rgba(45, 126, 255, 0.38);
+  --amber: #d8a63e;
   --danger: #e05555;
   --success: #5fbf6f;
   --poison: #6fbf5f;
@@ -47,8 +53,9 @@ body {
 .page-title {
   text-align: center;
   margin: 1rem 0 1.5rem;
-  color: var(--accent);
+  color: var(--steel);
   letter-spacing: 2px;
+  text-shadow: 0 0 16px var(--glow);
 }
 
 /* Botones */
@@ -65,7 +72,8 @@ body {
 
 .btn:hover:not(:disabled) {
   background: var(--border);
-  border-color: var(--accent);
+  border-color: var(--accent-bright);
+  box-shadow: 0 0 12px rgba(45, 126, 255, 0.25);
 }
 
 .btn:active:not(:disabled) {
@@ -78,14 +86,17 @@ body {
 }
 
 .btn-primary {
-  background: linear-gradient(180deg, #8a6d1f, #6b5418);
+  background: linear-gradient(180deg, #2a63c8, #16346f);
   border-color: var(--accent);
   font-weight: bold;
   letter-spacing: 1px;
+  box-shadow: 0 0 14px rgba(45, 126, 255, 0.3), inset 0 1px 0 rgba(230, 236, 248, 0.25);
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: linear-gradient(180deg, #a5831f, #82661a);
+  background: linear-gradient(180deg, #3579e6, #1c4288);
+  border-color: var(--accent-bright);
+  box-shadow: 0 0 20px rgba(45, 126, 255, 0.45), inset 0 1px 0 rgba(230, 236, 248, 0.25);
 }
 
 .btn-back {

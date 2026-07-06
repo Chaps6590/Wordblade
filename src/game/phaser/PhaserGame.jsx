@@ -16,7 +16,7 @@ export function PhaserGame({ scenarioId }) {
       parent: containerRef.current,
       width: 800,
       height: 400,
-      backgroundColor: '#0e121c',
+      backgroundColor: '#050817',
       scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH

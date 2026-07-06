@@ -13,7 +13,7 @@
 }
 
 .scenario-name {
-  color: var(--accent);
+  color: var(--accent-bright);
   font-weight: bold;
   white-space: nowrap;
 }
@@ -94,7 +94,7 @@
 }
 
 .health-fill.high { background: var(--success); }
-.health-fill.mid { background: var(--accent); }
+.health-fill.mid { background: var(--amber); }
 .health-fill.low { background: var(--danger); }
 
 /* Escena Phaser */
@@ -103,7 +103,8 @@
   border: 2px solid var(--border);
   border-radius: 12px;
   overflow: hidden;
-  background: #0e121c;
+  background: var(--bg);
+  box-shadow: 0 0 24px rgba(45, 126, 255, 0.12);
 }
 
 .phaser-container canvas {
@@ -137,7 +138,8 @@
 
 .letter-tile:hover:not(:disabled) {
   transform: translateY(-3px);
-  border-color: var(--accent);
+  border-color: var(--accent-bright);
+  box-shadow: 0 0 10px rgba(45, 126, 255, 0.35);
 }
 
 .letter-tile:disabled { cursor: not-allowed; }
@@ -209,6 +211,7 @@
 .word-input input:focus {
   outline: none;
   border-color: var(--accent);
+  box-shadow: 0 0 12px rgba(45, 126, 255, 0.3);
 }
 
 .attack-btn {
@@ -241,7 +244,7 @@
 .log-effect { color: #a8e8a0; }
 .log-invalid { color: #999; font-style: italic; }
 .log-phase { color: var(--danger); font-weight: bold; }
-.log-end { color: var(--accent); font-weight: bold; }
+.log-end { color: var(--accent-bright); font-weight: bold; }
 
 /* Leyenda de habilidades */
 .skill-legend {
@@ -280,7 +283,7 @@
   margin-right: 0.4rem;
 }
 
-.skill-name { color: var(--accent); }
+.skill-name { color: var(--accent-bright); }
 .skill-points { color: var(--text-dim); }
 
 .legend-states {

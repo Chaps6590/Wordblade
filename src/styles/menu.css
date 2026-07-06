@@ -11,7 +11,7 @@
   border: 2px solid var(--border);
   border-radius: 16px;
   padding: 3rem 2.5rem;
-  box-shadow: 0 0 60px rgba(124, 92, 255, 0.15);
+  box-shadow: 0 0 60px rgba(45, 126, 255, 0.18), 0 0 120px rgba(124, 92, 255, 0.12);
 }
 
 .game-logo {
@@ -25,18 +25,24 @@
 
 .game-title {
   font-size: clamp(2.35rem, 11vw, 3.5rem);
-  color: var(--accent);
-  text-shadow: 0 2px 12px rgba(201, 162, 39, 0.4);
   letter-spacing: 4px;
   display: flex;
   flex-direction: column;
+  /* Acero pulido: degradado plateado con brillo azul rúnico */
+  background: linear-gradient(180deg, #f4f8ff 0%, var(--steel) 40%, #8fa3c8 62%, #e2eaf8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 14px var(--glow));
 }
 
 .game-subtitle {
   font-size: 1.4rem;
-  color: var(--text-dim);
+  color: var(--accent-bright);
   letter-spacing: 6px;
   margin-top: 0.3rem;
+  -webkit-text-fill-color: var(--accent-bright);
+  text-shadow: 0 0 12px var(--glow);
 }
 
 .game-tagline {
@@ -113,7 +119,7 @@
 }
 
 .diff-easy { color: var(--success); border-color: var(--success); }
-.diff-medium { color: var(--accent); border-color: var(--accent); }
+.diff-medium { color: var(--amber); border-color: var(--amber); }
 .diff-hard { color: var(--danger); border-color: var(--danger); }
 
 .scenario-desc {
@@ -146,7 +152,7 @@
   min-width: min(90vw, 480px);
 }
 
-.result-victory { border-color: var(--accent); box-shadow: 0 0 60px rgba(201, 162, 39, 0.25); }
+.result-victory { border-color: var(--accent); box-shadow: 0 0 60px rgba(45, 126, 255, 0.3); }
 .result-defeat { border-color: var(--danger); box-shadow: 0 0 60px rgba(224, 85, 85, 0.2); }
 
 .result-title {
@@ -154,7 +160,7 @@
   letter-spacing: 3px;
 }
 
-.result-victory .result-title { color: var(--accent); }
+.result-victory .result-title { color: var(--accent-bright); text-shadow: 0 0 18px var(--glow); }
 .result-defeat .result-title { color: var(--danger); }
 
 .result-scenario {
@@ -178,7 +184,7 @@
 .stat-value {
   font-size: 1.8rem;
   font-weight: bold;
-  color: var(--accent-2);
+  color: var(--accent-bright);
 }
 
 .stat-label {

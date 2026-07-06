@@ -26,11 +26,13 @@ export class BattleScene extends Phaser.Scene {
 
     // --- Kael (placeholder: caballero azul con espada) ---
     this.kael = this.add.container(180, 260)
-    const body = this.add.rectangle(0, 0, 50, 80, 0x3a6ea5).setStrokeStyle(2, 0xa8c7e8)
+    const body = this.add.rectangle(0, 0, 50, 80, 0x2a4a7a).setStrokeStyle(2, 0x8fb8e8)
     const head = this.add.circle(0, -55, 16, 0xd9b38c).setStrokeStyle(2, 0x8a6a4a)
-    const sword = this.add.rectangle(38, -10, 8, 60, 0xcccccc).setStrokeStyle(1, 0xffffff).setRotation(0.5)
+    // Espada de acero con filo rúnico azul, como el emblema del juego
+    const sword = this.add.rectangle(38, -10, 8, 60, 0xc9d4e6).setStrokeStyle(2, 0x2d7eff).setRotation(0.5)
+    this.tweens.add({ targets: sword, alpha: 0.75, duration: 1000, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' })
     this.kael.add([sword, body, head])
-    this.add.text(180, 320, 'KAEL', { fontFamily: 'monospace', fontSize: '14px', color: '#a8c7e8' }).setOrigin(0.5)
+    this.add.text(180, 320, 'KAEL', { fontFamily: 'monospace', fontSize: '14px', color: '#5cb2ff' }).setOrigin(0.5)
 
     // --- Enemigo (placeholder: garrapata = elipse con patas) ---
     const enemyColor = enemyDef?.color ?? 0x8a5a2b
@@ -70,8 +72,8 @@ export class BattleScene extends Phaser.Scene {
   }
 
   drawBackground(scenario) {
-    const top = scenario?.background?.top ?? 0x1c2333
-    const bottom = scenario?.background?.bottom ?? 0x0e121c
+    const top = scenario?.background?.top ?? 0x101b38
+    const bottom = scenario?.background?.bottom ?? 0x050817
     this.add.rectangle(W / 2, H / 4, W, H / 2, top)
     this.add.rectangle(W / 2, (3 * H) / 4, W, H / 2, bottom)
     // "Suelo"
@@ -120,7 +122,7 @@ export class BattleScene extends Phaser.Scene {
       yoyo: true,
       ease: 'Power2',
       onYoyo: () => {
-        showSlash(this, this.enemy.x - 20, this.enemy.y, { color: event.magic ? 0xffee55 : 0xffffff })
+        showSlash(this, this.enemy.x - 20, this.enemy.y, { color: event.magic ? 0xffee55 : 0xd6e6ff })
         showFloatingText(this, this.enemy.x, this.enemy.y - 70, `-${event.amount}`, {
           color: event.critical ? '#ffd700' : '#ff5555',
           fontSize: event.critical ? 32 : 24
