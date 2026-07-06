@@ -9,6 +9,7 @@ import { TimerBar } from '../components/TimerBar.jsx'
 import { HealthBar } from '../components/HealthBar.jsx'
 import { BattleLog } from '../components/BattleLog.jsx'
 import { SkillLegend } from '../components/SkillLegend.jsx'
+import { eventBus } from '../game/phaser/eventBus.js'
 
 export function BattlePage() {
   const { scenarioId } = useParams()
@@ -22,6 +23,7 @@ export function BattlePage() {
   const tick = useBattleStore((s) => s.tick)
 
   const [word, setWord] = useState('')
+  const [selectedTileIds, setSelectedTileIds] = useState([])
 
   // Iniciar batalla al entrar
   useEffect(() => {
@@ -54,13 +56,22 @@ export function BattlePage() {
   const playing = battle.status === 'playing'
 
   const handleTileClick = (tile) => {
-    if (!playing || tile.locked) return
-    setWord((w) => w + tile.value)
+    if (!playing || validating || tile.locked || selectedTileIds.includes(tile.id)) return
+    setWord((currentWord) => currentWord.length < 12 ? currentWord + tile.value : currentWord)
+    setSelectedTileIds((currentIds) => [...currentIds, tile.id])
   }
 
   const handleSubmit = (value) => {
     submitWord(value)
     setWord('')
+    setSelectedTileIds([])
+  }
+
+  const handleClear = () => {
+    if (!playing || validating || !word) return
+    setWord('')
+    setSelectedTileIds([])
+    eventBus.emit('battle-event', { kind: 'enemyLaugh' })
   }
 
   return (
@@ -91,11 +102,24 @@ export function BattlePage() {
 
       <section className="letters-row">
         {battle.letters.map((tile) => (
-          <LetterTile key={tile.id} tile={tile} onClick={handleTileClick} disabled={!playing} />
+          <LetterTile
+            key={tile.id}
+            tile={tile}
+            onClick={handleTileClick}
+            selected={selectedTileIds.includes(tile.id)}
+            disabled={!playing || validating}
+          />
         ))}
       </section>
 
-      <WordInput value={word} onChange={setWord} onSubmit={handleSubmit} disabled={!playing} busy={validating} />
+      <WordInput
+        value={word}
+        onChange={setWord}
+        onSubmit={handleSubmit}
+        onClear={handleClear}
+        disabled={!playing}
+        busy={validating}
+      />
 
       <div className="battle-bottom">
         <BattleLog entries={battle.battleLog} />

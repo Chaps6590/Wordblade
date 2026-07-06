@@ -88,6 +88,9 @@ export class BattleScene extends Phaser.Scene {
       case 'enemyAttack':
         this.animateEnemyAttack(event)
         break
+      case 'enemyLaugh':
+        this.animateEnemyLaugh()
+        break
       case 'effect':
         this.animateEffect(event)
         break
@@ -155,6 +158,27 @@ export class BattleScene extends Phaser.Scene {
         }
       },
       onComplete: () => { this.enemy.x = startX }
+    })
+  }
+
+  animateEnemyLaugh() {
+    showFloatingText(this, this.enemy.x, this.enemy.y - 75, '¡JA, JA, JA!', {
+      color: '#ffd166',
+      fontSize: 22
+    })
+    this.tweens.add({
+      targets: this.enemy,
+      angle: { from: -5, to: 5 },
+      scaleX: 1.12,
+      scaleY: 0.9,
+      duration: 90,
+      yoyo: true,
+      repeat: 3,
+      ease: 'Sine.easeInOut',
+      onComplete: () => {
+        this.enemy.setAngle(0)
+        this.enemy.setScale(1)
+      }
     })
   }
 

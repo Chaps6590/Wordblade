@@ -1,9 +1,9 @@
 import { useState } from 'react'
 
-// Input de palabra + botón Atacar. También expone appendLetter para
-// que las fichas clickeadas agreguen su letra.
+// La palabra se arma exclusivamente tocando fichas. El campo es de solo
+// lectura para no abrir el teclado ni permitir borrar letra por letra.
 
-export function WordInput({ onSubmit, disabled, busy, value, onChange }) {
+export function WordInput({ onSubmit, onClear, disabled, busy, value, onChange }) {
   const [internal, setInternal] = useState('')
   const word = value ?? internal
   const setWord = onChange ?? setInternal
@@ -20,14 +20,25 @@ export function WordInput({ onSubmit, disabled, busy, value, onChange }) {
       <input
         type="text"
         value={word}
-        onChange={(e) => setWord(e.target.value.toUpperCase())}
-        placeholder="Escribí una palabra..."
+        readOnly
+        inputMode="none"
+        onFocus={(event) => event.currentTarget.blur()}
+        placeholder="Tocá las letras..."
         disabled={disabled}
         autoComplete="off"
         autoCorrect="off"
         spellCheck={false}
         maxLength={12}
+        aria-label="Palabra formada con las fichas"
       />
+      <button
+        type="button"
+        className="btn clear-btn"
+        onClick={onClear}
+        disabled={disabled || busy || !word.trim()}
+      >
+        ✕ BORRAR
+      </button>
       <button type="submit" className="btn attack-btn" disabled={disabled || busy || !word.trim()}>
         {busy ? '⏳ VALIDANDO...' : '⚔ ATACAR'}
       </button>

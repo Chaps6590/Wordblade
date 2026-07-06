@@ -3,13 +3,14 @@ import { LETTER_DATA } from '../game/data/letters.js'
 // Ficha de letra. Estados visuales: normal, bloqueada (🔒 gris),
 // envenenada (verde) y maldita (violeta).
 
-export function LetterTile({ tile, onClick, disabled }) {
+export function LetterTile({ tile, onClick, disabled, selected = false }) {
   const data = LETTER_DATA[tile.value]
   const classes = ['letter-tile']
   if (tile.locked) classes.push('locked')
   if (tile.poisoned) classes.push('poisoned')
   if (tile.cursed) classes.push('cursed')
   if (data?.effect) classes.push('has-skill')
+  if (selected) classes.push('selected')
 
   const title = [
     `${tile.value} · ${data?.points ?? 1} pts`,
@@ -26,7 +27,7 @@ export function LetterTile({ tile, onClick, disabled }) {
       type="button"
       className={classes.join(' ')}
       onClick={() => onClick?.(tile)}
-      disabled={disabled || tile.locked}
+      disabled={disabled || tile.locked || selected}
       title={title}
     >
       <span className="letter-value">{tile.locked ? '🔒' : tile.value}</span>

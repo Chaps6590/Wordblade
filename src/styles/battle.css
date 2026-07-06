@@ -144,6 +144,12 @@
 
 .letter-tile:disabled { cursor: not-allowed; }
 
+.letter-tile.selected {
+  opacity: 0.35;
+  transform: translateY(4px) scale(0.94);
+  border-color: var(--accent-2);
+}
+
 .letter-value {
   font-size: 1.5rem;
   font-weight: bold;
@@ -212,6 +218,18 @@
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 12px rgba(45, 126, 255, 0.3);
+}
+
+.clear-btn {
+  border-color: rgba(224, 85, 85, 0.65);
+  color: #ff9d9d;
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.clear-btn:hover:not(:disabled) {
+  background: rgba(224, 85, 85, 0.18);
+  border-color: var(--danger);
 }
 
 .attack-btn {
@@ -296,6 +314,9 @@
 .state-cursed { color: var(--curse); }
 
 @media (max-width: 700px) {
+  .word-input { flex-wrap: wrap; }
+  .word-input input { flex-basis: 100%; max-width: none; }
+  .word-input .btn { flex: 1; }
   .battle-bottom { grid-template-columns: 1fr; }
   .skill-legend { max-width: none; }
 }

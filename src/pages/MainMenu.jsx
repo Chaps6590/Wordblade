@@ -1,5 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 
+const APP_VERSION = import.meta.env.VITE_APP_VERSION || '0.1.0+dev'
+
 export function MainMenu() {
   const navigate = useNavigate()
 
@@ -26,6 +28,7 @@ export function MainMenu() {
         </nav>
 
         <p className="menu-footer">“Primero mecánica divertida. Después arte, historia y expansión.”</p>
+        <p className="menu-version">v{APP_VERSION}</p>
       </div>
     </div>
   )
