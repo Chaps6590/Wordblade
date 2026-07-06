@@ -1,0 +1,222 @@
+/* Menú principal, selección de escenario y pantalla de resultados */
+
+.menu-page {
+  justify-content: center;
+  align-items: center;
+}
+
+.menu-panel {
+  text-align: center;
+  background: var(--bg-panel);
+  border: 2px solid var(--border);
+  border-radius: 16px;
+  padding: 3rem 2.5rem;
+  box-shadow: 0 0 60px rgba(124, 92, 255, 0.15);
+}
+
+.game-logo {
+  display: block;
+  width: clamp(150px, 42vw, 220px);
+  height: auto;
+  margin: -1.5rem auto 0.75rem;
+  border-radius: 24%;
+  filter: drop-shadow(0 0 22px rgba(45, 126, 255, 0.38));
+}
+
+.game-title {
+  font-size: clamp(2.35rem, 11vw, 3.5rem);
+  color: var(--accent);
+  text-shadow: 0 2px 12px rgba(201, 162, 39, 0.4);
+  letter-spacing: 4px;
+  display: flex;
+  flex-direction: column;
+}
+
+.game-subtitle {
+  font-size: 1.4rem;
+  color: var(--text-dim);
+  letter-spacing: 6px;
+  margin-top: 0.3rem;
+}
+
+.game-tagline {
+  margin: 0.8rem 0 2rem;
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+.menu-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  min-width: 260px;
+}
+
+.menu-footer {
+  margin-top: 2.5rem;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+@media (max-width: 480px) {
+  .menu-panel {
+    width: 100%;
+    padding: 2rem 1.25rem;
+  }
+
+  .game-subtitle {
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+  }
+
+  .menu-buttons {
+    min-width: 0;
+  }
+}
+
+/* Selección de escenario */
+.scenario-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+}
+
+.scenario-card {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.scenario-card header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.scenario-card h3 {
+  color: var(--text);
+  font-size: 1.1rem;
+}
+
+.difficulty {
+  font-size: 0.75rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid;
+  white-space: nowrap;
+}
+
+.diff-easy { color: var(--success); border-color: var(--success); }
+.diff-medium { color: var(--accent); border-color: var(--accent); }
+.diff-hard { color: var(--danger); border-color: var(--danger); }
+
+.scenario-desc {
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  flex: 1;
+}
+
+.scenario-stats {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+/* Resultados */
+.result-page {
+  justify-content: center;
+  align-items: center;
+}
+
+.result-panel {
+  background: var(--bg-panel);
+  border: 2px solid var(--border);
+  border-radius: 16px;
+  padding: 2rem 2.5rem;
+  text-align: center;
+  min-width: min(90vw, 480px);
+}
+
+.result-victory { border-color: var(--accent); box-shadow: 0 0 60px rgba(201, 162, 39, 0.25); }
+.result-defeat { border-color: var(--danger); box-shadow: 0 0 60px rgba(224, 85, 85, 0.2); }
+
+.result-title {
+  font-size: 2.2rem;
+  letter-spacing: 3px;
+}
+
+.result-victory .result-title { color: var(--accent); }
+.result-defeat .result-title { color: var(--danger); }
+
+.result-scenario {
+  color: var(--text-dim);
+  margin: 0.3rem 0 1.5rem;
+}
+
+.result-stats {
+  display: flex;
+  justify-content: center;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-value {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: var(--accent-2);
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.result-words {
+  text-align: left;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.8rem 1rem;
+  margin-bottom: 1.5rem;
+  max-height: 160px;
+  overflow-y: auto;
+}
+
+.result-words h3 {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.result-words ul {
+  list-style: none;
+  font-size: 0.9rem;
+}
+
+.result-words li { padding: 0.15rem 0; }
+.no-words { color: var(--text-dim); font-size: 0.9rem; }
+
+.result-buttons {
+  display: flex;
+  gap: 0.8rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}

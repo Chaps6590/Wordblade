@@ -1,0 +1,96 @@
+/* Estilos base: tema oscuro/fantasía */
+
+:root {
+  --bg: #12101a;
+  --bg-panel: #1c1928;
+  --bg-panel-2: #241f33;
+  --border: #3a3352;
+  --text: #e8e4f0;
+  --text-dim: #9a92b0;
+  --accent: #c9a227;
+  --accent-2: #7c5cff;
+  --danger: #e05555;
+  --success: #5fbf6f;
+  --poison: #6fbf5f;
+  --curse: #a565e0;
+  --shield: #5c9bff;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  min-height: 100vh;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  line-height: 1.4;
+}
+
+.page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 1rem;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.page-title {
+  text-align: center;
+  margin: 1rem 0 1.5rem;
+  color: var(--accent);
+  letter-spacing: 2px;
+}
+
+/* Botones */
+.btn {
+  background: var(--bg-panel-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.7rem 1.4rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s, border-color 0.15s;
+}
+
+.btn:hover:not(:disabled) {
+  background: var(--border);
+  border-color: var(--accent);
+}
+
+.btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: linear-gradient(180deg, #8a6d1f, #6b5418);
+  border-color: var(--accent);
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: linear-gradient(180deg, #a5831f, #82661a);
+}
+
+.btn-back {
+  align-self: center;
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}

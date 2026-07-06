@@ -1,0 +1,298 @@
+/* Pantalla de batalla */
+
+.battle-page {
+  gap: 0.7rem;
+  padding-bottom: 2rem;
+}
+
+.battle-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  justify-content: space-between;
+}
+
+.scenario-name {
+  color: var(--accent);
+  font-weight: bold;
+  white-space: nowrap;
+}
+
+.turn-counter {
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+/* Timer */
+.timer-bar {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.timer-label {
+  font-family: monospace;
+  font-size: 1.1rem;
+}
+
+.timer-track {
+  flex: 1;
+  height: 10px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.timer-fill {
+  height: 100%;
+  background: var(--accent);
+  transition: width 1s linear;
+}
+
+.timer-bar.danger .timer-fill { background: var(--danger); }
+.timer-bar.danger .timer-label { color: var(--danger); animation: pulse 1s infinite; }
+
+@keyframes pulse {
+  50% { opacity: 0.4; }
+}
+
+/* Barras de vida */
+.health-bar {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.5rem 0.8rem;
+}
+
+.health-bar.side-right { align-self: flex-end; width: min(100%, 380px); }
+.health-bar.side-left { align-self: flex-start; width: min(100%, 380px); }
+
+.health-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  margin-bottom: 0.3rem;
+}
+
+.health-name { font-weight: bold; }
+.shield-value { color: var(--shield); }
+
+.health-track {
+  height: 12px;
+  background: var(--bg);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.health-fill {
+  height: 100%;
+  transition: width 0.4s ease;
+  border-radius: 999px;
+}
+
+.health-fill.high { background: var(--success); }
+.health-fill.mid { background: var(--accent); }
+.health-fill.low { background: var(--danger); }
+
+/* Escena Phaser */
+.phaser-container {
+  width: 100%;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: #0e121c;
+}
+
+.phaser-container canvas {
+  display: block;
+  width: 100% !important;
+  height: auto !important;
+}
+
+/* Letras */
+.letters-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.letter-tile {
+  position: relative;
+  width: 58px;
+  height: 58px;
+  border-radius: 10px;
+  border: 2px solid var(--border);
+  background: linear-gradient(180deg, var(--bg-panel-2), var(--bg-panel));
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.1s, border-color 0.15s;
+}
+
+.letter-tile:hover:not(:disabled) {
+  transform: translateY(-3px);
+  border-color: var(--accent);
+}
+
+.letter-tile:disabled { cursor: not-allowed; }
+
+.letter-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+.letter-points {
+  position: absolute;
+  bottom: 2px;
+  right: 5px;
+  font-size: 0.65rem;
+  color: var(--text-dim);
+}
+
+.letter-badge {
+  position: absolute;
+  top: 1px;
+  right: 4px;
+  font-size: 0.7rem;
+}
+
+.letter-tile.has-skill { border-color: #57506e; box-shadow: inset 0 0 8px rgba(124, 92, 255, 0.25); }
+
+.letter-tile.locked {
+  background: #2a2a2e;
+  color: #666;
+  border-color: #444;
+  opacity: 0.7;
+}
+
+.letter-tile.poisoned {
+  border-color: var(--poison);
+  box-shadow: 0 0 10px rgba(111, 191, 95, 0.4);
+}
+
+.letter-tile.poisoned .letter-value { color: var(--poison); }
+
+.letter-tile.cursed {
+  border-color: var(--curse);
+  box-shadow: 0 0 10px rgba(165, 101, 224, 0.45);
+}
+
+.letter-tile.cursed .letter-value { color: var(--curse); }
+
+/* Input de palabra */
+.word-input {
+  display: flex;
+  gap: 0.6rem;
+  justify-content: center;
+}
+
+.word-input input {
+  flex: 1;
+  max-width: 320px;
+  background: var(--bg-panel);
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 1.2rem;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  padding: 0.6rem 1rem;
+  font-family: monospace;
+}
+
+.word-input input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.attack-btn {
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+
+/* Log + leyenda */
+.battle-bottom {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0.8rem;
+  align-items: start;
+}
+
+.battle-log {
+  background: #0b0a10;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.6rem 0.9rem;
+  height: 140px;
+  overflow-y: auto;
+  font-family: monospace;
+  font-size: 0.82rem;
+}
+
+.log-entry { padding: 0.1rem 0; color: var(--text-dim); }
+.log-player { color: #8fc7ff; }
+.log-enemy { color: #ff9d9d; }
+.log-effect { color: #a8e8a0; }
+.log-invalid { color: #999; font-style: italic; }
+.log-phase { color: var(--danger); font-weight: bold; }
+.log-end { color: var(--accent); font-weight: bold; }
+
+/* Leyenda de habilidades */
+.skill-legend {
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.5rem 0.9rem;
+  font-size: 0.8rem;
+  max-width: 300px;
+}
+
+.skill-legend summary {
+  cursor: pointer;
+  color: var(--text-dim);
+  user-select: none;
+}
+
+.skill-legend ul {
+  list-style: none;
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.skill-letter {
+  display: inline-block;
+  width: 1.4rem;
+  height: 1.4rem;
+  line-height: 1.4rem;
+  text-align: center;
+  background: var(--bg-panel-2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-weight: bold;
+  margin-right: 0.4rem;
+}
+
+.skill-name { color: var(--accent); }
+.skill-points { color: var(--text-dim); }
+
+.legend-states {
+  margin-top: 0.6rem;
+  color: var(--text-dim);
+}
+
+.state-locked { color: #888; }
+.state-poisoned { color: var(--poison); }
+.state-cursed { color: var(--curse); }
+
+@media (max-width: 700px) {
+  .battle-bottom { grid-template-columns: 1fr; }
+  .skill-legend { max-width: none; }
+}

@@ -1,0 +1,110 @@
+import { useEffect, useState } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import { useBattleStore } from '../game/state/useBattleStore.js'
+import { getScenario } from '../game/data/scenarios.js'
+import { PhaserGame } from '../game/phaser/PhaserGame.jsx'
+import { LetterTile } from '../components/LetterTile.jsx'
+import { WordInput } from '../components/WordInput.jsx'
+import { TimerBar } from '../components/TimerBar.jsx'
+import { HealthBar } from '../components/HealthBar.jsx'
+import { BattleLog } from '../components/BattleLog.jsx'
+import { SkillLegend } from '../components/SkillLegend.jsx'
+
+export function BattlePage() {
+  const { scenarioId } = useParams()
+  const navigate = useNavigate()
+  const scenario = getScenario(scenarioId)
+
+  const battle = useBattleStore((s) => s.battle)
+  const startBattle = useBattleStore((s) => s.startBattle)
+  const submitWord = useBattleStore((s) => s.submitWord)
+  const validating = useBattleStore((s) => s.validating)
+  const tick = useBattleStore((s) => s.tick)
+
+  const [word, setWord] = useState('')
+
+  // Iniciar batalla al entrar
+  useEffect(() => {
+    if (!scenario) {
+      navigate('/scenarios')
+      return
+    }
+    startBattle(scenarioId)
+  }, [scenarioId, scenario, startBattle, navigate])
+
+  // Timer
+  useEffect(() => {
+    const interval = setInterval(() => tick(), 1000)
+    return () => clearInterval(interval)
+  }, [tick])
+
+  // Al terminar la batalla, ir a resultados (con pausa para ver la animación)
+  const status = battle?.status
+  useEffect(() => {
+    if (status && status !== 'playing') {
+      const timeout = setTimeout(() => navigate('/result'), 2200)
+      return () => clearTimeout(timeout)
+    }
+  }, [status, navigate])
+
+  if (!battle || !scenario || battle.scenarioId !== scenarioId) {
+    return <div className="page battle-page">Cargando batalla...</div>
+  }
+
+  const playing = battle.status === 'playing'
+
+  const handleTileClick = (tile) => {
+    if (!playing || tile.locked) return
+    setWord((w) => w + tile.value)
+  }
+
+  const handleSubmit = (value) => {
+    submitWord(value)
+    setWord('')
+  }
+
+  return (
+    <div className="page battle-page">
+      <header className="battle-header">
+        <span className="scenario-name">{scenario.name}</span>
+        <TimerBar timeLeft={battle.timeLeft} totalTime={scenario.time} />
+        <span className="turn-counter">Turno {battle.turn}</span>
+      </header>
+
+      <HealthBar
+        name={battle.enemy.name}
+        hp={battle.enemy.hp}
+        maxHp={battle.enemy.maxHp}
+        shield={battle.enemy.shield}
+        side="right"
+      />
+
+      <PhaserGame scenarioId={scenarioId} />
+
+      <HealthBar
+        name={`${battle.player.name}  ${battle.player.energy > 0 ? `⚡${battle.player.energy}` : ''}`}
+        hp={battle.player.hp}
+        maxHp={battle.player.maxHp}
+        shield={battle.player.shield}
+        side="left"
+      />
+
+      <section className="letters-row">
+        {battle.letters.map((tile) => (
+          <LetterTile key={tile.id} tile={tile} onClick={handleTileClick} disabled={!playing} />
+        ))}
+      </section>
+
+      <WordInput value={word} onChange={setWord} onSubmit={handleSubmit} disabled={!playing} busy={validating} />
+
+      <div className="battle-bottom">
+        <BattleLog entries={battle.battleLog} />
+        <SkillLegend />
+      </div>
+
+      <button className="btn btn-back" onClick={() => navigate('/scenarios')}>
+        ← Abandonar batalla
+      </button>
+    </div>
+  )
+}
