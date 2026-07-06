@@ -10,18 +10,24 @@ import { refreshLetterRack, advanceTurn, checkBattleEnd } from './turnManager.js
 // el estado entra, se procesa el turno completo y salen los eventos
 // (para el log de React y las animaciones de Phaser).
 
-const DEFAULT_CHALLENGES = ['AVENTURA', 'CABALLOS', 'DIAMANTE', 'ELEFANTE', 'FANTASMA']
+const DEFAULT_CHALLENGES = {
+  8: ['AVENTURA', 'CABALLOS', 'DIAMANTE', 'ELEFANTE', 'FANTASMA'],
+  10: ['AVENTURERO', 'BIBLIOTECA', 'DICCIONARIO', 'MISTERIOSO', 'NATURALEZA']
+}
 const HIDDEN_WORD_BONUS = 35
 
-export function createBattleState(scenarioId, challengeWords = DEFAULT_CHALLENGES) {
+export function createBattleState(scenarioId, challengeWords = []) {
   const scenario = getScenario(scenarioId)
   if (!scenario) throw new Error(`Escenario desconocido: ${scenarioId}`)
   const enemyDef = getEnemyDef(scenario.enemyId)
   const validChallenges = challengeWords
-    .map(normalizeChallengeWord)
-    .filter((word) => word.length === scenario.hiddenWordLength)
-  const targets = validChallenges.length > 0 ? validChallenges : DEFAULT_CHALLENGES
+    .map((word) => String(word).trim().toLocaleUpperCase('es'))
+    .filter((word) => normalizeChallengeWord(word).length === scenario.hiddenWordLength)
+  const targets = validChallenges.length > 0
+    ? validChallenges
+    : (DEFAULT_CHALLENGES[scenario.hiddenWordLength] ?? DEFAULT_CHALLENGES[8])
   const hiddenWord = targets[0]
+  const supportWord = scenario.supportWordLength ? targets[1 % targets.length] : null
 
   return {
     scenarioId,
@@ -41,10 +47,14 @@ export function createBattleState(scenarioId, challengeWords = DEFAULT_CHALLENGE
       statuses: [],
       phaseIndex: 0
     },
-    letters: generateChallengeLetters(hiddenWord, scenario.extraLetterCount),
+    letters: generateChallengeLetters(hiddenWord, {
+      supportWord,
+      totalCount: scenario.letterCount
+    }),
     hiddenWord,
     hiddenWordLength: scenario.hiddenWordLength,
-    extraLetterCount: scenario.extraLetterCount,
+    supportWordLength: scenario.supportWordLength,
+    letterCount: scenario.letterCount,
     challengeWords: targets,
     challengeIndex: 0,
     playedWords: [],
@@ -113,10 +123,11 @@ function attackWithWord(state, { word, usedTiles }, events) {
 
   state.playedWords.push({ word, damage: totalDealt, points: damage.letterPoints })
   state.totalDamage += totalDealt
-  state.score += damage.letterPoints + damage.lengthBonus + secretBonus + (damage.isCritical ? 10 : 0)
+  state.score += damage.letterPoints + damage.lengthBonus + damage.tileBonusDamage + secretBonus + (damage.isCritical ? 10 : 0)
 
   let text = `Kael usó ${word} e hizo ${totalDealt} de daño.`
   if (foundHiddenWord) text = `¡PALABRA OCULTA DESCUBIERTA! +${secretBonus} de daño. ${text}`
+  if (damage.tileBonusDamage > 0) text += ` Fichas de color: +${damage.tileBonusDamage}.`
   if (damage.isCritical) text = `¡CRÍTICO! ${text} (usó todas las letras)`
   if (damage.cursedCount > 0) text += ` Las letras malditas redujeron el daño en ${damage.curseReduction}.`
   events.push({
@@ -125,6 +136,7 @@ function attackWithWord(state, { word, usedTiles }, events) {
     critical: damage.isCritical,
     magic: magicDamage > 0,
     secret: foundHiddenWord,
+    tileBonusDamage: damage.tileBonusDamage,
     word,
     text
   })

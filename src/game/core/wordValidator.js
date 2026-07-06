@@ -1,5 +1,4 @@
 import { wordExists, normalizeWord } from '../data/dictionary-es.js'
-import { WILDCARD_VALUE } from '../data/letters.js'
 import { checkWord } from '../../services/api.js'
 
 // Valida una palabra contra el diccionario y las letras disponibles.
@@ -34,7 +33,7 @@ export function validateWord(rawWord, tiles, playedWords) {
   return { valid: true, reason: null, word: displayWord(rawWord), usedTiles }
 }
 
-export async function validateWordHybrid(rawWord, tiles, playedWords, language = 'es') {
+export async function validateWordHybrid(rawWord, tiles, playedWords, language = 'es', trustedWords = []) {
   const word = normalizeWord(rawWord)
 
   if (word.length < 2) {
@@ -48,6 +47,13 @@ export async function validateWordHybrid(rawWord, tiles, playedWords, language =
   const usedTiles = matchTiles(word, tiles)
   if (usedTiles === null) {
     return invalid(word, 'No tenés las letras necesarias (o están bloqueadas).')
+  }
+
+  // Las palabras que armaron el tablero vienen de la API de desafíos y son
+  // válidas aunque el corrector ortográfico no tenga una palabra muy rara.
+  const trustedWord = trustedWords.find((candidate) => normalizeWord(candidate) === word)
+  if (trustedWord) {
+    return { valid: true, reason: null, word: displayWord(trustedWord), usedTiles }
   }
 
   // Ortografía vía backend (LanguageTool). Se consulta incluso cuando la
@@ -96,8 +102,7 @@ function matchTiles(word, tiles) {
   const used = []
 
   for (const char of word) {
-    let idx = available.findIndex((tile) => tile.value === char)
-    if (idx === -1) idx = available.findIndex((tile) => tile.value === WILDCARD_VALUE)
+    const idx = available.findIndex((tile) => tile.value === char)
     if (idx === -1) return null
     used.push(available[idx])
     available.splice(idx, 1)

@@ -6,7 +6,10 @@
 
 const API_ORIGIN = import.meta.env.VITE_API_URL ?? ''
 const BASE_URL = `${API_ORIGIN}/api`
-const FALLBACK_CHALLENGES = ['AVENTURA', 'CABALLOS', 'DIAMANTE', 'ELEFANTE', 'FANTASMA']
+const FALLBACK_CHALLENGES = {
+  8: ['AVENTURA', 'CABALLOS', 'DIAMANTE', 'ELEFANTE', 'FANTASMA'],
+  10: ['AVENTURERO', 'BIBLIOTECA', 'DICCIONARIO', 'MISTERIOSO', 'NATURALEZA']
+}
 
 export async function saveBattleResult(result) {
   try {
@@ -61,10 +64,12 @@ export async function getWordChallenges(length = 8, difficulty = 3) {
     const res = await fetch(`${BASE_URL}/words/challenge?${params}`)
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
     const data = await res.json()
-    return Array.isArray(data.words) && data.words.length > 0 ? data.words : FALLBACK_CHALLENGES
+    return Array.isArray(data.words) && data.words.length > 0
+      ? data.words
+      : (FALLBACK_CHALLENGES[length] ?? FALLBACK_CHALLENGES[8])
   } catch (err) {
     console.warn('No se pudieron cargar palabras secretas:', err.message)
-    return FALLBACK_CHALLENGES
+    return FALLBACK_CHALLENGES[length] ?? FALLBACK_CHALLENGES[8]
   }
 }
 

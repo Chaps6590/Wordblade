@@ -36,7 +36,13 @@ export const useBattleStore = create((set, get) => ({
     set({ validating: true })
     let validation = null
     try {
-      validation = await validateWordHybrid(rawWord, current.letters, current.playedWords, get().language)
+      validation = await validateWordHybrid(
+        rawWord,
+        current.letters,
+        current.playedWords,
+        get().language,
+        current.challengeWords
+      )
     } catch {
       validation = null // el motor valida en modo local
     }

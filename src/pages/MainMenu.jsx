@@ -19,12 +19,6 @@ export function MainMenu() {
           <button className="btn btn-primary" onClick={() => navigate('/scenarios')}>
             ⚔ Nueva Partida
           </button>
-          <button className="btn" onClick={() => navigate('/scenarios')}>
-            🗺 Escenarios
-          </button>
-          <button className="btn" disabled title="Próximamente">
-            ⚙ Opciones
-          </button>
         </nav>
 
         <p className="menu-footer">“Primero mecánica divertida. Después arte, historia y expansión.”</p>

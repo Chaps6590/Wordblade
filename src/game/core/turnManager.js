@@ -9,7 +9,13 @@ import { generateChallengeLetters } from '../data/letters.js'
 export function refreshLetterRack(state) {
   state.challengeIndex = (state.challengeIndex + 1) % state.challengeWords.length
   state.hiddenWord = state.challengeWords[state.challengeIndex]
-  state.letters = generateChallengeLetters(state.hiddenWord, state.extraLetterCount)
+  const supportWord = state.supportWordLength
+    ? state.challengeWords[(state.challengeIndex + 1) % state.challengeWords.length]
+    : null
+  state.letters = generateChallengeLetters(state.hiddenWord, {
+    supportWord,
+    totalCount: state.letterCount
+  })
 }
 
 // Reduce la duración de los bloqueos al final de cada turno completo.

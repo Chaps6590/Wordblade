@@ -20,6 +20,7 @@ export function SkillLegend() {
         <span className="state-poisoned">☠ envenenada</span> ·{' '}
         <span className="state-cursed">✦ maldita</span>
       </p>
+      <p className="legend-bonuses">Colores: azul +3 · violeta +5 · dorado +8 de daño</p>
     </details>
   )
 }

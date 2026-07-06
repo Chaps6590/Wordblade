@@ -27,11 +27,12 @@ export function calculateDamage(word, usedTiles, totalUsableTiles) {
   )
 
   const bonus = lengthBonus(word.length)
+  const tileBonusDamage = usedTiles.reduce((sum, tile) => sum + (tile.bonusDamage ?? 0), 0)
 
   // Crítico: usar TODAS las letras disponibles (no bloqueadas)
   const isCritical = usedTiles.length === totalUsableTiles && totalUsableTiles > 0
 
-  let total = letterPoints + bonus
+  let total = letterPoints + bonus + tileBonusDamage
   if (isCritical) total = Math.round(total * 1.5)
 
   const cursedCount = usedTiles.filter((t) => t.cursed).length
@@ -44,6 +45,7 @@ export function calculateDamage(word, usedTiles, totalUsableTiles) {
   return {
     letterPoints,
     lengthBonus: bonus,
+    tileBonusDamage,
     isCritical,
     cursedCount,
     curseReduction: beforeCurse - total,

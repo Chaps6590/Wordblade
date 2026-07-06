@@ -28,7 +28,7 @@ export function WordInput({ onSubmit, onClear, disabled, busy, value, onChange }
         autoComplete="off"
         autoCorrect="off"
         spellCheck={false}
-        maxLength={12}
+        maxLength={16}
         aria-label="Palabra formada con las fichas"
       />
       <button
