@@ -7,17 +7,25 @@ import { LETTER_DATA } from '../data/letters.js'
 
 export const CURSE_MULTIPLIER = 0.7 // cada letra maldita usada multiplica el daño por 0.7
 
+// Curva de bonus por longitud: las palabras largas deben sentirse
+// muy poderosas. 10+ es "ataque especial" y 12+ "ataque definitivo".
 export function lengthBonus(length) {
-  if (length >= 12) return 75
-  if (length === 11) return 60
-  if (length === 10) return 46
-  if (length === 9) return 34
-  if (length === 8) return 24
-  if (length === 7) return 15
-  if (length === 6) return 9
-  if (length >= 5) return 5
+  if (length >= 12) return 50
+  if (length >= 10) return 32
+  if (length === 9) return 24
+  if (length === 8) return 18
+  if (length === 7) return 12
+  if (length === 6) return 8
+  if (length === 5) return 5
   if (length === 4) return 2
   return 0
+}
+
+// Categoría del ataque según la longitud (para logs y animaciones)
+export function attackTier(length) {
+  if (length >= 12) return 'ultimate'
+  if (length >= 10) return 'special'
+  return 'basic'
 }
 
 export function calculateDamage(word, usedTiles, totalUsableTiles) {

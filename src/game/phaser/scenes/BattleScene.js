@@ -23,6 +23,7 @@ export class BattleScene extends Phaser.Scene {
     const enemyDef = scenario ? ENEMIES[scenario.enemyId] : null
 
     this.drawBackground(scenario)
+    this.addStageAmbience()
 
     // --- Kael (placeholder: caballero azul con espada) ---
     this.kael = this.add.container(180, 260)
@@ -74,10 +75,64 @@ export class BattleScene extends Phaser.Scene {
   drawBackground(scenario) {
     const top = scenario?.background?.top ?? 0x101b38
     const bottom = scenario?.background?.bottom ?? 0x050817
-    this.add.rectangle(W / 2, H / 4, W, H / 2, top)
-    this.add.rectangle(W / 2, (3 * H) / 4, W, H / 2, bottom)
+
+    // Degradado vertical por bandas entre el color de cielo y el de suelo
+    const topColor = Phaser.Display.Color.IntegerToColor(top)
+    const bottomColor = Phaser.Display.Color.IntegerToColor(bottom)
+    const bands = 8
+    for (let i = 0; i < bands; i++) {
+      const c = Phaser.Display.Color.Interpolate.ColorWithColor(topColor, bottomColor, bands - 1, i)
+      this.add.rectangle(W / 2, (i + 0.5) * (H / bands), W, H / bands + 1, Phaser.Display.Color.GetColor(c.r, c.g, c.b))
+    }
+
+    // Luna tenue y colinas lejanas en el horizonte
+    this.add.circle(660, 62, 42, 0xdfe8f7, 0.05)
+    this.add.circle(660, 62, 26, 0xdfe8f7, 0.07)
+    this.add.ellipse(150, H / 2 + 8, 360, 70, 0x000000, 0.18)
+    this.add.ellipse(620, H / 2 + 14, 460, 84, 0x000000, 0.22)
+
     // "Suelo"
     this.add.rectangle(W / 2, H - 30, W, 60, 0x000000, 0.25)
+  }
+
+  // Sombras, anillos rúnicos bajo los combatientes y motas de energía
+  addStageAmbience() {
+    this.add.ellipse(180, 308, 100, 18, 0x000000, 0.35)
+    this.add.ellipse(600, 302, 130, 20, 0x000000, 0.35)
+
+    const playerRing = this.add.ellipse(180, 308, 122, 28).setStrokeStyle(2, 0x2d7eff, 0.55)
+    const enemyRing = this.add.ellipse(600, 302, 152, 32).setStrokeStyle(2, 0xa565e0, 0.5)
+    for (const ring of [playerRing, enemyRing]) {
+      this.tweens.add({
+        targets: ring,
+        scaleX: 1.06,
+        scaleY: 1.14,
+        alpha: 0.4,
+        duration: 1400,
+        yoyo: true,
+        repeat: -1,
+        ease: 'Sine.easeInOut'
+      })
+    }
+
+    // Motas de energía flotando en el aire
+    for (let i = 0; i < 12; i++) {
+      const mote = this.add.circle(
+        Phaser.Math.Between(20, W - 20),
+        Phaser.Math.Between(40, H - 60),
+        Phaser.Math.Between(1, 2),
+        0x8fc7ff,
+        Phaser.Math.FloatBetween(0.15, 0.4)
+      )
+      this.tweens.add({
+        targets: mote,
+        y: mote.y - Phaser.Math.Between(25, 55),
+        alpha: 0,
+        duration: Phaser.Math.Between(2500, 5000),
+        repeat: -1,
+        delay: Phaser.Math.Between(0, 2000)
+      })
+    }
   }
 
   handleEvent(event) {

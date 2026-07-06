@@ -92,7 +92,16 @@ export function BattlePage() {
         side="right"
       />
 
-      <PhaserGame scenarioId={scenarioId} />
+      <div className="battle-stage">
+        <PhaserGame scenarioId={scenarioId} />
+        {word && (
+          <div className="word-preview" aria-hidden="true">
+            {word.split('').map((letter, i) => (
+              <span key={i} className="word-preview-tile">{letter}</span>
+            ))}
+          </div>
+        )}
+      </div>
 
       <HealthBar
         name={`${battle.player.name}  ${battle.player.energy > 0 ? `⚡${battle.player.energy}` : ''}`}
@@ -102,32 +111,34 @@ export function BattlePage() {
         side="left"
       />
 
-      <section className="hidden-word-challenge" aria-label={`Palabra oculta de ${battle.hiddenWordLength} letras`}>
-        <span>PALABRA OCULTA</span>
-        <strong>{'◆'.repeat(battle.hiddenWordLength)}</strong>
-        <small>Descubrila para sumar +35 de daño</small>
-      </section>
+      <section className="battle-console">
+        <section className="hidden-word-challenge" aria-label={`Palabra oculta de ${battle.hiddenWordLength} letras`}>
+          <span>PALABRA OCULTA</span>
+          <strong>{'◆'.repeat(battle.hiddenWordLength)}</strong>
+          <small>Descubrila para sumar +35 de daño</small>
+        </section>
 
-      <section className="letters-row">
-        {battle.letters.map((tile) => (
-          <LetterTile
-            key={tile.id}
-            tile={tile}
-            onClick={handleTileClick}
-            selected={selectedTileIds.includes(tile.id)}
-            disabled={!playing || validating}
-          />
-        ))}
-      </section>
+        <section className="letters-row">
+          {battle.letters.map((tile) => (
+            <LetterTile
+              key={tile.id}
+              tile={tile}
+              onClick={handleTileClick}
+              selected={selectedTileIds.includes(tile.id)}
+              disabled={!playing || validating}
+            />
+          ))}
+        </section>
 
-      <WordInput
-        value={word}
-        onChange={setWord}
-        onSubmit={handleSubmit}
-        onClear={handleClear}
-        disabled={!playing}
-        busy={validating}
-      />
+        <WordInput
+          value={word}
+          onChange={setWord}
+          onSubmit={handleSubmit}
+          onClear={handleClear}
+          disabled={!playing}
+          busy={validating}
+        />
+      </section>
 
       <div className="battle-bottom">
         <BattleLog entries={battle.battleLog} />

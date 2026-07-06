@@ -1,20 +1,24 @@
-import { wordExists, normalizeWord } from '../data/dictionary-es.js'
+import { normalizeWord } from '../data/dictionary-es.js'
 import { checkWord } from '../../services/api.js'
 
-// Valida una palabra contra el diccionario y las letras disponibles.
-// Devuelve { valid, reason, word, usedTiles } donde usedTiles son las
-// fichas concretas consumidas (cada ficha se usa una sola vez).
+// Validación de palabras. Devuelve { valid, reason, word, usedTiles }
+// donde usedTiles son las fichas concretas consumidas (cada ficha una vez).
 //
-// Hay dos modos:
-//  - validateWord: síncrona, solo diccionario local (fallback offline).
-//  - validateWordHybrid: consulta la ortografía completa en el backend
-//    (LanguageTool). El diccionario local solo se usa si no hay conexión.
+// El juego valida SOLO por API (LanguageTool vía backend): sin diccionario
+// local. Si la API no responde, la palabra no se acepta ni se rechaza:
+// se devuelve { retryable: true } y el jugador NO pierde el turno.
+//
+// validateWord (síncrona) queda únicamente para tests del motor: chequea
+// estructura y letras pero no consulta ortografía.
 
-export function validateWord(rawWord, tiles, playedWords) {
+export const MIN_WORD_LENGTH = 3
+
+// Chequeos que no necesitan red: longitud, repetida y letras disponibles.
+function validateStructure(rawWord, tiles, playedWords) {
   const word = normalizeWord(rawWord)
 
-  if (word.length < 2) {
-    return invalid(word, 'La palabra es demasiado corta.')
+  if (word.length < MIN_WORD_LENGTH) {
+    return invalid(word, `La palabra debe tener al menos ${MIN_WORD_LENGTH} letras.`)
   }
 
   if (playedWords.some((p) => normalizeWord(p.word) === word)) {
@@ -26,28 +30,20 @@ export function validateWord(rawWord, tiles, playedWords) {
     return invalid(word, 'No tenés las letras necesarias (o están bloqueadas).')
   }
 
-  if (!wordExists(word)) {
-    return invalid(word, `"${word}" no existe en el diccionario.`)
-  }
+  return { valid: true, word, usedTiles }
+}
 
-  return { valid: true, reason: null, word: displayWord(rawWord), usedTiles }
+// Solo para tests / motor sin red: NO valida existencia real.
+export function validateWord(rawWord, tiles, playedWords) {
+  const structure = validateStructure(rawWord, tiles, playedWords)
+  if (!structure.valid) return structure
+  return { valid: true, reason: null, word: displayWord(rawWord), usedTiles: structure.usedTiles }
 }
 
 export async function validateWordHybrid(rawWord, tiles, playedWords, language = 'es', trustedWords = []) {
-  const word = normalizeWord(rawWord)
-
-  if (word.length < 2) {
-    return invalid(word, 'La palabra es demasiado corta.')
-  }
-
-  if (playedWords.some((p) => normalizeWord(p.word) === word)) {
-    return invalid(word, `Ya usaste la palabra ${word}.`)
-  }
-
-  const usedTiles = matchTiles(word, tiles)
-  if (usedTiles === null) {
-    return invalid(word, 'No tenés las letras necesarias (o están bloqueadas).')
-  }
+  const structure = validateStructure(rawWord, tiles, playedWords)
+  if (!structure.valid) return structure
+  const { word, usedTiles } = structure
 
   // Las palabras que armaron el tablero vienen de la API de desafíos y son
   // válidas aunque el corrector ortográfico no tenga una palabra muy rara.
@@ -56,19 +52,22 @@ export async function validateWordHybrid(rawWord, tiles, playedWords, language =
     return { valid: true, reason: null, word: displayWord(trustedWord), usedTiles }
   }
 
-  // Ortografía vía backend (LanguageTool). Se consulta incluso cuando la
-  // palabra está en el fallback local para poder restaurar sus tildes.
+  // Existencia y ortografía SIEMPRE por API (LanguageTool vía backend).
   const spelling = await checkWord(String(rawWord).trim(), language)
 
   if (!spelling) {
-    if (wordExists(word)) {
-      return { valid: true, reason: null, word: displayWord(rawWord), usedTiles }
+    // API caída: ni válida ni inválida. El jugador no pierde el turno.
+    return {
+      valid: false,
+      retryable: true,
+      reason: 'No se pudo validar la palabra. Intentá nuevamente.',
+      word,
+      usedTiles: []
     }
-    return invalid(word, `No se pudo verificar "${word}" porque el validador no está disponible.`)
   }
 
   if (!spelling.isCorrect) {
-    let reason = `"${word}" está mal escrita.`
+    let reason = `"${word}" no existe o está mal escrita.`
     if (spelling.suggestions?.length > 0) {
       reason += ` ¿Quisiste decir: ${spelling.suggestions.join(', ')}?`
     }
@@ -77,8 +76,7 @@ export async function validateWordHybrid(rawWord, tiles, playedWords, language =
     return result
   }
 
-  // LanguageTool la reconoce como correcta: se acepta aunque todavía
-  // no forme parte del pequeño diccionario disponible sin conexión.
+  // LanguageTool la reconoce como correcta (y restaura tildes: CAMION -> CAMIÓN)
   return {
     valid: true,
     reason: null,

@@ -8,12 +8,16 @@ export const EFFECT_VALUES = {
   heal: 4,           // HP por cada A
   shield: 3,         // escudo por cada O
   quick: 2,          // daño extra por cada S
+  heavy: 4,          // daño contundente por cada M
+  ancestral: 12,     // daño ancestral por cada Ñ (ignora escudo)
   lightning: 15,     // daño mágico por cada Z (ignora escudo)
   energyThreshold: 5,
   energyBurst: 10,   // daño extra al consumir 5 de energía
   poisonTileDamage: 3, // daño a Kael por usar una letra envenenada
   bleed: { damage: 2, turns: 3 },
-  poison: { damage: 3, turns: 4 }
+  poison: { damage: 3, turns: 4 },
+  burn: { damage: 2, turns: 3, attackPenalty: 2 }, // quemadura de la F
+  defenseBroken: { damage: 0, turns: 2 } // la T anula la defensa enemiga
 }
 
 export function applyLetterEffects(state, usedTiles) {
@@ -49,10 +53,31 @@ export function applyLetterEffects(state, usedTiles) {
         break
       }
       case 'break': {
-        if (enemy.shield > 0) {
+        const brokeSomething = enemy.shield > 0
+        if (brokeSomething) {
           effects.push({ type: 'break', letter: tile.value, amount: enemy.shield, text: `La T rompió la defensa enemiga (${enemy.shield} de escudo destruido).` })
           enemy.shield = 0
         }
+        // Además anula la defensa/armadura del enemigo por unos turnos
+        addStatus(enemy, 'defenseBroken', EFFECT_VALUES.defenseBroken)
+        if (!brokeSomething) {
+          effects.push({ type: 'break', letter: tile.value, text: 'La T quebró la armadura enemiga por 2 turnos.' })
+        }
+        break
+      }
+      case 'heavy': {
+        extraPhysical += EFFECT_VALUES.heavy
+        effects.push({ type: 'heavy', letter: tile.value, amount: EFFECT_VALUES.heavy, text: `Golpe pesado de la M: +${EFFECT_VALUES.heavy} de daño.` })
+        break
+      }
+      case 'burn': {
+        addStatus(enemy, 'burn', EFFECT_VALUES.burn)
+        effects.push({ type: 'burn', letter: tile.value, text: 'La F prendió fuego al enemigo (y reduce su ataque).' })
+        break
+      }
+      case 'ancestral': {
+        magicDamage += EFFECT_VALUES.ancestral
+        effects.push({ type: 'ancestral', letter: tile.value, amount: EFFECT_VALUES.ancestral, text: `¡La Ñ desató un poder ancestral! +${EFFECT_VALUES.ancestral} de daño mágico.` })
         break
       }
       case 'bleed': {
@@ -100,14 +125,21 @@ export function addStatus(target, type, { damage, turns }) {
   }
 }
 
-// Aplica daño por estados (sangrado/veneno) al inicio del turno enemigo.
-// Devuelve los ticks aplicados para el log.
+export function hasStatus(target, type) {
+  return target.statuses.some((s) => s.type === type)
+}
+
+// Aplica daño por estados (sangrado/veneno/quemadura) al inicio del turno
+// enemigo. Los estados sin daño (aturdimiento, defensa rota) solo
+// descuentan turnos. Devuelve los ticks con daño para el log.
 export function tickStatuses(target) {
   const ticks = []
   for (const status of target.statuses) {
-    target.hp = Math.max(0, target.hp - status.damage)
+    if (status.damage > 0) {
+      target.hp = Math.max(0, target.hp - status.damage)
+      ticks.push({ type: status.type, amount: status.damage })
+    }
     status.turns -= 1
-    ticks.push({ type: status.type, amount: status.damage })
   }
   target.statuses = target.statuses.filter((s) => s.turns > 0)
   return ticks
