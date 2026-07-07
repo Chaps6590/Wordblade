@@ -193,7 +193,9 @@
   position: relative;
   z-index: 2;
   display: grid;
-  grid-template-columns: minmax(260px, 1fr) minmax(440px, 42vw);
+  /* Las mode-cards (el CTA principal) llevan algo más de ancho que el héroe,
+     que antes se quedaba con una columna enorme y flotaba con aire a los lados. */
+  grid-template-columns: minmax(240px, 0.9fr) minmax(500px, 1.1fr);
   gap: clamp(1rem, 2.5vw, 2.4rem);
   align-items: end;
   min-height: 0;
@@ -203,8 +205,8 @@
 .home-hero-stage {
   align-self: end;
   justify-self: center;
-  width: min(100%, clamp(300px, 34vw, 540px));
-  height: min(56vh, 540px);
+  width: min(100%, clamp(280px, 30vw, 470px));
+  height: min(56vh, 500px);
   max-height: 100%;
   display: grid;
   place-items: end center;
