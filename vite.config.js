@@ -17,7 +17,10 @@ function getCommitVersion() {
   if (environmentCommit) return environmentCommit.slice(0, 7)
 
   try {
-    return execSync('git rev-parse --short=7 HEAD', { encoding: 'utf8' }).trim()
+    return execSync('git rev-parse --short=7 HEAD', {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore']
+    }).trim()
   } catch {
     // Si el proveedor no incluye .git, el identificador igualmente cambia
     // en cada build y evita publicar dos versiones indistinguibles.
