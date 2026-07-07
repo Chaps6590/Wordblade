@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/useAuth.js'
+import { PwaInstallButton } from '../components/PwaInstallButton.jsx'
 import { HERO_BY_RACE } from '../game/data/heroes.js'
 import { INITIAL_SCENARIO_ID } from '../game/data/scenarios.js'
 
@@ -45,6 +46,8 @@ export function MainMenu() {
             Cerrar sesión
           </button>
         </nav>
+
+        <PwaInstallButton />
 
         <p className="menu-footer">“Primero mecánica divertida. Después arte, historia y expansión.”</p>
         <p className="menu-version">v{APP_VERSION}</p>

@@ -338,6 +338,34 @@
   color: var(--text-dim);
 }
 
+.install-card {
+  display: grid;
+  gap: 0.55rem;
+  margin: 1rem auto 0;
+  width: min(100%, 320px);
+}
+
+.install-btn {
+  min-height: 44px;
+  border-color: rgba(216, 166, 62, 0.65);
+  color: #ffd166;
+  background:
+    linear-gradient(180deg, rgba(80, 54, 20, 0.72), rgba(24, 17, 18, 0.82)),
+    var(--bg-panel-2);
+  font-weight: 800;
+}
+
+.install-btn:hover:not(:disabled) {
+  border-color: #ffd166;
+  box-shadow: 0 0 16px rgba(216, 166, 62, 0.24);
+}
+
+.install-card p {
+  color: var(--text-dim);
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
 @keyframes heroIdle {
   0%, 100% { transform: translateY(0) scale(1); }
   50% { transform: translateY(-5px) scale(1.015); }
