@@ -96,7 +96,10 @@ export function BattlePage() {
   return (
     <div className="page battle-page">
       <header className="battle-header">
-        <span className="scenario-name">{scenario.name}</span>
+        <span className="scenario-name">
+          {scenario.mapPoint ?? scenario.name}
+          {battle.encounterLabel ? <small>{battle.encounterLabel}</small> : null}
+        </span>
         <TimerBar timeLeft={battle.timeLeft} totalTime={scenario.time} />
         <span className="turn-counter">Turno {battle.turn}</span>
       </header>

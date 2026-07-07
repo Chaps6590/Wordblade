@@ -1,4 +1,4 @@
-import { getScenario } from '../data/scenarios.js'
+import { getScenario, getScenarioEncounter } from '../data/scenarios.js'
 import { generateChallengeLetters, normalizeChallengeWord } from '../data/letters.js'
 import { validateWord } from './wordValidator.js'
 import { calculateDamage, attackTier } from './damageCalculator.js'
@@ -35,13 +35,18 @@ function generationStrategy(scenario) {
 export function createBattleState(scenarioId, challengeWords = []) {
   const scenario = getScenario(scenarioId)
   if (!scenario) throw new Error(`Escenario desconocido: ${scenarioId}`)
-  const enemyDef = getEnemyDef(scenario.enemyId)
+  const encounterIndex = 0
+  const encounter = getScenarioEncounter(scenario, encounterIndex)
+  const enemyDef = getEnemyDef(encounter.enemyId)
   const targets = pickChallenges(scenario, challengeWords)
   const hiddenWord = targets[0]
   const supportWord = scenario.supportWordLength ? targets[1 % targets.length] : null
 
   return {
     scenarioId,
+    encounterIndex,
+    encounterCount: scenario.encounters?.length ?? 1,
+    encounterLabel: encounter.label,
     player: {
       name: 'Kael',
       hp: 100,
@@ -76,7 +81,10 @@ export function createBattleState(scenarioId, challengeWords = []) {
     timeLeft: scenario.time,
     score: 0,
     totalDamage: 0,
-    battleLog: [{ text: `¡Comienza la batalla contra ${enemyDef.name}!`, kind: 'info' }],
+    battleLog: [
+      { text: scenario.mapPoint ? `📍 ${scenario.mapPoint}` : scenario.name, kind: 'info' },
+      { text: encounter.intro ?? `¡Comienza la batalla contra ${enemyDef.name}!`, kind: 'info' }
+    ],
     status: 'playing'
   }
 }

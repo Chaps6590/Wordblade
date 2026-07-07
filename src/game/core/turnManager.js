@@ -1,4 +1,5 @@
-import { generateChallengeLetters } from '../data/letters.js'
+import { getScenario, getScenarioEncounter } from '../data/scenarios.js'
+import { getEnemyDef } from './enemyAI.js'
 
 // Manejo del avance de turnos: reposición de letras usadas,
 // reducción de bloqueos y detección de fin de batalla.
@@ -41,8 +42,38 @@ export function checkBattleEnd(state, events) {
   if (state.status !== 'playing') return true
 
   if (state.enemy.hp <= 0) {
+    const scenario = getScenario(state.scenarioId)
+    const nextEncounterIndex = (state.encounterIndex ?? 0) + 1
+    const nextEncounter = getScenarioEncounter(scenario, nextEncounterIndex)
+
+    if (nextEncounter?.enemyId) {
+      const defeatedName = state.enemy.name
+      const nextEnemyDef = getEnemyDef(nextEncounter.enemyId)
+      state.encounterIndex = nextEncounterIndex
+      state.encounterLabel = nextEncounter.label
+      state.enemy = {
+        id: nextEnemyDef.id,
+        name: nextEnemyDef.name,
+        hp: nextEnemyDef.maxHp,
+        maxHp: nextEnemyDef.maxHp,
+        shield: 0,
+        statuses: [],
+        phaseIndex: 0
+      }
+      refreshLetterRack(state)
+
+      events.push({ kind: 'encounterComplete', text: `¡${defeatedName} fue derrotada!` })
+      events.push({
+        kind: 'enemySpawn',
+        enemyId: nextEnemyDef.id,
+        enemyName: nextEnemyDef.name,
+        text: nextEncounter.intro ?? `¡Aparece ${nextEnemyDef.name}!`
+      })
+      return true
+    }
+
     state.status = 'victory'
-    events.push({ kind: 'end', text: `¡${state.enemy.name} fue derrotada! Victoria de Kael.` })
+    events.push({ kind: 'end', text: `¡${state.enemy.name} fue derrotada! Nivel completado.` })
     return true
   }
   if (state.player.hp <= 0) {

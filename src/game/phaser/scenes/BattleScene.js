@@ -3,7 +3,7 @@ import { eventBus } from '../eventBus.js'
 import { showFloatingText } from '../effects/damageText.js'
 import { showSlash } from '../effects/slashEffect.js'
 import { screenShake } from '../effects/screenShake.js'
-import { getScenario } from '../../data/scenarios.js'
+import { getScenario, getScenarioEncounter } from '../../data/scenarios.js'
 import { ENEMIES } from '../../data/enemies.js'
 
 // Escena de batalla: SOLO renderiza y anima. La lógica vive en game/core.
@@ -17,10 +17,19 @@ export class BattleScene extends Phaser.Scene {
     super('BattleScene')
   }
 
+  preload() {
+    const scenarioId = this.registry.get('scenarioId')
+    const scenario = getScenario(scenarioId)
+
+    if (scenario?.backgroundImage) {
+      this.load.image(`scenario-bg-${scenario.id}`, scenario.backgroundImage)
+    }
+  }
+
   create() {
     const scenarioId = this.registry.get('scenarioId')
     const scenario = getScenario(scenarioId)
-    const enemyDef = scenario ? ENEMIES[scenario.enemyId] : null
+    const enemyDef = scenario ? ENEMIES[getScenarioEncounter(scenario, 0).enemyId] : null
 
     this.drawBackground(scenario)
     this.addStageAmbience()
@@ -35,34 +44,11 @@ export class BattleScene extends Phaser.Scene {
     this.kael.add([sword, body, head])
     this.add.text(180, 320, 'KAEL', { fontFamily: 'monospace', fontSize: '14px', color: '#5cb2ff' }).setOrigin(0.5)
 
-    // --- Enemigo (placeholder: garrapata = elipse con patas) ---
-    const enemyColor = enemyDef?.color ?? 0x8a5a2b
-    const isBoss = enemyDef?.boss ?? false
-    const scale = isBoss ? 1.5 : 1
-    this.enemy = this.add.container(600, 220)
-    const tickBody = this.add.ellipse(0, 0, 90 * scale, 65 * scale, enemyColor).setStrokeStyle(3, 0x000000, 0.4)
-    const tickHead = this.add.circle(-52 * scale, 8 * scale, 16 * scale, enemyColor).setStrokeStyle(2, 0x000000, 0.4)
-    const eye = this.add.circle(-56 * scale, 4 * scale, 4 * scale, 0xff3333)
-    this.enemy.add([tickBody, tickHead, eye])
-    for (const side of [-1, 1]) {
-      for (let i = 0; i < 3; i++) {
-        const leg = this.add
-          .rectangle((-25 + i * 25) * scale, side * 34 * scale, 5, 24 * scale, enemyColor)
-          .setRotation(side * 0.35)
-        this.enemy.add(leg)
-      }
-    }
-    if (isBoss) {
-      const crown = this.add.triangle(0, -55 * scale, 0, 20, 15, 0, 30, 20, 0xd4af37)
-      this.enemy.add(crown)
-    }
-    this.add.text(600, 320, (enemyDef?.name ?? 'ENEMIGO').toUpperCase(), {
-      fontFamily: 'monospace', fontSize: '14px', color: '#e8a8a8'
-    }).setOrigin(0.5)
+    this.createEnemy(enemyDef)
 
     // Animaciones idle (flotar suave)
     this.tweens.add({ targets: this.kael, y: 255, duration: 1200, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' })
-    this.tweens.add({ targets: this.enemy, y: 215, duration: 900, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' })
+    this.startEnemyIdle()
 
     // Escuchar eventos del motor
     this.onBattleEvent = (event) => this.handleEvent(event)
@@ -73,6 +59,20 @@ export class BattleScene extends Phaser.Scene {
   }
 
   drawBackground(scenario) {
+    const backgroundKey = scenario?.backgroundImage ? `scenario-bg-${scenario.id}` : null
+    if (backgroundKey && this.textures.exists(backgroundKey)) {
+      const background = this.add.image(W / 2, H / 2, backgroundKey)
+      const scale = Math.max(W / background.width, H / background.height)
+      background
+        .setScale(scale)
+        .setDepth(-20)
+
+      // Viñeta suave para que personajes, textos flotantes y efectos lean mejor.
+      this.add.rectangle(W / 2, H / 2, W, H, 0x020714, 0.2).setDepth(-19)
+      this.add.rectangle(W / 2, H - 45, W, 90, 0x000000, 0.22).setDepth(-18)
+      return
+    }
+
     const top = scenario?.background?.top ?? 0x101b38
     const bottom = scenario?.background?.bottom ?? 0x050817
 
@@ -146,6 +146,9 @@ export class BattleScene extends Phaser.Scene {
       case 'enemyLaugh':
         this.animateEnemyLaugh()
         break
+      case 'enemySpawn':
+        this.time.delayedCall(520, () => this.animateEnemySpawn(event))
+        break
       case 'effect':
         this.animateEffect(event)
         break
@@ -169,6 +172,111 @@ export class BattleScene extends Phaser.Scene {
         this.showEndOverlay(event.text)
         break
     }
+  }
+
+  createEnemy(enemyDef) {
+    if (this.enemyIdleTween) this.enemyIdleTween.stop()
+    if (this.enemy) this.enemy.destroy()
+    if (this.enemyNameLabel) this.enemyNameLabel.destroy()
+
+    const enemyColor = enemyDef?.color ?? 0x8a5a2b
+    const isBoss = enemyDef?.boss ?? false
+    const scale = isBoss ? 1.35 : 1
+    this.enemy = this.add.container(600, 220).setAlpha(1)
+
+    switch (enemyDef?.spriteKind) {
+      case 'spider':
+        this.drawSpiderEnemy(enemyColor, scale)
+        break
+      case 'serpent':
+        this.drawSerpentEnemy(enemyColor, scale)
+        break
+      case 'tick':
+      default:
+        this.drawTickEnemy(enemyColor, scale, isBoss)
+        break
+    }
+
+    this.enemyNameLabel = this.add.text(600, 320, (enemyDef?.name ?? 'ENEMIGO').toUpperCase(), {
+      fontFamily: 'monospace', fontSize: '14px', color: isBoss ? '#ffd166' : '#e8a8a8'
+    }).setOrigin(0.5)
+  }
+
+  drawTickEnemy(enemyColor, scale, isBoss) {
+    const tickBody = this.add.ellipse(0, 0, 90 * scale, 65 * scale, enemyColor).setStrokeStyle(3, 0x000000, 0.4)
+    const tickHead = this.add.circle(-52 * scale, 8 * scale, 16 * scale, enemyColor).setStrokeStyle(2, 0x000000, 0.4)
+    const eye = this.add.circle(-56 * scale, 4 * scale, 4 * scale, 0xff3333)
+    this.enemy.add([tickBody, tickHead, eye])
+    for (const side of [-1, 1]) {
+      for (let i = 0; i < 3; i++) {
+        this.enemy.add(
+          this.add
+            .rectangle((-25 + i * 25) * scale, side * 34 * scale, 5, 24 * scale, enemyColor)
+            .setRotation(side * 0.35)
+        )
+      }
+    }
+    if (isBoss) this.enemy.add(this.add.triangle(0, -55 * scale, 0, 20, 15, 0, 30, 20, 0xd4af37))
+  }
+
+  drawSpiderEnemy(enemyColor, scale) {
+    const abdomen = this.add.ellipse(16, 8, 105 * scale, 78 * scale, enemyColor).setStrokeStyle(3, 0x111111, 0.55)
+    const thorax = this.add.circle(-48 * scale, 2, 32 * scale, enemyColor).setStrokeStyle(3, 0x111111, 0.55)
+    const eyeLeft = this.add.circle(-60 * scale, -7 * scale, 5 * scale, 0x88ff66)
+    const eyeRight = this.add.circle(-48 * scale, -9 * scale, 5 * scale, 0x88ff66)
+    this.enemy.add([abdomen, thorax, eyeLeft, eyeRight])
+    for (const side of [-1, 1]) {
+      for (let i = 0; i < 4; i++) {
+        const x = (-42 + i * 28) * scale
+        const leg = this.add.rectangle(x, side * 44 * scale, 7 * scale, 38 * scale, enemyColor).setRotation(side * (0.65 - i * 0.12))
+        this.enemy.add(leg)
+      }
+    }
+  }
+
+  drawSerpentEnemy(enemyColor, scale) {
+    for (let i = 0; i < 6; i++) {
+      const segment = this.add
+        .ellipse((-70 + i * 28) * scale, Math.sin(i * 0.9) * 18 * scale, 58 * scale, 38 * scale, enemyColor)
+        .setStrokeStyle(2, 0x0b1d0f, 0.5)
+      this.enemy.add(segment)
+    }
+    const head = this.add.triangle(96 * scale, -8 * scale, 0, 38, 70, 0, 0, -38, enemyColor).setStrokeStyle(3, 0x0b1d0f, 0.6)
+    const eye = this.add.circle(112 * scale, -18 * scale, 5 * scale, 0xffee55)
+    const fang = this.add.triangle(118 * scale, 12 * scale, 0, 0, 10, 0, 5, 22, 0xf4f8ff)
+    this.enemy.add([head, eye, fang])
+  }
+
+  startEnemyIdle() {
+    if (!this.enemy) return
+    this.enemyIdleTween = this.tweens.add({
+      targets: this.enemy,
+      y: 215,
+      duration: 900,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut'
+    })
+  }
+
+  animateEnemySpawn(event) {
+    showFloatingText(this, 600, 120, event.enemyName ?? '¡Nuevo enemigo!', {
+      color: '#ffd166',
+      fontSize: 20
+    })
+    this.flash(0x5cb2ff)
+    const enemyDef = ENEMIES[event.enemyId]
+    this.createEnemy(enemyDef)
+    this.enemy.setAlpha(0).setScale(0.65)
+    this.startEnemyIdle()
+    this.tweens.add({
+      targets: this.enemy,
+      alpha: 1,
+      scale: 1,
+      duration: 450,
+      ease: 'Back.easeOut'
+    })
+    screenShake(this, { intensity: enemyDef?.boss ? 0.014 : 0.007, duration: 250 })
   }
 
   animatePlayerAttack(event) {

@@ -31,10 +31,43 @@ export const ENEMIES = {
     maxHp: 60,
     attack: 5,
     color: 0x8a5a2b,
+    spriteKind: 'tick',
     abilities: {
       blockEvery: 4,
       blockCount: 1,
       blockDuration: 1
+    }
+  },
+
+  forest_spider: {
+    id: 'forest_spider',
+    name: 'Araña del Bosque',
+    maxHp: 105,
+    attack: 8,
+    color: 0x3a3a4a,
+    spriteKind: 'spider',
+    abilities: {
+      blockEvery: 3,
+      blockCount: 1,
+      blockDuration: 2,
+      poisonCount: 1,
+      restoreVowelOnLength: 6
+    }
+  },
+
+  giant_serpent: {
+    id: 'giant_serpent',
+    name: 'Serpiente Gigante',
+    maxHp: 175,
+    attack: 11,
+    color: 0x2f7a45,
+    boss: true,
+    spriteKind: 'serpent',
+    abilities: {
+      poisonCount: 1,
+      curseVowelChance: 0.25,
+      shortWordPenalty: { maxLength: 4, multiplier: 0.7 },
+      stunOnWordLength: 9
     }
   },
 

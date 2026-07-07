@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/useAuth.js'
 import { HERO_BY_RACE } from '../game/data/heroes.js'
+import { INITIAL_SCENARIO_ID } from '../game/data/scenarios.js'
 
 const APP_VERSION = import.meta.env.VITE_APP_VERSION || '0.1.0+dev'
 
@@ -34,7 +35,7 @@ export function MainMenu() {
         ) : null}
 
         <nav className="menu-buttons">
-          <button className="btn btn-primary" onClick={() => navigate('/scenarios')}>
+          <button className="btn btn-primary" onClick={() => navigate(`/battle/${INITIAL_SCENARIO_ID}`)}>
             ⚔ Nueva Partida
           </button>
           <button className="btn" onClick={() => navigate('/multiplayer')}>

@@ -18,6 +18,15 @@
   font-weight: bold;
   white-space: nowrap;
   text-shadow: 0 0 10px var(--glow);
+  display: grid;
+  gap: 0.1rem;
+}
+
+.scenario-name small {
+  color: var(--text-dim);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .turn-counter {

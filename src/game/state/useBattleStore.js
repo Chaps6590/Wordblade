@@ -93,7 +93,7 @@ export const useBattleStore = create((set, get) => ({
     if (!scenario) return
 
     set({ pending: 'loading_words', validating: true })
-    const words = await fetchWordChallengesStrict(scenario.hiddenWordLength, scenario.wordDifficulty)
+    const words = await fetchWordChallengesStrict(current.hiddenWordLength ?? scenario.hiddenWordLength, scenario.wordDifficulty)
 
     const latest = get().battle
     if (!latest || latest.status !== 'playing') {

@@ -14,7 +14,7 @@ export function ScenarioSelect() {
 
   return (
     <div className="page scenarios-page">
-      <h2 className="page-title">Elegí un escenario</h2>
+      <h2 className="page-title">Nivel inicial</h2>
 
       <div className="scenario-list">
         {SCENARIOS.map((scenario) => {
