@@ -14,8 +14,8 @@ const W = 800
 const H = 400
 const PLAYER_TEXTURE_KEY = 'player-kael'
 const PLAYER_SPRITE = HERO_BY_RACE.LOBO.portrait
-const PLAYER_BASE = { x: 190, y: 332 }
-const ENEMY_BASE = { x: 610, y: 328 }
+const PLAYER_BASE = { x: 170, y: 304 }
+const ENEMY_BASE = { x: 630, y: 304 }
 
 export class BattleScene extends Phaser.Scene {
   constructor() {
@@ -67,7 +67,7 @@ export class BattleScene extends Phaser.Scene {
     this.kael.setData('baseY', PLAYER_BASE.y)
 
     const sprite = this.add.image(0, 0, PLAYER_TEXTURE_KEY)
-    const fitScale = Math.min(210 / sprite.width, 250 / sprite.height)
+    const fitScale = Math.min(198 / sprite.width, 235 / sprite.height)
 
     sprite
       .setScale(fitScale)
@@ -191,8 +191,8 @@ export class BattleScene extends Phaser.Scene {
   drawEnemyImage(enemyDef) {
     const textureKey = this.enemyTextureKey(enemyDef.id)
     const image = this.add.image(0, enemyDef.spriteScale?.offsetY ?? 0, textureKey)
-    const maxWidth = enemyDef.spriteScale?.maxWidth ?? (enemyDef.boss ? 260 : 220)
-    const maxHeight = enemyDef.spriteScale?.maxHeight ?? (enemyDef.boss ? 250 : 200)
+    const maxWidth = enemyDef.spriteScale?.maxWidth ?? (enemyDef.boss ? 250 : 210)
+    const maxHeight = enemyDef.spriteScale?.maxHeight ?? (enemyDef.boss ? 238 : 190)
     const fitScale = Math.min(maxWidth / image.width, maxHeight / image.height)
 
     image

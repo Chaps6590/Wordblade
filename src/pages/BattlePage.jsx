@@ -3,11 +3,12 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useBattleStore } from '../game/state/useBattleStore.js'
 import { getScenario } from '../game/data/scenarios.js'
 import { PhaserGame } from '../game/phaser/PhaserGame.jsx'
-import { LetterTile } from '../components/LetterTile.jsx'
 import { WordInput } from '../components/WordInput.jsx'
 import { TopHud } from '../components/TopHud.jsx'
 import { BattleLog } from '../components/BattleLog.jsx'
 import { SkillLegend } from '../components/SkillLegend.jsx'
+import { BattleBoardPanel } from '../components/BattleBoardPanel.jsx'
+import { CollapsibleBattlePanel } from '../components/CollapsibleBattlePanel.jsx'
 import { eventBus } from '../game/phaser/eventBus.js'
 
 export function BattlePage() {
@@ -106,36 +107,17 @@ export function BattlePage() {
 
       <div className="battle-stage">
         <PhaserGame scenarioId={scenarioId} />
-        {word && (
-          <div className="word-preview" aria-hidden="true">
-            {word.split('').map((letter, i) => (
-              <span key={i} className="word-preview-tile">{letter}</span>
-            ))}
-          </div>
-        )}
       </div>
 
-      <section className="battle-console">
-        <section className="hidden-word-challenge" aria-label={`Palabra oculta de ${battle.hiddenWordLength} letras`}>
-          <span>PALABRA OCULTA</span>
-          <strong>{'◆'.repeat(battle.hiddenWordLength)}</strong>
-          <small>Descubrila para sumar +35 de daño</small>
-        </section>
-
-        {statusMessage && <p className="console-status">{statusMessage}</p>}
-
-        <section className="letters-row">
-          {battle.letters.map((tile) => (
-            <LetterTile
-              key={tile.id}
-              tile={tile}
-              onClick={handleTileClick}
-              selected={selectedTileIds.includes(tile.id)}
-              disabled={!playing || validating}
-            />
-          ))}
-        </section>
-      </section>
+      <BattleBoardPanel
+        battle={battle}
+        word={word}
+        statusMessage={statusMessage}
+        selectedTileIds={selectedTileIds}
+        onTileClick={handleTileClick}
+        playing={playing}
+        validating={validating}
+      />
 
       <section className="battle-actions" aria-label="Acciones de combate">
         <WordInput
@@ -146,13 +128,17 @@ export function BattlePage() {
           onSwap={handleSwap}
           disabled={!playing}
           busy={validating}
+          showInput={false}
         />
       </section>
 
-      <div className="battle-bottom">
-        <BattleLog entries={battle.battleLog} />
+      <CollapsibleBattlePanel className="letter-skills-panel" title="Habilidades de letras">
         <SkillLegend />
-      </div>
+      </CollapsibleBattlePanel>
+
+      <CollapsibleBattlePanel className="combat-log-panel" title="Historial">
+        <BattleLog entries={battle.battleLog} />
+      </CollapsibleBattlePanel>
 
       <button className="btn btn-back" onClick={() => navigate('/scenarios')}>
         ← Abandonar batalla

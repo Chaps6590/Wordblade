@@ -1,11 +1,10 @@
 import { SKILL_LETTERS } from '../game/data/letters.js'
 
-// Leyenda de habilidades por letra, colapsable.
+// Leyenda de habilidades por letra.
 
 export function SkillLegend() {
   return (
-    <details className="skill-legend">
-      <summary>Habilidades de letras</summary>
+    <div className="skill-legend">
       <ul>
         {SKILL_LETTERS.map((skill) => (
           <li key={skill.value}>
@@ -21,6 +20,6 @@ export function SkillLegend() {
         <span className="state-cursed">✦ maldita</span>
       </p>
       <p className="legend-bonuses">Colores: azul +3 · violeta +5 · dorado +8 de daño</p>
-    </details>
+    </div>
   )
 }

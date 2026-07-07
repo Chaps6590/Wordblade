@@ -3,7 +3,7 @@ import { useState } from 'react'
 // La palabra se arma exclusivamente tocando fichas. El campo es de solo
 // lectura para no abrir el teclado ni permitir borrar letra por letra.
 
-export function WordInput({ onSubmit, onClear, onSwap, disabled, busy, value, onChange }) {
+export function WordInput({ onSubmit, onClear, onSwap, disabled, busy, value, onChange, showInput = true }) {
   const [internal, setInternal] = useState('')
   const word = value ?? internal
   const setWord = onChange ?? setInternal
@@ -17,20 +17,22 @@ export function WordInput({ onSubmit, onClear, onSwap, disabled, busy, value, on
 
   return (
     <form className="word-input" onSubmit={handleSubmit}>
-      <input
-        type="text"
-        value={word}
-        readOnly
-        inputMode="none"
-        onFocus={(event) => event.currentTarget.blur()}
-        placeholder="Tocá las letras..."
-        disabled={disabled}
-        autoComplete="off"
-        autoCorrect="off"
-        spellCheck={false}
-        maxLength={16}
-        aria-label="Palabra formada con las fichas"
-      />
+      {showInput && (
+        <input
+          type="text"
+          value={word}
+          readOnly
+          inputMode="none"
+          onFocus={(event) => event.currentTarget.blur()}
+          placeholder="Tocá las letras..."
+          disabled={disabled}
+          autoComplete="off"
+          autoCorrect="off"
+          spellCheck={false}
+          maxLength={16}
+          aria-label="Palabra formada con las fichas"
+        />
+      )}
       <button
         type="button"
         className="btn clear-btn"
