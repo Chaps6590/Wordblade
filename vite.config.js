@@ -52,7 +52,7 @@ export default defineConfig({
         background_color: '#050817',
         display: 'fullscreen',
         display_override: ['fullscreen', 'standalone'],
-        orientation: 'any',
+        orientation: 'landscape',
         lang: 'es',
         id: '/',
         start_url: '/',
