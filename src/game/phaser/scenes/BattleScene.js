@@ -353,6 +353,113 @@ export class BattleScene extends Phaser.Scene {
     })
   }
 
+  animatePlayerAttackSequence(event) {
+    if (this.playerAttackActive) return
+    this.playerAttackActive = true
+
+    const startX = this.kael.getData('baseX') ?? this.kael.x
+    const startY = this.kael.getData('baseY') ?? this.kael.y
+    this.playerIdleTween?.pause()
+    this.playerSpriteIdleTween?.pause()
+
+    if (this.kaelSprite) {
+      this.kaelSprite
+        .stop()
+        .setTexture(PLAYER_ATTACK_TEXTURE_KEY, 0)
+        .setAngle(0)
+        .setScale(this.kaelSpriteScale / PLAYER_ATTACK_CONTENT_SCALE)
+        .play(PLAYER_ATTACK_ANIM_KEY, true)
+    }
+
+    const finishAttack = () => {
+      this.kael.setPosition(startX, startY)
+      this.kael.setScale(1)
+      this.kael.setAngle(0)
+      if (this.kaelSprite) {
+        this.kaelSprite
+          .stop()
+          .setTexture(PLAYER_IDLE_TEXTURE_KEY, 0)
+          .setAngle(0)
+          .setScale(this.kaelSpriteScale)
+          .play(PLAYER_IDLE_ANIM_KEY, true)
+      }
+      this.playerIdleTween?.resume()
+      this.playerSpriteIdleTween?.resume()
+      this.playerAttackActive = false
+    }
+
+    const applyHit = () => {
+      showSlash(this, this.enemy.x - 20, this.enemy.y, { color: event.magic ? 0xffee55 : 0xd6e6ff })
+      if (event.secret) {
+        showFloatingText(this, this.enemy.x, this.enemy.y - 110, 'PALABRA SECRETA', {
+          color: '#ffd700',
+          fontSize: 20
+        })
+        this.flash(0xffd700)
+      }
+      showFloatingText(this, this.enemy.x, this.enemy.y - 70, `-${event.amount}`, {
+        color: event.critical ? '#ffd700' : '#ff5555',
+        fontSize: event.critical ? 32 : 24
+      })
+      this.hitCharacter(this.enemy, 1)
+      screenShake(this, {
+        intensity: event.critical || event.magic || event.amount >= 20 ? 0.014 : 0.007,
+        duration: event.critical || event.magic || event.amount >= 20 ? 260 : 130
+      })
+    }
+
+    this.kael.setPosition(startX, startY).setScale(1).setAngle(0)
+
+    this.tweens.add({
+      targets: this.kael,
+      x: startX - 22,
+      y: startY - 10,
+      angle: -9,
+      scaleX: 0.98,
+      scaleY: 1.03,
+      duration: 130,
+      ease: 'Sine.easeOut',
+      onComplete: () => {
+        this.tweens.add({
+          targets: this.kael,
+          x: startX + 108,
+          y: startY - 2,
+          angle: 13,
+          scaleX: 1.13,
+          scaleY: 0.94,
+          duration: 145,
+          ease: 'Cubic.easeIn',
+          onComplete: () => {
+            applyHit()
+            this.tweens.add({
+              targets: this.kael,
+              x: startX + 34,
+              y: startY,
+              angle: 2,
+              scaleX: 1.03,
+              scaleY: 1,
+              duration: 90,
+              ease: 'Sine.easeOut',
+              onComplete: () => {
+                this.tweens.add({
+                  targets: this.kael,
+                  x: startX,
+                  y: startY,
+                  angle: 0,
+                  scaleX: 1,
+                  scaleY: 1,
+                  duration: 170,
+                  ease: 'Back.easeOut',
+                  onComplete: finishAttack
+                })
+              }
+            })
+          }
+        })
+      }
+    })
+  }
+
   animatePlayerAttack(event) {
     const startX = this.kael.getData('baseX') ?? this.kael.x
     if (this.kaelSprite) {
