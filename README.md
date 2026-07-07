@@ -18,8 +18,8 @@ Vite + React + Phaser 3 + PWA. El backend (resultados y validación de palabras)
 ## Cómo correr
 
 ```bash
-npm install
-npm run dev   # puerto 5173
+pnpm install
+pnpm dev   # puerto 5173
 ```
 
 En dev, Vite proxya `/api` a `http://localhost:3001` (el backend). El juego funciona igual con el backend apagado: valida solo con el diccionario local y no guarda resultados.
@@ -42,7 +42,7 @@ En dos pasos (`validateWordHybrid` en `src/game/core/wordValidator.js`):
 El juego vive en **https://wordblade.chapstech.com** y la API en **https://wordblade-api.chapstech.com**.
 
 ```bash
-npm run build   # genera dist/ usando .env.production (VITE_API_URL apunta a la API)
+pnpm build   # genera dist/ usando .env.production (VITE_API_URL apunta a la API)
 ```
 
 `dist/` se sirve como estático. Como el router usa rutas de navegador (`/battle/...`), el servidor debe devolver `index.html` para cualquier ruta. Ejemplo con nginx:

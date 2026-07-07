@@ -7,11 +7,11 @@ ARG VITE_GIT_COMMIT_SHA
 ENV VITE_API_URL=${VITE_API_URL}
 ENV VITE_GIT_COMMIT_SHA=${VITE_GIT_COMMIT_SHA}
 
-COPY package*.json ./
-RUN npm ci
+COPY package.json pnpm-lock.yaml ./
+RUN corepack enable && pnpm install --frozen-lockfile
 
 COPY . .
-RUN npm run build
+RUN pnpm run build
 
 FROM nginx:1.27-alpine
 

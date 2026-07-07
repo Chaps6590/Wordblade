@@ -1,7 +1,7 @@
 // Utilidades de debug para desarrollo. Muestra en consola las palabras
 // que devolvió la API y cómo quedaron escondidas en la grilla.
 //
-// Se activa automáticamente en dev (npm run dev). En producción se puede
+// Se activa automáticamente en dev (pnpm dev). En producción se puede
 // activar a mano desde la consola del navegador:
 //   localStorage.setItem('wordblade-debug', '1')   // activar
 //   localStorage.removeItem('wordblade-debug')     // desactivar

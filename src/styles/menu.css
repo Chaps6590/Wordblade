@@ -905,7 +905,8 @@
     max(0.7rem, env(safe-area-inset-bottom))
     max(1rem, env(safe-area-inset-left));
   display: grid;
-  place-items: center;
+  /* El formulario se ancla abajo, como panel; el arte con el logo queda arriba. */
+  place-items: end center;
   overflow: hidden;
   background: #010107;
   isolation: isolate;
@@ -920,7 +921,9 @@
 
 .login-screen-bg {
   z-index: -2;
-  background: url('/menu/login-background.png') center / cover no-repeat;
+  /* Anclado arriba: el logo del arte se mantiene en la parte superior y no
+     se "mete" entre los campos al recortarse en pantallas anchas/bajas. */
+  background: url('/menu/login-background.png') center top / cover no-repeat;
 }
 
 .login-screen-shade {
@@ -931,14 +934,20 @@
 }
 
 .login-screen-form {
-  width: min(92vw, 980px);
-  height: min(100%, 720px);
-  display: grid;
-  grid-template-rows: 1fr auto auto auto;
-  align-content: end;
-  justify-items: center;
-  gap: clamp(0.55rem, 1.4vh, 0.95rem);
-  padding-top: clamp(170px, 35vh, 300px);
+  width: min(94vw, 900px);
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(0.5rem, 1.4vh, 0.9rem);
+  /* Panel translúcido: legible sobre cualquier recorte del arte de fondo. */
+  padding: clamp(0.85rem, 2vh, 1.5rem) clamp(1rem, 2.5vw, 2rem);
+  background: linear-gradient(180deg, rgba(3, 8, 22, 0.42), rgba(3, 8, 22, 0.85));
+  border: 1px solid rgba(92, 178, 255, 0.28);
+  border-radius: 18px;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(158, 215, 255, 0.14);
+  backdrop-filter: blur(7px);
+  overflow-y: auto;
 }
 
 .login-screen-fields {
@@ -971,7 +980,7 @@
 }
 
 .login-hero-picker {
-  width: min(94vw, 920px);
+  width: 100%;
   margin: 0;
 }
 
@@ -1046,10 +1055,9 @@
   }
 
   .login-screen-form {
-    width: min(94vw, 920px);
-    height: 100%;
+    width: min(96vw, 900px);
     gap: 0.42rem;
-    padding-top: clamp(126px, 32vh, 198px);
+    padding: 0.7rem 1rem;
   }
 
   .login-screen-fields .field-label {

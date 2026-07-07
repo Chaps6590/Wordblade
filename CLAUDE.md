@@ -16,18 +16,18 @@ devoran letras. Hay modo **Aventura** (PvE por turnos) y modo **Multiplayer**
 - **react-router-dom 7** — ruteo de navegador (SPA).
 - **socket.io-client 4** — duelos multiplayer.
 - **vite-plugin-pwa** — instalable en Android sobre HTTPS.
-- Linter: **oxlint** (`npm run lint`).
+- Linter: **oxlint** (`pnpm lint`).
 
 Node `^20.19 || >=22.12`.
 
 ## Comandos
 
 ```bash
-npm install
-npm run dev      # Vite, puerto 5173. Proxya /api y /socket.io a localhost:3001
-npm run build    # genera dist/ con .env.production (VITE_API_URL apunta a la API)
-npm run lint     # oxlint
-npm run preview
+pnpm install
+pnpm dev      # Vite, puerto 5173. Proxya /api y /socket.io a localhost:3001
+pnpm build    # genera dist/ con .env.production (VITE_API_URL apunta a la API)
+pnpm lint     # oxlint
+pnpm preview
 ```
 
 ## Arquitectura y flujo
