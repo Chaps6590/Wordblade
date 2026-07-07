@@ -5,8 +5,7 @@ import { getScenario } from '../game/data/scenarios.js'
 import { PhaserGame } from '../game/phaser/PhaserGame.jsx'
 import { LetterTile } from '../components/LetterTile.jsx'
 import { WordInput } from '../components/WordInput.jsx'
-import { TimerBar } from '../components/TimerBar.jsx'
-import { HealthBar } from '../components/HealthBar.jsx'
+import { TopHud } from '../components/TopHud.jsx'
 import { BattleLog } from '../components/BattleLog.jsx'
 import { SkillLegend } from '../components/SkillLegend.jsx'
 import { eventBus } from '../game/phaser/eventBus.js'
@@ -103,36 +102,7 @@ export function BattlePage() {
       <div className="battle-background" aria-hidden="true" />
       <div className="battle-lighting" aria-hidden="true" />
 
-      <header className="battle-header">
-        <div className="battle-hud battle-hud-player">
-          <HealthBar
-            name={`${battle.player.name}  ${battle.player.energy > 0 ? `⚡${battle.player.energy}` : ''}`}
-            hp={battle.player.hp}
-            maxHp={battle.player.maxHp}
-            shield={battle.player.shield}
-            side="left"
-          />
-        </div>
-
-        <div className="battle-timer-hud">
-          <span className="scenario-name">
-            {scenario.mapPoint ?? scenario.name}
-            {battle.encounterLabel ? <small>{battle.encounterLabel}</small> : null}
-          </span>
-          <TimerBar timeLeft={battle.timeLeft} totalTime={scenario.time} />
-          <span className="turn-counter">Turno {battle.turn}</span>
-        </div>
-
-        <div className="battle-hud battle-hud-enemy">
-          <HealthBar
-            name={battle.enemy.name}
-            hp={battle.enemy.hp}
-            maxHp={battle.enemy.maxHp}
-            shield={battle.enemy.shield}
-            side="right"
-          />
-        </div>
-      </header>
+      <TopHud battle={battle} scenario={scenario} />
 
       <div className="battle-stage">
         <PhaserGame scenarioId={scenarioId} />
