@@ -63,6 +63,7 @@ export function createBattleState(scenarioId, challengeWords = []) {
       totalCount: scenario.letterCount
     }),
     hiddenWord,
+    supportWord,
     hiddenWordLength: scenario.hiddenWordLength,
     supportWordLength: scenario.supportWordLength,
     letterCount: scenario.letterCount,
@@ -139,9 +140,9 @@ export function swapLetterRack(state, newChallengeWords) {
   state.challengeWords = targets
   state.challengeIndex = 0
   state.hiddenWord = targets[0]
-  const supportWord = state.supportWordLength ? targets[1 % targets.length] : null
+  state.supportWord = state.supportWordLength ? targets[1 % targets.length] : null
   state.letters = generateChallengeLetters(state.hiddenWord, {
-    supportWord,
+    supportWord: state.supportWord,
     totalCount: state.letterCount
   })
 

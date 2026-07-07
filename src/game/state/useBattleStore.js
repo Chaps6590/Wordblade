@@ -4,6 +4,7 @@ import { validateWordHybrid } from '../core/wordValidator.js'
 import { eventBus } from '../phaser/eventBus.js'
 import { getScenario } from '../data/scenarios.js'
 import { getWordChallenges, fetchWordChallengesStrict } from '../../services/api.js'
+import { logBattleDebug } from '../debug.js'
 
 // Store global de la batalla. El motor (battleEngine) trabaja sobre un
 // clon del estado y el store publica el resultado; los eventos de
@@ -30,7 +31,9 @@ export const useBattleStore = create((set, get) => ({
     set({ battle: null, pending: 'loading_words', validating: true })
     const challenges = await getWordChallenges(scenario.hiddenWordLength, scenario.wordDifficulty)
     if (requestId !== startRequestId) return
-    set({ battle: createBattleState(scenarioId, challenges), pending: null, validating: false })
+    const battle = createBattleState(scenarioId, challenges)
+    set({ battle, pending: null, validating: false })
+    logBattleDebug(battle, 'Inicio de batalla')
   },
 
   submitWord: async (rawWord) => {
@@ -70,6 +73,11 @@ export const useBattleStore = create((set, get) => ({
     const events = playWord(draft, rawWord, validation)
     set({ battle: draft, pending: null, validating: false })
 
+    // Tras una palabra válida la grilla se regenera con otra palabra oculta
+    if (validation?.valid && draft.status === 'playing') {
+      logBattleDebug(draft, 'Grilla regenerada')
+    }
+
     for (const event of events) {
       eventBus.emit('battle-event', event)
     }
@@ -103,6 +111,7 @@ export const useBattleStore = create((set, get) => ({
 
     const events = swapLetterRack(draft, words)
     set({ battle: draft, pending: null, validating: false })
+    logBattleDebug(draft, 'Cambio de letras')
 
     for (const event of events) {
       eventBus.emit('battle-event', event)

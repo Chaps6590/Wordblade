@@ -9,11 +9,11 @@ import { generateChallengeLetters } from '../data/letters.js'
 export function refreshLetterRack(state) {
   state.challengeIndex = (state.challengeIndex + 1) % state.challengeWords.length
   state.hiddenWord = state.challengeWords[state.challengeIndex]
-  const supportWord = state.supportWordLength
+  state.supportWord = state.supportWordLength
     ? state.challengeWords[(state.challengeIndex + 1) % state.challengeWords.length]
     : null
   state.letters = generateChallengeLetters(state.hiddenWord, {
-    supportWord,
+    supportWord: state.supportWord,
     totalCount: state.letterCount
   })
 }

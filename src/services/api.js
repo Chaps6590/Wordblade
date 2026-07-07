@@ -137,6 +137,10 @@ export async function fetchWordChallengesStrict(length = 8, difficulty = 3) {
     const res = await authorizedFetch(`${BASE_URL}/words/challenge?${params}`)
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
     const data = await res.json()
+    const { isDebugEnabled } = await import('../game/debug.js')
+    if (isDebugEnabled()) {
+      console.info(`🗡 [Wordblade DEBUG] /words/challenge (${length} letras, fuente: ${data.source}):`, data.words)
+    }
     return Array.isArray(data.words) && data.words.length > 0 ? data.words : null
   } catch (err) {
     console.warn('No se pudieron cargar palabras secretas:', err.message)
