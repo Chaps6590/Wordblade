@@ -1,12 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/useAuth.js'
-
-const RACES = [
-  { value: 'LOBO', label: 'Sabios Lobo', icon: '🐺', description: 'Instinto, resistencia y colmillos de luna.' },
-  { value: 'TIGRE', label: 'Sabios Tigre', icon: '🐯', description: 'Furia, precisión y golpes veloces.' },
-  { value: 'AGUILA', label: 'Sabios Águila', icon: '🦅', description: 'Visión, estrategia y viento alto.' }
-]
+import { HEROES } from '../game/data/heroes.js'
 
 export function LoginPage() {
   const navigate = useNavigate()
@@ -34,11 +29,11 @@ export function LoginPage() {
 
   return (
     <div className="page menu-page">
-      <form className="menu-panel login-panel" onSubmit={handleSubmit}>
+      <form className="menu-panel login-panel hero-login-panel" onSubmit={handleSubmit}>
         <img className="game-logo login-logo" src="/icons/icon-512.png" alt="Emblema de Wordblade" />
         <h1 className="game-title">
           Wordblade
-          <span className="game-subtitle">Ingreso de Sabios</span>
+          <span className="game-subtitle">Ingreso de Campeones</span>
         </h1>
 
         <div className="login-fields">
@@ -69,19 +64,25 @@ export function LoginPage() {
           </label>
         </div>
 
-        <section className="race-picker" aria-label="Raza de sabios">
-          <h2>Elegí tu raza de sabios</h2>
-          <div className="race-grid">
-            {RACES.map((option) => (
+        <section className="race-picker" aria-label="Campeón sabio">
+          <h2>Elegí tu campeón sabio</h2>
+          <div className="race-grid hero-grid">
+            {HEROES.map((hero) => (
               <button
-                className={`race-card ${race === option.value ? 'selected' : ''}`}
+                className={`race-card hero-card ${race === hero.race ? 'selected' : ''}`}
+                style={{ '--hero-accent': hero.accent }}
                 type="button"
-                key={option.value}
-                onClick={() => setRace(option.value)}
+                key={hero.race}
+                onClick={() => setRace(hero.race)}
+                aria-pressed={race === hero.race}
               >
-                <span className="race-icon">{option.icon}</span>
-                <span className="race-name">{option.label}</span>
-                <span className="race-desc">{option.description}</span>
+                <span className="hero-art-frame">
+                  <img className="hero-art" src={hero.portrait} alt={hero.name} />
+                </span>
+                <span className="race-name hero-name">{hero.name}</span>
+                <span className="hero-race">{hero.raceLabel}</span>
+                <span className="hero-title">{hero.title}</span>
+                <span className="race-desc">{hero.description}</span>
               </button>
             ))}
           </div>

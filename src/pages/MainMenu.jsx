@@ -1,16 +1,13 @@
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/useAuth.js'
+import { HERO_BY_RACE } from '../game/data/heroes.js'
 
 const APP_VERSION = import.meta.env.VITE_APP_VERSION || '0.1.0+dev'
-const RACE_LABELS = {
-  LOBO: 'Sabios Lobo',
-  TIGRE: 'Sabios Tigre',
-  AGUILA: 'Sabios Águila'
-}
 
 export function MainMenu() {
   const navigate = useNavigate()
   const { player, logout } = useAuth()
+  const hero = player ? HERO_BY_RACE[player.race] : null
 
   async function handleLogout() {
     await logout()
@@ -28,14 +25,20 @@ export function MainMenu() {
 
         {player ? (
           <div className="player-badge">
-            <span>{player.name}</span>
-            <small>{RACE_LABELS[player.race] ?? player.race}</small>
+            {hero ? <img src={hero.portrait} alt={hero.name} /> : null}
+            <span>
+              {player.name}
+              <small>{hero ? `${hero.name} · ${hero.raceLabel}` : player.race}</small>
+            </span>
           </div>
         ) : null}
 
         <nav className="menu-buttons">
           <button className="btn btn-primary" onClick={() => navigate('/scenarios')}>
             ⚔ Nueva Partida
+          </button>
+          <button className="btn" onClick={() => navigate('/multiplayer')}>
+            🌐 Multijugador
           </button>
           <button className="btn btn-ghost" onClick={handleLogout}>
             Cerrar sesión

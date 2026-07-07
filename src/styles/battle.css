@@ -556,3 +556,102 @@
   .hidden-word-challenge strong,
   .console-status { animation: none; }
 }
+
+/* ── Duelo multijugador ─────────────────────────────── */
+
+.duel-menu,
+.duel-lobby {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  margin: 2rem auto;
+  width: min(100%, 380px);
+}
+
+.duel-join {
+  display: flex;
+  gap: 0.6rem;
+  width: 100%;
+}
+
+.duel-code-input {
+  flex: 1;
+  text-align: center;
+  font-family: monospace;
+  font-size: 1.3rem;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+}
+
+.duel-share { color: var(--text-dim); }
+
+.room-code {
+  font-family: monospace;
+  font-size: 2.6rem;
+  font-weight: 800;
+  letter-spacing: 10px;
+  color: var(--accent-bright);
+  text-shadow: 0 0 18px var(--glow);
+  background: var(--bg-panel);
+  border: 2px dashed var(--border);
+  border-radius: 12px;
+  padding: 0.6rem 1.4rem;
+  user-select: all;
+}
+
+.lobby-players {
+  list-style: none;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.lobby-players li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.7rem 1rem;
+}
+
+.lobby-players li.ready { border-color: var(--success); }
+.lobby-players li.ready small { color: var(--success); }
+.lobby-players li small { color: var(--text-dim); }
+.lobby-players li.empty-slot { opacity: 0.5; font-style: italic; }
+
+.duel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.duel-timer {
+  font-family: monospace;
+  font-size: 1.4rem;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 0.2rem 0.8rem;
+}
+
+.duel-timer.danger { color: var(--danger); border-color: var(--danger); animation: pulse 1s infinite; }
+
+.duel-secret {
+  color: #ffd166;
+  font-size: 0.85rem;
+}
+
+.duel-error {
+  text-align: center;
+  color: #ffc3c3;
+  background: rgba(224, 85, 85, 0.12);
+  border: 1px solid rgba(224, 85, 85, 0.45);
+  border-radius: 10px;
+  padding: 0.6rem 1rem;
+}
