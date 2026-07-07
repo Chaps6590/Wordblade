@@ -5,12 +5,17 @@ import { showSlash } from '../effects/slashEffect.js'
 import { screenShake } from '../effects/screenShake.js'
 import { getScenario, getScenarioEncounter } from '../../data/scenarios.js'
 import { ENEMIES } from '../../data/enemies.js'
+import { HERO_BY_RACE } from '../../data/heroes.js'
 
 // Escena de batalla: SOLO renderiza y anima. La lógica vive en game/core.
 // Recibe eventos del motor por el eventBus ('battle-event').
 
 const W = 800
 const H = 400
+const PLAYER_TEXTURE_KEY = 'player-kael'
+const PLAYER_SPRITE = HERO_BY_RACE.LOBO.portrait
+const PLAYER_BASE = { x: 190, y: 332 }
+const ENEMY_BASE = { x: 610, y: 328 }
 
 export class BattleScene extends Phaser.Scene {
   constructor() {
@@ -20,6 +25,8 @@ export class BattleScene extends Phaser.Scene {
   preload() {
     const scenarioId = this.registry.get('scenarioId')
     const scenario = getScenario(scenarioId)
+
+    this.load.image(PLAYER_TEXTURE_KEY, PLAYER_SPRITE)
 
     if (scenario?.backgroundImage) {
       this.load.image(`scenario-bg-${scenario.id}`, scenario.backgroundImage)
@@ -39,22 +46,11 @@ export class BattleScene extends Phaser.Scene {
     const enemyDef = scenario ? ENEMIES[getScenarioEncounter(scenario, 0).enemyId] : null
 
     this.drawBackground(scenario)
-    this.addStageAmbience()
 
-    // --- Kael (placeholder: caballero azul con espada) ---
-    this.kael = this.add.container(180, 260)
-    const body = this.add.rectangle(0, 0, 50, 80, 0x2a4a7a).setStrokeStyle(2, 0x8fb8e8)
-    const head = this.add.circle(0, -55, 16, 0xd9b38c).setStrokeStyle(2, 0x8a6a4a)
-    // Espada de acero con filo rúnico azul, como el emblema del juego
-    const sword = this.add.rectangle(38, -10, 8, 60, 0xc9d4e6).setStrokeStyle(2, 0x2d7eff).setRotation(0.5)
-    this.tweens.add({ targets: sword, alpha: 0.75, duration: 1000, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' })
-    this.kael.add([sword, body, head])
-    this.add.text(180, 320, 'KAEL', { fontFamily: 'monospace', fontSize: '14px', color: '#5cb2ff' }).setOrigin(0.5)
-
+    this.createPlayer()
     this.createEnemy(enemyDef)
 
-    // Animaciones idle (flotar suave)
-    this.tweens.add({ targets: this.kael, y: 255, duration: 1200, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' })
+    this.startPlayerIdle()
     this.startEnemyIdle()
 
     // Escuchar eventos del motor
@@ -63,6 +59,23 @@ export class BattleScene extends Phaser.Scene {
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       eventBus.off('battle-event', this.onBattleEvent)
     })
+  }
+
+  createPlayer() {
+    this.kael = this.add.container(PLAYER_BASE.x, PLAYER_BASE.y).setDepth(5)
+    this.kael.setData('baseX', PLAYER_BASE.x)
+    this.kael.setData('baseY', PLAYER_BASE.y)
+
+    const sprite = this.add.image(0, 0, PLAYER_TEXTURE_KEY)
+    const fitScale = Math.min(210 / sprite.width, 250 / sprite.height)
+
+    sprite
+      .setScale(fitScale)
+      .setOrigin(0.5, 1)
+      .setDepth(1)
+
+    this.kaelSprite = sprite
+    this.kael.add(sprite)
   }
 
   enemyTextureKey(enemyId) {
@@ -104,46 +117,6 @@ export class BattleScene extends Phaser.Scene {
 
     // "Suelo"
     this.add.rectangle(W / 2, H - 30, W, 60, 0x000000, 0.25)
-  }
-
-  // Sombras, anillos rúnicos bajo los combatientes y motas de energía
-  addStageAmbience() {
-    this.add.ellipse(180, 308, 100, 18, 0x000000, 0.35)
-    this.add.ellipse(600, 302, 130, 20, 0x000000, 0.35)
-
-    const playerRing = this.add.ellipse(180, 308, 122, 28).setStrokeStyle(2, 0x2d7eff, 0.55)
-    const enemyRing = this.add.ellipse(600, 302, 152, 32).setStrokeStyle(2, 0xa565e0, 0.5)
-    for (const ring of [playerRing, enemyRing]) {
-      this.tweens.add({
-        targets: ring,
-        scaleX: 1.06,
-        scaleY: 1.14,
-        alpha: 0.4,
-        duration: 1400,
-        yoyo: true,
-        repeat: -1,
-        ease: 'Sine.easeInOut'
-      })
-    }
-
-    // Motas de energía flotando en el aire
-    for (let i = 0; i < 12; i++) {
-      const mote = this.add.circle(
-        Phaser.Math.Between(20, W - 20),
-        Phaser.Math.Between(40, H - 60),
-        Phaser.Math.Between(1, 2),
-        0x8fc7ff,
-        Phaser.Math.FloatBetween(0.15, 0.4)
-      )
-      this.tweens.add({
-        targets: mote,
-        y: mote.y - Phaser.Math.Between(25, 55),
-        alpha: 0,
-        duration: Phaser.Math.Between(2500, 5000),
-        repeat: -1,
-        delay: Phaser.Math.Between(0, 2000)
-      })
-    }
   }
 
   handleEvent(event) {
@@ -188,12 +161,14 @@ export class BattleScene extends Phaser.Scene {
   createEnemy(enemyDef) {
     if (this.enemyIdleTween) this.enemyIdleTween.stop()
     if (this.enemy) this.enemy.destroy()
-    if (this.enemyNameLabel) this.enemyNameLabel.destroy()
 
     const enemyColor = enemyDef?.color ?? 0x8a5a2b
     const isBoss = enemyDef?.boss ?? false
     const scale = isBoss ? 1.35 : 1
-    this.enemy = this.add.container(600, 220).setAlpha(1)
+    this.enemy = this.add.container(ENEMY_BASE.x, ENEMY_BASE.y).setAlpha(1).setDepth(5)
+    this.enemy.setData('baseX', ENEMY_BASE.x)
+    this.enemy.setData('baseY', ENEMY_BASE.y)
+    this.enemySprite = null
 
     if (enemyDef?.spriteImage && this.textures.exists(this.enemyTextureKey(enemyDef.id))) {
       this.drawEnemyImage(enemyDef)
@@ -211,10 +186,6 @@ export class BattleScene extends Phaser.Scene {
           break
       }
     }
-
-    this.enemyNameLabel = this.add.text(600, 320, (enemyDef?.name ?? 'ENEMIGO').toUpperCase(), {
-      fontFamily: 'monospace', fontSize: '14px', color: isBoss ? '#ffd166' : '#e8a8a8'
-    }).setOrigin(0.5)
   }
 
   drawEnemyImage(enemyDef) {
@@ -226,9 +197,10 @@ export class BattleScene extends Phaser.Scene {
 
     image
       .setScale(fitScale)
-      .setOrigin(0.5)
+      .setOrigin(0.5, 1)
       .setDepth(1)
 
+    this.enemySprite = image
     this.enemy.add(image)
   }
 
@@ -279,10 +251,28 @@ export class BattleScene extends Phaser.Scene {
 
   startEnemyIdle() {
     if (!this.enemy) return
+    const baseY = this.enemy.getData('baseY') ?? ENEMY_BASE.y
     this.enemyIdleTween = this.tweens.add({
       targets: this.enemy,
-      y: 215,
-      duration: 900,
+      y: baseY - 4,
+      scaleX: 1.015,
+      scaleY: 0.992,
+      duration: 2400,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut'
+    })
+  }
+
+  startPlayerIdle() {
+    if (!this.kael) return
+    const baseY = this.kael.getData('baseY') ?? PLAYER_BASE.y
+    this.playerIdleTween = this.tweens.add({
+      targets: this.kael,
+      y: baseY - 4,
+      scaleX: 1.012,
+      scaleY: 0.995,
+      duration: 2200,
       yoyo: true,
       repeat: -1,
       ease: 'Sine.easeInOut'
@@ -297,24 +287,26 @@ export class BattleScene extends Phaser.Scene {
     this.flash(0x5cb2ff)
     const enemyDef = ENEMIES[event.enemyId]
     this.createEnemy(enemyDef)
-    this.enemy.setAlpha(0).setScale(0.65)
-    this.startEnemyIdle()
+    const baseX = this.enemy.getData('baseX') ?? ENEMY_BASE.x
+    this.enemy.setAlpha(0).setScale(0.92).setX(baseX + 28)
     this.tweens.add({
       targets: this.enemy,
       alpha: 1,
       scale: 1,
+      x: baseX,
       duration: 450,
-      ease: 'Back.easeOut'
+      ease: 'Sine.easeOut',
+      onComplete: () => this.startEnemyIdle()
     })
-    screenShake(this, { intensity: enemyDef?.boss ? 0.014 : 0.007, duration: 250 })
   }
 
   animatePlayerAttack(event) {
-    const startX = this.kael.x
+    const startX = this.kael.getData('baseX') ?? this.kael.x
     this.tweens.add({
       targets: this.kael,
-      x: this.enemy.x - 120,
-      duration: 180,
+      x: startX + 46,
+      angle: -3,
+      duration: 150,
       yoyo: true,
       ease: 'Power2',
       onYoyo: () => {
@@ -330,21 +322,25 @@ export class BattleScene extends Phaser.Scene {
           color: event.critical ? '#ffd700' : '#ff5555',
           fontSize: event.critical ? 32 : 24
         })
-        this.hitFlash(this.enemy)
+        this.hitCharacter(this.enemy, 1)
         if (event.critical || event.magic || event.amount >= 20) {
           screenShake(this, { intensity: 0.012, duration: 250 })
         }
       },
-      onComplete: () => { this.kael.x = startX }
+      onComplete: () => {
+        this.kael.x = startX
+        this.kael.angle = 0
+      }
     })
   }
 
   animateEnemyAttack(event) {
-    const startX = this.enemy.x
+    const startX = this.enemy.getData('baseX') ?? this.enemy.x
     this.tweens.add({
       targets: this.enemy,
-      x: this.kael.x + 120,
-      duration: 200,
+      x: startX - 54,
+      angle: 3,
+      duration: 170,
       yoyo: true,
       ease: 'Power2',
       onYoyo: () => {
@@ -353,11 +349,14 @@ export class BattleScene extends Phaser.Scene {
           color: blocked ? '#66aaff' : '#ff5555'
         })
         if (!blocked) {
-          this.hitFlash(this.kael)
+          this.hitCharacter(this.kael, -1)
           screenShake(this, { intensity: 0.006, duration: 150 })
         }
       },
-      onComplete: () => { this.enemy.x = startX }
+      onComplete: () => {
+        this.enemy.x = startX
+        this.enemy.angle = 0
+      }
     })
   }
 
@@ -439,8 +438,32 @@ export class BattleScene extends Phaser.Scene {
     this.tweens.add({ targets: ring, scale: 1.3, alpha: 0, duration: 500, onComplete: () => ring.destroy() })
   }
 
-  hitFlash(container) {
-    this.tweens.add({ targets: container, alpha: 0.3, duration: 60, yoyo: true, repeat: 2 })
+  hitCharacter(container, direction) {
+    if (!container) return
+
+    const baseX = container.getData('baseX') ?? container.x
+    const tintTargets = container.list.filter((child) => typeof child.setTint === 'function')
+
+    for (const target of tintTargets) {
+      target.setTint(0xff7777)
+    }
+
+    this.tweens.add({
+      targets: container,
+      x: baseX + (direction * 12),
+      alpha: 0.72,
+      duration: 70,
+      yoyo: true,
+      repeat: 1,
+      ease: 'Sine.easeInOut',
+      onComplete: () => {
+        container.x = baseX
+        container.alpha = 1
+        for (const target of tintTargets) {
+          target.clearTint()
+        }
+      }
+    })
   }
 
   flash(color) {
