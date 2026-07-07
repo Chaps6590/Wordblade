@@ -38,7 +38,7 @@ export function MainMenu() {
           </div>
         </section>
 
-        <img className="home-wordblade-logo" src="/menu/wordblade-logo.png" alt="Wordblade" />
+        <img className="home-wordblade-logo" src="/brand/wordblade-logo.png" alt="Wordblade" />
 
         <section className="home-resources" aria-label="Recursos">
           <span><b>◉</b> 12,450</span>

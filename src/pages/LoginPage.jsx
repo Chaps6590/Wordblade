@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/useAuth.js'
 import { HeroAnimatedArt } from '../components/HeroAnimatedArt.jsx'
+import { PwaInstallButton } from '../components/PwaInstallButton.jsx'
 import { HEROES } from '../game/data/heroes.js'
 
 export function LoginPage() {
@@ -32,6 +33,20 @@ export function LoginPage() {
     <div className="page menu-page login-screen-page">
       <div className="login-screen-bg" aria-hidden="true" />
       <div className="login-screen-shade" aria-hidden="true" />
+
+      <div className="login-install-action">
+        <PwaInstallButton />
+      </div>
+
+      <header className="login-brand">
+        <img
+          className="login-brand-icon"
+          src="/brand/wordblade-icon.png"
+          alt=""
+          aria-hidden="true"
+        />
+        <img className="login-brand-text" src="/brand/wordblade-text.png" alt="Wordblade" />
+      </header>
 
       <form className="login-screen-form" onSubmit={handleSubmit}>
         <div className="login-fields login-screen-fields">

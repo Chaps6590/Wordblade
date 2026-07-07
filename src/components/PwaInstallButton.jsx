@@ -10,6 +10,14 @@ function isiOS() {
   return /iphone|ipad|ipod/i.test(window.navigator.userAgent)
 }
 
+function isAndroid() {
+  return /android/i.test(window.navigator.userAgent)
+}
+
+function isSecureInstallContext() {
+  return window.isSecureContext || window.location.hostname === 'localhost'
+}
+
 export function PwaInstallButton() {
   // Se lee el prompt ya capturado por el módulo (puede haber llegado antes de
   // montar este componente) y se sigue escuchando por si aparece después.
@@ -42,9 +50,13 @@ export function PwaInstallButton() {
     setShowHelp((current) => !current)
   }
 
-  const help = isiOS()
-    ? 'En iPhone: tocá Compartir → “Agregar a pantalla de inicio”.'
-    : 'Si no aparece el instalador, abrí el menú del navegador (⋮) y elegí “Instalar app”. Requiere HTTPS o localhost.'
+  const help = !isSecureInstallContext()
+    ? 'Para instalar desde el celular, abri Wordblade con HTTPS. Las URLs http:// con IP local no habilitan instalacion.'
+    : isiOS()
+      ? 'En iPhone: toca Compartir y elegi Agregar a pantalla de inicio.'
+      : isAndroid()
+        ? 'En Android: abri el menu del navegador y elegi Instalar app o Agregar a pantalla principal.'
+        : 'Si no aparece el instalador, abri el menu del navegador y elegi Instalar app.'
 
   return (
     <div className="install-card">

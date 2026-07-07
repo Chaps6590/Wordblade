@@ -226,7 +226,7 @@
 
 .hero-animated-art {
   display: block;
-  aspect-ratio: var(--hero-frame-width) / var(--hero-frame-height);
+  aspect-ratio: var(--hero-frame-aspect);
   width: min(100%, var(--hero-frame-width));
   overflow: hidden;
 }
@@ -904,12 +904,55 @@
     max(1rem, env(safe-area-inset-right))
     max(0.7rem, env(safe-area-inset-bottom))
     max(1rem, env(safe-area-inset-left));
-  display: grid;
-  /* El formulario se ancla abajo, como panel; el arte con el logo queda arriba. */
-  place-items: end center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  /* La marca (emblema + texto) se ancla arriba y el formulario abajo, como panel.
+     El fondo es solo el marco: el logo se compone por capas encima. */
+  justify-content: space-between;
+  gap: clamp(0.6rem, 2vh, 1.4rem);
   overflow: hidden;
   background: #010107;
   isolation: isolate;
+}
+
+.login-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(0.15rem, 1vh, 0.55rem);
+  flex: 0 0 auto;
+  padding-top: clamp(0.3rem, 2vh, 1.4rem);
+  pointer-events: none;
+  filter: drop-shadow(0 8px 26px rgba(0, 0, 0, 0.6));
+}
+
+.login-brand-icon {
+  width: clamp(92px, 17vh, 188px);
+  height: auto;
+  filter: drop-shadow(0 0 28px rgba(45, 126, 255, 0.5));
+  animation: login-brand-float 5.5s ease-in-out infinite;
+}
+
+.login-brand-text {
+  width: clamp(180px, 44vw, 420px);
+  height: auto;
+}
+
+@keyframes login-brand-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-brand-icon {
+    animation: none;
+  }
 }
 
 .login-screen-bg,
@@ -933,9 +976,31 @@
     linear-gradient(180deg, rgba(0, 2, 10, 0.05), rgba(0, 2, 10, 0.35) 72%, rgba(0, 2, 10, 0.62));
 }
 
+.login-install-action {
+  position: fixed;
+  top: max(0.7rem, env(safe-area-inset-top));
+  right: max(0.7rem, env(safe-area-inset-right));
+  z-index: 5;
+  width: min(260px, calc(100vw - 1.4rem));
+}
+
+.login-install-action .install-card {
+  margin: 0;
+  width: 100%;
+}
+
+.login-install-action .install-card p {
+  padding: 0.5rem 0.65rem;
+  border: 1px solid rgba(216, 166, 62, 0.42);
+  border-radius: 8px;
+  background: rgba(5, 8, 23, 0.88);
+}
+
 .login-screen-form {
   width: min(94vw, 900px);
   max-height: 100%;
+  flex: 0 1 auto;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1060,6 +1125,16 @@
     padding: 0.7rem 1rem;
   }
 
+  .login-install-action {
+    width: min(210px, 30vw);
+  }
+
+  .login-install-action .install-btn {
+    min-height: 38px;
+    padding: 0.55rem 0.75rem;
+    font-size: 0.72rem;
+  }
+
   .login-screen-fields .field-label {
     gap: 0.22rem;
     font-size: 0.68rem;
@@ -1124,8 +1199,15 @@
     height: auto;
     grid-template-rows: minmax(220px, 34vh) auto auto auto;
     gap: 0.75rem;
-    padding-top: 0;
+    padding-top: 4.75rem;
     padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+
+  .login-install-action {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    width: min(88vw, 360px);
   }
 
   .login-screen-fields {

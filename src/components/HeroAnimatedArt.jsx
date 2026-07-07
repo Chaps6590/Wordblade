@@ -7,6 +7,7 @@ export function HeroAnimatedArt({ hero, className = '', alt = '' }) {
   const frameCount = idle.frames ?? 1
   const style = {
     '--hero-sheet': `url(${idle.sheet})`,
+    '--hero-frame-aspect': idle.frameWidth / idle.frameHeight,
     '--hero-frame-width': `${idle.frameWidth}px`,
     '--hero-frame-height': `${idle.frameHeight}px`,
     '--hero-frame-count': frameCount,
