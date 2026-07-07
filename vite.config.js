@@ -39,6 +39,13 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      // Registra el service worker también en `vite dev`. Sin SW activo el
+      // navegador nunca dispara `beforeinstallprompt`, así que la instalación
+      // no se puede probar en desarrollo.
+      devOptions: {
+        enabled: true,
+        type: 'module'
+      },
       workbox: {
         cleanupOutdatedCaches: true,
         clientsClaim: true,

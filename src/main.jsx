@@ -2,6 +2,9 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { registerSW } from 'virtual:pwa-register'
 import { App } from './app/App.jsx'
+// Efecto de módulo: engancha `beforeinstallprompt` apenas arranca la app,
+// antes de renderizar React, para no perder el evento de instalación.
+import './services/pwaInstall.js'
 import './styles/global.css'
 import './styles/menu.css'
 import './styles/battle.css'

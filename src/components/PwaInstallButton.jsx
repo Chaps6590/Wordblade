@@ -1,70 +1,57 @@
-import { useEffect, useMemo, useState } from 'react'
-
-function isStandaloneDisplay() {
-  return window.matchMedia?.('(display-mode: standalone)').matches || window.navigator.standalone === true
-}
-
-function isProbablyMobile() {
-  return window.matchMedia?.('(max-width: 820px), (pointer: coarse)').matches ?? false
-}
+import { useEffect, useState } from 'react'
+import {
+  getInstallPrompt,
+  subscribeInstallPrompt,
+  isAppInstalled,
+  promptInstall
+} from '../services/pwaInstall.js'
 
 function isiOS() {
   return /iphone|ipad|ipod/i.test(window.navigator.userAgent)
 }
 
 export function PwaInstallButton() {
-  const [installPrompt, setInstallPrompt] = useState(null)
-  const [installed, setInstalled] = useState(false)
+  // Se lee el prompt ya capturado por el módulo (puede haber llegado antes de
+  // montar este componente) y se sigue escuchando por si aparece después.
+  const [installPrompt, setInstallPrompt] = useState(() => getInstallPrompt())
+  const [installed, setInstalled] = useState(() => isAppInstalled())
   const [showHelp, setShowHelp] = useState(false)
-  const mobile = useMemo(() => typeof window !== 'undefined' && isProbablyMobile(), [])
 
   useEffect(() => {
-    setInstalled(isStandaloneDisplay())
-
-    const handlePrompt = (event) => {
-      event.preventDefault()
-      setInstallPrompt(event)
-      setShowHelp(false)
-    }
-
-    const handleInstalled = () => {
-      setInstalled(true)
-      setInstallPrompt(null)
-      setShowHelp(false)
-    }
-
-    window.addEventListener('beforeinstallprompt', handlePrompt)
+    const unsubscribe = subscribeInstallPrompt((prompt) => {
+      setInstallPrompt(prompt)
+      if (prompt) setShowHelp(false)
+    })
+    const handleInstalled = () => setInstalled(true)
     window.addEventListener('appinstalled', handleInstalled)
-
     return () => {
-      window.removeEventListener('beforeinstallprompt', handlePrompt)
+      unsubscribe()
       window.removeEventListener('appinstalled', handleInstalled)
     }
   }, [])
 
-  if (installed || !mobile) return null
+  if (installed) return null
 
   async function handleInstall() {
-    if (!installPrompt) {
-      setShowHelp((current) => !current)
+    // Si el navegador ya nos dio el prompt nativo, lo lanzamos directo.
+    if (installPrompt) {
+      await promptInstall()
       return
     }
-
-    await installPrompt.prompt()
-    await installPrompt.userChoice
-    setInstallPrompt(null)
+    // Sin prompt (iOS, o el navegador aún no lo ofreció): mostramos ayuda.
+    setShowHelp((current) => !current)
   }
 
-  const fallbackText = isiOS()
-    ? 'En iPhone: Compartir > Agregar a pantalla de inicio.'
-    : 'Si no aparece el instalador, abrí el menú del navegador y elegí Instalar app.'
+  const help = isiOS()
+    ? 'En iPhone: tocá Compartir → “Agregar a pantalla de inicio”.'
+    : 'Si no aparece el instalador, abrí el menú del navegador (⋮) y elegí “Instalar app”. Requiere HTTPS o localhost.'
 
   return (
     <div className="install-card">
       <button className="btn install-btn" type="button" onClick={handleInstall}>
-        Instalar en celular
+        {installPrompt ? 'Instalar Wordblade' : 'Cómo instalar'}
       </button>
-      {showHelp ? <p>{fallbackText}</p> : null}
+      {showHelp && !installPrompt ? <p>{help}</p> : null}
     </div>
   )
 }
