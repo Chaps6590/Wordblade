@@ -32,6 +32,8 @@ export const ENEMIES = {
     attack: 5,
     color: 0x8a5a2b,
     spriteKind: 'tick',
+    spriteImage: '/characters/enemies/garrapata-exploradora.png',
+    spriteScale: { maxWidth: 220, maxHeight: 190, offsetY: 8 },
     abilities: {
       blockEvery: 4,
       blockCount: 1,
@@ -46,6 +48,8 @@ export const ENEMIES = {
     attack: 8,
     color: 0x3a3a4a,
     spriteKind: 'spider',
+    spriteImage: '/characters/enemies/arana-del-bosque.png',
+    spriteScale: { maxWidth: 245, maxHeight: 210, offsetY: 8 },
     abilities: {
       blockEvery: 3,
       blockCount: 1,
@@ -63,6 +67,8 @@ export const ENEMIES = {
     color: 0x2f7a45,
     boss: true,
     spriteKind: 'serpent',
+    spriteImage: '/characters/enemies/serpiente-gigante.png',
+    spriteScale: { maxWidth: 260, maxHeight: 270, offsetY: -18 },
     abilities: {
       poisonCount: 1,
       curseVowelChance: 0.25,

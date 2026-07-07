@@ -24,6 +24,13 @@ export class BattleScene extends Phaser.Scene {
     if (scenario?.backgroundImage) {
       this.load.image(`scenario-bg-${scenario.id}`, scenario.backgroundImage)
     }
+
+    for (const encounter of scenario?.encounters ?? []) {
+      const enemyDef = ENEMIES[encounter.enemyId]
+      if (enemyDef?.spriteImage) {
+        this.load.image(this.enemyTextureKey(enemyDef.id), enemyDef.spriteImage)
+      }
+    }
   }
 
   create() {
@@ -56,6 +63,10 @@ export class BattleScene extends Phaser.Scene {
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       eventBus.off('battle-event', this.onBattleEvent)
     })
+  }
+
+  enemyTextureKey(enemyId) {
+    return `enemy-${enemyId}`
   }
 
   drawBackground(scenario) {
@@ -184,22 +195,41 @@ export class BattleScene extends Phaser.Scene {
     const scale = isBoss ? 1.35 : 1
     this.enemy = this.add.container(600, 220).setAlpha(1)
 
-    switch (enemyDef?.spriteKind) {
-      case 'spider':
-        this.drawSpiderEnemy(enemyColor, scale)
-        break
-      case 'serpent':
-        this.drawSerpentEnemy(enemyColor, scale)
-        break
-      case 'tick':
-      default:
-        this.drawTickEnemy(enemyColor, scale, isBoss)
-        break
+    if (enemyDef?.spriteImage && this.textures.exists(this.enemyTextureKey(enemyDef.id))) {
+      this.drawEnemyImage(enemyDef)
+    } else {
+      switch (enemyDef?.spriteKind) {
+        case 'spider':
+          this.drawSpiderEnemy(enemyColor, scale)
+          break
+        case 'serpent':
+          this.drawSerpentEnemy(enemyColor, scale)
+          break
+        case 'tick':
+        default:
+          this.drawTickEnemy(enemyColor, scale, isBoss)
+          break
+      }
     }
 
     this.enemyNameLabel = this.add.text(600, 320, (enemyDef?.name ?? 'ENEMIGO').toUpperCase(), {
       fontFamily: 'monospace', fontSize: '14px', color: isBoss ? '#ffd166' : '#e8a8a8'
     }).setOrigin(0.5)
+  }
+
+  drawEnemyImage(enemyDef) {
+    const textureKey = this.enemyTextureKey(enemyDef.id)
+    const image = this.add.image(0, enemyDef.spriteScale?.offsetY ?? 0, textureKey)
+    const maxWidth = enemyDef.spriteScale?.maxWidth ?? (enemyDef.boss ? 260 : 220)
+    const maxHeight = enemyDef.spriteScale?.maxHeight ?? (enemyDef.boss ? 250 : 200)
+    const fitScale = Math.min(maxWidth / image.width, maxHeight / image.height)
+
+    image
+      .setScale(fitScale)
+      .setOrigin(0.5)
+      .setDepth(1)
+
+    this.enemy.add(image)
   }
 
   drawTickEnemy(enemyColor, scale, isBoss) {

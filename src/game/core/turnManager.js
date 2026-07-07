@@ -1,4 +1,5 @@
 import { getScenario, getScenarioEncounter } from '../data/scenarios.js'
+import { generateChallengeLetters } from '../data/letters.js'
 import { getEnemyDef } from './enemyAI.js'
 
 // Manejo del avance de turnos: reposición de letras usadas,

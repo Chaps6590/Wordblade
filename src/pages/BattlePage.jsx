@@ -56,6 +56,8 @@ export function BattlePage() {
   if (!battle || !scenario || battle.scenarioId !== scenarioId) {
     return (
       <div className="page battle-page">
+        <div className="battle-background" aria-hidden="true" />
+        <div className="battle-lighting" aria-hidden="true" />
         <p className="console-status">♻ Generando letras con palabras reales...</p>
       </div>
     )
@@ -94,23 +96,43 @@ export function BattlePage() {
   }
 
   return (
-    <div className="page battle-page">
-      <header className="battle-header">
-        <span className="scenario-name">
-          {scenario.mapPoint ?? scenario.name}
-          {battle.encounterLabel ? <small>{battle.encounterLabel}</small> : null}
-        </span>
-        <TimerBar timeLeft={battle.timeLeft} totalTime={scenario.time} />
-        <span className="turn-counter">Turno {battle.turn}</span>
-      </header>
+    <div
+      className="page battle-page"
+      style={{ '--battle-bg': `url(${scenario.backgroundImage})` }}
+    >
+      <div className="battle-background" aria-hidden="true" />
+      <div className="battle-lighting" aria-hidden="true" />
 
-      <HealthBar
-        name={battle.enemy.name}
-        hp={battle.enemy.hp}
-        maxHp={battle.enemy.maxHp}
-        shield={battle.enemy.shield}
-        side="right"
-      />
+      <header className="battle-header">
+        <div className="battle-hud battle-hud-player">
+          <HealthBar
+            name={`${battle.player.name}  ${battle.player.energy > 0 ? `⚡${battle.player.energy}` : ''}`}
+            hp={battle.player.hp}
+            maxHp={battle.player.maxHp}
+            shield={battle.player.shield}
+            side="left"
+          />
+        </div>
+
+        <div className="battle-timer-hud">
+          <span className="scenario-name">
+            {scenario.mapPoint ?? scenario.name}
+            {battle.encounterLabel ? <small>{battle.encounterLabel}</small> : null}
+          </span>
+          <TimerBar timeLeft={battle.timeLeft} totalTime={scenario.time} />
+          <span className="turn-counter">Turno {battle.turn}</span>
+        </div>
+
+        <div className="battle-hud battle-hud-enemy">
+          <HealthBar
+            name={battle.enemy.name}
+            hp={battle.enemy.hp}
+            maxHp={battle.enemy.maxHp}
+            shield={battle.enemy.shield}
+            side="right"
+          />
+        </div>
+      </header>
 
       <div className="battle-stage">
         <PhaserGame scenarioId={scenarioId} />
@@ -122,14 +144,6 @@ export function BattlePage() {
           </div>
         )}
       </div>
-
-      <HealthBar
-        name={`${battle.player.name}  ${battle.player.energy > 0 ? `⚡${battle.player.energy}` : ''}`}
-        hp={battle.player.hp}
-        maxHp={battle.player.maxHp}
-        shield={battle.player.shield}
-        side="left"
-      />
 
       <section className="battle-console">
         <section className="hidden-word-challenge" aria-label={`Palabra oculta de ${battle.hiddenWordLength} letras`}>
@@ -151,7 +165,9 @@ export function BattlePage() {
             />
           ))}
         </section>
+      </section>
 
+      <section className="battle-actions" aria-label="Acciones de combate">
         <WordInput
           value={word}
           onChange={setWord}
@@ -171,6 +187,11 @@ export function BattlePage() {
       <button className="btn btn-back" onClick={() => navigate('/scenarios')}>
         ← Abandonar batalla
       </button>
+
+      <div className="portrait-blocker" role="status" aria-live="polite">
+        <span className="rotate-icon" aria-hidden="true" />
+        <strong>Girá tu dispositivo para jugar</strong>
+      </div>
     </div>
   )
 }
