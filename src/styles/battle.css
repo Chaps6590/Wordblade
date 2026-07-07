@@ -322,6 +322,19 @@
   box-shadow: 0 2px 0 #101014;
 }
 
+/* Ficha devorada por el Devorador de Letras: hueco vacío en la grilla */
+.letter-tile.devoured {
+  background: radial-gradient(closest-side, #050505, #14141a);
+  color: #553333;
+  border-color: #3a2222;
+  border-style: dashed;
+  opacity: 0.85;
+  box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.8);
+}
+
+.letter-tile.devoured .letter-value { color: #7a3a3a; text-shadow: none; }
+.letter-tile.devoured .letter-points { visibility: hidden; }
+
 .letter-tile.poisoned {
   border-color: var(--poison);
   box-shadow: 0 5px 0 #060b1c, 0 0 12px rgba(111, 191, 95, 0.45);

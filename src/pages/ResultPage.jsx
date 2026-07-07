@@ -42,11 +42,24 @@ export function ResultPage() {
   const scenario = getScenario(battle.scenarioId)
   const info = STATUS_INFO[battle.status] ?? STATUS_INFO.defeat
 
+  const longestWord = battle.playedWords.reduce(
+    (best, played) => (played.word.length > (best?.word.length ?? 0) ? played : best),
+    null
+  )
+  const minutes = Math.floor(battle.timeLeft / 60)
+  const seconds = battle.timeLeft % 60
+  const timeLeftLabel = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`
+
   return (
     <div className="page result-page">
       <div className={`result-panel ${info.className}`}>
         <h2 className="result-title">{info.title}</h2>
-        <p className="result-scenario">{scenario?.name}</p>
+        <p className="result-scenario">
+          {scenario?.name}
+          {battle.status === 'victory'
+            ? ` — ${battle.enemy.name} derrotada`
+            : ` — ${battle.enemy.name} venció a Kael`}
+        </p>
 
         <div className="result-stats">
           <div className="stat">
@@ -65,7 +78,21 @@ export function ResultPage() {
             <span className="stat-value">{battle.turn}</span>
             <span className="stat-label">Turnos</span>
           </div>
+          <div className="stat">
+            <span className="stat-value">{timeLeftLabel}</span>
+            <span className="stat-label">Tiempo restante</span>
+          </div>
+          <div className="stat">
+            <span className="stat-value">{battle.invalidWords ?? 0}</span>
+            <span className="stat-label">Inválidas</span>
+          </div>
         </div>
+
+        {longestWord && (
+          <p className="result-longest">
+            Palabra más larga: <strong>{longestWord.word}</strong> ({longestWord.word.length} letras, {longestWord.damage} de daño)
+          </p>
+        )}
 
         <div className="result-words">
           <h3>Palabras usadas</h3>

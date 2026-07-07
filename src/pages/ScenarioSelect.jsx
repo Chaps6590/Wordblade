@@ -5,7 +5,8 @@ import { ENEMIES } from '../game/data/enemies.js'
 const DIFFICULTY_CLASS = {
   'Fácil': 'diff-easy',
   'Media': 'diff-medium',
-  'Alta': 'diff-hard'
+  'Alta': 'diff-hard',
+  'Muy alta': 'diff-hard'
 }
 
 export function ScenarioSelect() {

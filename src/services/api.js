@@ -4,13 +4,15 @@
 // El juego funciona igual si el backend está apagado: los errores se
 // registran y se sigue.
 
-const API_ORIGIN = import.meta.env.VITE_API_URL ?? ''
+// import.meta.env solo existe bajo Vite; el ?. permite correr el motor en Node (tests)
+const API_ORIGIN = import.meta.env?.VITE_API_URL ?? ''
 const BASE_URL = `${API_ORIGIN}/api`
 const SESSION_KEY = 'wordblade-session'
 export const UNAUTHORIZED_EVENT = 'wordblade:unauthorized'
 const FALLBACK_CHALLENGES = {
   8: ['AVENTURA', 'CABALLOS', 'DIAMANTE', 'ELEFANTE', 'FANTASMA'],
-  10: ['AVENTURERO', 'BIBLIOTECA', 'DICCIONARIO', 'MISTERIOSO', 'NATURALEZA']
+  10: ['AVENTURERO', 'BIBLIOTECA', 'DICCIONARIO', 'MISTERIOSO', 'NATURALEZA'],
+  12: ['CONSTRUCCION', 'ARQUITECTURA', 'CIVILIZACION']
 }
 
 export function getSavedSession() {
@@ -37,7 +39,9 @@ async function authorizedFetch(url, options = {}) {
   const response = await fetch(url, { ...options, headers })
   if (response.status === 401) {
     clearSession()
-    window.dispatchEvent(new Event(UNAUTHORIZED_EVENT))
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new Event(UNAUTHORIZED_EVENT))
+    }
   }
   return response
 }
@@ -94,10 +98,17 @@ export async function getRecentResults(limit = 10) {
   }
 }
 
+// Cache de sesión: durante la partida no se vuelve a consultar una palabra
+// ya validada o rechazada. Es solo memoria (no un diccionario permanente).
+const wordCheckCache = new Map()
+
 // Valida la ortografía de una palabra (el backend consulta LanguageTool).
-// Devuelve { isCorrect, correctedWord, suggestions } o null si el backend no responde
-// (en ese caso el juego valida solo con el diccionario local).
+// Devuelve { isCorrect, correctedWord, suggestions } o null si el backend
+// no responde (en ese caso el jugador NO pierde el turno y puede reintentar).
 export async function checkWord(word, language = 'es') {
+  const cacheKey = `${language}:${String(word).trim().toLocaleLowerCase('es')}`
+  if (wordCheckCache.has(cacheKey)) return wordCheckCache.get(cacheKey)
+
   try {
     const res = await authorizedFetch(`${BASE_URL}/words/check`, {
       method: 'POST',
@@ -105,14 +116,19 @@ export async function checkWord(word, language = 'es') {
       body: JSON.stringify({ word, language })
     })
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    return await res.json()
+    const data = await res.json()
+    wordCheckCache.set(cacheKey, data) // se cachean aciertos y rechazos, no errores
+    return data
   } catch (err) {
     console.warn('No se pudo validar la ortografía:', err.message)
     return null
   }
 }
 
-export async function getWordChallenges(length = 8, difficulty = 3) {
+// Versión estricta: devuelve null si la API falla, SIN fallback local.
+// La usa "Cambiar letras": si no hay palabras nuevas reales, no se cambia
+// nada y el jugador no pierde el turno.
+export async function fetchWordChallengesStrict(length = 8, difficulty = 3) {
   try {
     const params = new URLSearchParams({
       length: String(length),
@@ -121,13 +137,18 @@ export async function getWordChallenges(length = 8, difficulty = 3) {
     const res = await authorizedFetch(`${BASE_URL}/words/challenge?${params}`)
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
     const data = await res.json()
-    return Array.isArray(data.words) && data.words.length > 0
-      ? data.words
-      : (FALLBACK_CHALLENGES[length] ?? FALLBACK_CHALLENGES[8])
+    return Array.isArray(data.words) && data.words.length > 0 ? data.words : null
   } catch (err) {
     console.warn('No se pudieron cargar palabras secretas:', err.message)
-    return FALLBACK_CHALLENGES[length] ?? FALLBACK_CHALLENGES[8]
+    return null
   }
+}
+
+// Versión con fallback local: la usa el inicio de batalla, donde siempre
+// tiene que haber una grilla aunque la API esté caída.
+export async function getWordChallenges(length = 8, difficulty = 3) {
+  const words = await fetchWordChallengesStrict(length, difficulty)
+  return words ?? FALLBACK_CHALLENGES[length] ?? FALLBACK_CHALLENGES[8]
 }
 
 export async function getBestScore(scenarioId) {

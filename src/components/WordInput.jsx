@@ -3,7 +3,7 @@ import { useState } from 'react'
 // La palabra se arma exclusivamente tocando fichas. El campo es de solo
 // lectura para no abrir el teclado ni permitir borrar letra por letra.
 
-export function WordInput({ onSubmit, onClear, disabled, busy, value, onChange }) {
+export function WordInput({ onSubmit, onClear, onSwap, disabled, busy, value, onChange }) {
   const [internal, setInternal] = useState('')
   const word = value ?? internal
   const setWord = onChange ?? setInternal
@@ -39,6 +39,17 @@ export function WordInput({ onSubmit, onClear, disabled, busy, value, onChange }
       >
         ✕ BORRAR
       </button>
+      {onSwap && (
+        <button
+          type="button"
+          className="btn swap-btn"
+          onClick={onSwap}
+          disabled={disabled || busy}
+          title="Genera una grilla nueva con la API. Cuesta el turno: el enemigo ataca."
+        >
+          ♻ CAMBIAR
+        </button>
+      )}
       <button type="submit" className="btn attack-btn" disabled={disabled || busy || !word.trim()}>
         {busy ? '⏳ VALIDANDO...' : '⚔ ATACAR'}
       </button>

@@ -19,7 +19,9 @@ export function BattlePage() {
   const battle = useBattleStore((s) => s.battle)
   const startBattle = useBattleStore((s) => s.startBattle)
   const submitWord = useBattleStore((s) => s.submitWord)
+  const swapLetters = useBattleStore((s) => s.swapLetters)
   const validating = useBattleStore((s) => s.validating)
+  const pending = useBattleStore((s) => s.pending)
   const tick = useBattleStore((s) => s.tick)
 
   const [word, setWord] = useState('')
@@ -52,10 +54,18 @@ export function BattlePage() {
   }, [status, navigate])
 
   if (!battle || !scenario || battle.scenarioId !== scenarioId) {
-    return <div className="page battle-page">Cargando batalla...</div>
+    return (
+      <div className="page battle-page">
+        <p className="console-status">♻ Generando letras con palabras reales...</p>
+      </div>
+    )
   }
 
   const playing = battle.status === 'playing'
+  const statusMessage =
+    pending === 'validating_word' ? '⏳ Validando palabra... (el tiempo está pausado)' :
+    pending === 'loading_words' ? '♻ Generando nuevas letras... (el tiempo está pausado)' :
+    null
 
   const handleTileClick = (tile) => {
     if (!playing || validating || tile.locked || selectedTileIds.includes(tile.id)) return
@@ -74,6 +84,13 @@ export function BattlePage() {
     setWord('')
     setSelectedTileIds([])
     eventBus.emit('battle-event', { kind: 'enemyLaugh' })
+  }
+
+  const handleSwap = () => {
+    if (!playing || validating) return
+    setWord('')
+    setSelectedTileIds([])
+    swapLetters()
   }
 
   return (
@@ -118,6 +135,8 @@ export function BattlePage() {
           <small>Descubrila para sumar +35 de daño</small>
         </section>
 
+        {statusMessage && <p className="console-status">{statusMessage}</p>}
+
         <section className="letters-row">
           {battle.letters.map((tile) => (
             <LetterTile
@@ -135,6 +154,7 @@ export function BattlePage() {
           onChange={setWord}
           onSubmit={handleSubmit}
           onClear={handleClear}
+          onSwap={handleSwap}
           disabled={!playing}
           busy={validating}
         />

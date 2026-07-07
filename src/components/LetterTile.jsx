@@ -7,6 +7,7 @@ export function LetterTile({ tile, onClick, disabled, selected = false }) {
   const data = LETTER_DATA[tile.value]
   const classes = ['letter-tile']
   if (tile.locked) classes.push('locked')
+  if (tile.devoured) classes.push('devoured')
   if (tile.poisoned) classes.push('poisoned')
   if (tile.cursed) classes.push('cursed')
   if (data?.effect) classes.push('has-skill')
@@ -17,7 +18,7 @@ export function LetterTile({ tile, onClick, disabled, selected = false }) {
     `${tile.value} · ${data?.points ?? 1} pts`,
     tile.bonusDamage ? `Color especial: +${tile.bonusDamage} de daño` : null,
     data?.effectDesc,
-    tile.locked ? `Bloqueada (${tile.lockTurns} turnos)` : null,
+    tile.devoured ? 'Devorada: ya no puede usarse' : tile.locked ? `Bloqueada (${tile.lockTurns} turnos)` : null,
     tile.poisoned ? 'Envenenada: usarla daña a Kael' : null,
     tile.cursed ? 'Maldita: reduce el daño de la palabra' : null
   ]
@@ -32,7 +33,7 @@ export function LetterTile({ tile, onClick, disabled, selected = false }) {
       disabled={disabled || tile.locked || selected}
       title={title}
     >
-      <span className="letter-value">{tile.locked ? '🔒' : tile.value}</span>
+      <span className="letter-value">{tile.devoured ? '✕' : tile.locked ? '🔒' : tile.value}</span>
       <span className="letter-points">{data?.points ?? 1}</span>
       {tile.poisoned && <span className="letter-badge">☠</span>}
       {tile.cursed && <span className="letter-badge">✦</span>}
