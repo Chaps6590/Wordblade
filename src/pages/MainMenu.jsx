@@ -49,65 +49,40 @@ export function MainMenu() {
       </header>
 
       <main className="main-menu-content">
-        <aside className="home-left-rail">
-          <section className="home-panel daily-panel">
-            <h2>Diario</h2>
-            <ul>
-              <li><span>Juega 3 batallas</span><strong>2 / 3</strong><em>◆ 50</em></li>
-              <li><span>Gana 2 duelos online</span><strong>0 / 2</strong><em>◆ 60</em></li>
-              <li><span>Forma 5 palabras</span><strong>0 / 5</strong><em>◆ 40</em></li>
-            </ul>
-          </section>
-
-          <section className="home-panel reward-panel">
-            <h2>Recompensa diaria</h2>
-            <div className="reward-chest">▣</div>
-            <p>Volvé mañana por más recompensas</p>
-            <strong>11:24:15</strong>
-          </section>
-        </aside>
-
         <section className="home-hero-stage" aria-label="Campeón activo">
           {hero ? <img src={hero.portrait} alt={hero.name} /> : null}
         </section>
 
         <section className="home-mode-cards" aria-label="Modos de juego">
-          <article className="mode-card mode-card-adventure">
-            <img src="/menu/adventure-card.png" alt="" aria-hidden="true" />
+          <article
+            className="mode-card mode-card-adventure"
+            onClick={() => navigate(`/battle/${INITIAL_SCENARIO_ID}`)}
+          >
+            <img className="mode-card-image" src="/menu/adventure-mode-card.png" alt="" aria-hidden="true" />
             <div className="mode-card-overlay">
               <p>Explorá el reino, enfrentá enemigos y convertite en leyenda.</p>
-              <button className="btn mode-card-btn" onClick={() => navigate(`/battle/${INITIAL_SCENARIO_ID}`)}>
+              <button className="btn mode-card-btn" type="button">
                 Entrar
               </button>
             </div>
           </article>
 
-          <article className="mode-card mode-card-multiplayer">
-            <div className="mode-card-art">
-              <span>⚔</span>
+          <article
+            className="mode-card mode-card-multiplayer"
+            onClick={() => navigate('/multiplayer')}
+          >
+            <img className="mode-card-image" src="/menu/multiplayer-mode-card.png" alt="" aria-hidden="true" />
+            <div className="mode-card-overlay">
+              <p>Desafiá a otros jugadores en duelos en tiempo real.</p>
+              <button className="btn mode-card-btn mode-card-btn-red" type="button">
+                Ver salas
+              </button>
             </div>
-            <div className="mode-card-title">
-              <small>Modo</small>
-              <strong>Multijugador</strong>
-            </div>
-            <p>Desafiá a otros jugadores en duelos en tiempo real.</p>
-            <button className="btn mode-card-btn mode-card-btn-red" onClick={() => navigate('/multiplayer')}>
-              Ver salas
-            </button>
           </article>
         </section>
       </main>
 
       <footer className="main-menu-bottom">
-        <nav className="home-nav-bar" aria-label="Secciones">
-          <button type="button">🎒<span>Inventario</span></button>
-          <button type="button">📖<span>Habilidades</span></button>
-          <button type="button">🛡<span>Héroes</span></button>
-          <button type="button">🏪<span>Tienda</span></button>
-          <button type="button">⭐<span>Misiones</span></button>
-          <button type="button">🏆<span>Ranking</span></button>
-        </nav>
-
         <div className="home-system-actions">
           <PwaInstallButton />
           <button className="btn btn-ghost" onClick={handleLogout}>
