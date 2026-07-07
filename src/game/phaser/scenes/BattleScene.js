@@ -269,10 +269,18 @@ export class BattleScene extends Phaser.Scene {
     const baseY = this.kael.getData('baseY') ?? PLAYER_BASE.y
     this.playerIdleTween = this.tweens.add({
       targets: this.kael,
-      y: baseY - 4,
-      scaleX: 1.012,
-      scaleY: 0.995,
-      duration: 2200,
+      y: baseY - 5,
+      scaleX: 1.014,
+      scaleY: 0.992,
+      duration: 2400,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut'
+    })
+    this.playerSpriteIdleTween = this.tweens.add({
+      targets: this.kaelSprite,
+      angle: { from: -0.7, to: 0.7 },
+      duration: 3100,
       yoyo: true,
       repeat: -1,
       ease: 'Sine.easeInOut'
@@ -305,7 +313,7 @@ export class BattleScene extends Phaser.Scene {
     this.tweens.add({
       targets: this.kael,
       x: startX + 46,
-      angle: -3,
+      scaleX: 1.04,
       duration: 150,
       yoyo: true,
       ease: 'Power2',
@@ -329,7 +337,7 @@ export class BattleScene extends Phaser.Scene {
       },
       onComplete: () => {
         this.kael.x = startX
-        this.kael.angle = 0
+        this.kael.scaleX = 1
       }
     })
   }
