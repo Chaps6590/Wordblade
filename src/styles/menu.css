@@ -907,11 +907,13 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  /* La marca (emblema + texto) se ancla arriba y el formulario abajo, como panel.
-     El fondo es solo el marco: el logo se compone por capas encima. */
-  justify-content: space-between;
-  gap: clamp(0.6rem, 2vh, 1.4rem);
-  overflow: hidden;
+  /* La marca (emblema + texto) va arriba y el formulario debajo. El fondo es solo
+     el marco; el logo se compone por capas encima. Si el contenido no entra
+     (pantallas bajas), la pantalla scrollea en vez de solaparse. */
+  justify-content: flex-start;
+  gap: clamp(0.75rem, 2.2vh, 1.6rem);
+  overflow-y: auto;
+  overflow-x: hidden;
   background: #010107;
   isolation: isolate;
 }
@@ -920,23 +922,27 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: clamp(0.15rem, 1vh, 0.55rem);
+  gap: clamp(0.1rem, 0.8vh, 0.4rem);
   flex: 0 0 auto;
-  padding-top: clamp(0.3rem, 2vh, 1.4rem);
+  /* auto arriba + auto abajo en el form centran el conjunto cuando sobra alto,
+     y colapsan a 0 (permitiendo scroll sin cortar) cuando no entra. */
+  margin-top: auto;
   pointer-events: none;
   filter: drop-shadow(0 8px 26px rgba(0, 0, 0, 0.6));
 }
 
 .login-brand-icon {
-  width: clamp(92px, 17vh, 188px);
+  width: clamp(78px, 13vh, 150px);
   height: auto;
   filter: drop-shadow(0 0 28px rgba(45, 126, 255, 0.5));
   animation: login-brand-float 5.5s ease-in-out infinite;
 }
 
 .login-brand-text {
-  width: clamp(180px, 44vw, 420px);
+  width: clamp(160px, 32vw, 340px);
   height: auto;
+  /* El emblema y el texto se pisan un poco a propósito para leerse como un lockup. */
+  margin-top: clamp(-0.6rem, -1.4vh, -0.3rem);
 }
 
 @keyframes login-brand-float {
@@ -997,22 +1003,20 @@
 }
 
 .login-screen-form {
-  width: min(94vw, 900px);
-  max-height: 100%;
-  flex: 0 1 auto;
-  min-height: 0;
+  width: min(94vw, 720px);
+  flex: 0 0 auto;
+  margin-bottom: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: clamp(0.5rem, 1.4vh, 0.9rem);
+  gap: clamp(0.6rem, 1.6vh, 1rem);
   /* Panel translúcido: legible sobre cualquier recorte del arte de fondo. */
-  padding: clamp(0.85rem, 2vh, 1.5rem) clamp(1rem, 2.5vw, 2rem);
-  background: linear-gradient(180deg, rgba(3, 8, 22, 0.42), rgba(3, 8, 22, 0.85));
+  padding: clamp(1rem, 2.4vh, 1.6rem) clamp(1rem, 2.5vw, 2rem);
+  background: linear-gradient(180deg, rgba(3, 8, 22, 0.55), rgba(3, 8, 22, 0.9));
   border: 1px solid rgba(92, 178, 255, 0.28);
   border-radius: 18px;
   box-shadow: 0 18px 48px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(158, 215, 255, 0.14);
   backdrop-filter: blur(7px);
-  overflow-y: auto;
 }
 
 .login-screen-fields {
@@ -1181,12 +1185,14 @@
 
 @media (orientation: portrait) {
   .login-screen-page {
+    /* En vertical dejamos que scrollee la página (mejor con la barra del navegador
+       en Android) en vez de un contenedor fijo. */
     position: relative;
     min-height: 100vh;
     min-height: 100dvh;
     height: auto;
     overflow-y: auto;
-    place-items: start center;
+    padding-top: max(3.4rem, calc(env(safe-area-inset-top) + 3rem));
   }
 
   .login-screen-bg,
@@ -1194,20 +1200,16 @@
     position: fixed;
   }
 
-  .login-screen-form {
-    min-height: 100dvh;
-    height: auto;
-    grid-template-rows: minmax(220px, 34vh) auto auto auto;
-    gap: 0.75rem;
-    padding-top: 4.75rem;
-    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  .login-brand-icon {
+    width: clamp(96px, 26vw, 168px);
+  }
+
+  .login-brand-text {
+    width: clamp(190px, 58vw, 340px);
   }
 
   .login-install-action {
-    left: 50%;
-    right: auto;
-    transform: translateX(-50%);
-    width: min(88vw, 360px);
+    width: min(52vw, 240px);
   }
 
   .login-screen-fields {

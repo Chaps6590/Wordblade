@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { AuthProvider } from '../auth/AuthContext.jsx'
 import { useAuth } from '../auth/useAuth.js'
 import { LoginPage } from '../pages/LoginPage.jsx'
@@ -8,7 +8,7 @@ import { routes } from './routes.jsx'
 export function App() {
   return (
     <BrowserRouter>
-      <OrientationLock />
+      <OrientationGuard />
       <AuthProvider>
         <Routes>
           <Route
@@ -31,6 +31,15 @@ export function App() {
       </AuthProvider>
     </BrowserRouter>
   )
+}
+
+// El juego se juega en horizontal (fichas táctiles, sin teclado). El login es
+// la única pantalla donde se escribe: ahí dejamos vertical para no pelear con
+// el teclado del celular. Por eso el bloqueo de orientación excluye /login.
+function OrientationGuard() {
+  const { pathname } = useLocation()
+  if (pathname === '/login') return null
+  return <OrientationLock />
 }
 
 function ProtectedRoute({ children }) {

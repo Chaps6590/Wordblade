@@ -21,6 +21,7 @@ const PLAYER_SPRITE = HERO_BY_RACE.LOBO.portrait
 const PLAYER_ANIMATIONS = HERO_BY_RACE.LOBO.animations
 const PLAYER_BASE = { x: 170, y: 304 }
 const ENEMY_BASE = { x: 630, y: 304 }
+const PLAYER_ATTACK_CONTENT_SCALE = 0.88
 
 export class BattleScene extends Phaser.Scene {
   constructor() {
@@ -83,6 +84,7 @@ export class BattleScene extends Phaser.Scene {
 
     const sprite = this.add.sprite(0, 0, PLAYER_IDLE_TEXTURE_KEY, 0)
     const fitScale = Math.min(198 / sprite.width, 235 / sprite.height)
+    this.kaelSpriteScale = fitScale
 
     sprite
       .setScale(fitScale)
@@ -353,12 +355,18 @@ export class BattleScene extends Phaser.Scene {
 
   animatePlayerAttack(event) {
     const startX = this.kael.getData('baseX') ?? this.kael.x
-    this.kaelSprite?.play(PLAYER_ATTACK_ANIM_KEY)
+    if (this.kaelSprite) {
+      this.kaelSprite
+        .stop()
+        .setTexture(PLAYER_ATTACK_TEXTURE_KEY, 0)
+        .setScale(this.kaelSpriteScale / PLAYER_ATTACK_CONTENT_SCALE)
+        .play(PLAYER_ATTACK_ANIM_KEY, true)
+    }
     this.tweens.add({
       targets: this.kael,
-      x: startX + 46,
-      scaleX: 1.04,
-      duration: 150,
+      x: startX + 74,
+      scaleX: 1.08,
+      duration: 190,
       yoyo: true,
       ease: 'Power2',
       onYoyo: () => {
@@ -382,7 +390,13 @@ export class BattleScene extends Phaser.Scene {
       onComplete: () => {
         this.kael.x = startX
         this.kael.scaleX = 1
-        this.kaelSprite?.play(PLAYER_IDLE_ANIM_KEY)
+        if (this.kaelSprite) {
+          this.kaelSprite
+            .stop()
+            .setTexture(PLAYER_IDLE_TEXTURE_KEY, 0)
+            .setScale(this.kaelSpriteScale)
+            .play(PLAYER_IDLE_ANIM_KEY, true)
+        }
       }
     })
   }

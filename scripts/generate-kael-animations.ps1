@@ -19,7 +19,7 @@ function New-TransparentBitmap($width, $height) {
   return $bitmap
 }
 
-function Draw-HeroFrame($target, $source, $x, $y, $scaleX, $scaleY, $angle, $breath, $glint, $slash) {
+function Draw-HeroFrame($target, $source, $x, $y, $scaleX, $scaleY, $angle, $breath, $glint, $slash, $baseScale = 1) {
   $g = [System.Drawing.Graphics]::FromImage($target)
   $g.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::HighQuality
   $g.InterpolationMode = [System.Drawing.Drawing2D.InterpolationMode]::HighQualityBicubic
@@ -30,7 +30,7 @@ function Draw-HeroFrame($target, $source, $x, $y, $scaleX, $scaleY, $angle, $bre
   $pivotY = $source.Height * 0.88
   $g.TranslateTransform($pivotX + $x, $pivotY + $y)
   $g.RotateTransform($angle)
-  $g.ScaleTransform($scaleX, $scaleY)
+  $g.ScaleTransform(($scaleX * $baseScale), ($scaleY * $baseScale))
   $g.TranslateTransform(-$pivotX, -$pivotY)
   $g.DrawImage($source, 0, 0, $source.Width, $source.Height)
   $g.ResetTransform()
@@ -75,7 +75,8 @@ function Save-Sheet($name, $frames) {
 
   for ($i = 0; $i -lt $frames.Count; $i++) {
     $frame = New-TransparentBitmap $script:frameW $script:frameH
-    Draw-HeroFrame $frame $script:src $frames[$i].x $frames[$i].y $frames[$i].scaleX $frames[$i].scaleY $frames[$i].angle $frames[$i].breath $frames[$i].glint $frames[$i].slash
+    $baseScale = if ($frames[$i].ContainsKey('baseScale')) { $frames[$i].baseScale } else { 1 }
+    Draw-HeroFrame $frame $script:src $frames[$i].x $frames[$i].y $frames[$i].scaleX $frames[$i].scaleY $frames[$i].angle $frames[$i].breath $frames[$i].glint $frames[$i].slash $baseScale
     $g.DrawImage($frame, $i * $script:frameW, 0, $script:frameW, $script:frameH)
     $frame.Dispose()
   }
@@ -95,10 +96,10 @@ $idleFrames = @(
 )
 
 $attackFrames = @(
-  @{ x = -5; y = 0;   scaleX = 0.996; scaleY = 1.002; angle = -4.5; breath = 0.40; glint = 0.35; slash = 0.00 },
-  @{ x = 30; y = -12; scaleX = 1.035; scaleY = 0.990; angle = 5.0;  breath = 0.85; glint = 1.00; slash = 0.25 },
-  @{ x = 54; y = -8;  scaleX = 1.055; scaleY = 0.978; angle = 9.0;  breath = 0.95; glint = 1.00; slash = 1.00 },
-  @{ x = 18; y = -3;  scaleX = 1.018; scaleY = 0.994; angle = 2.0;  breath = 0.60; glint = 0.45; slash = 0.20 }
+  @{ x = 42; y = 20;  scaleX = 0.996; scaleY = 1.002; angle = -6.0; breath = 0.40; glint = 0.35; slash = 0.00; baseScale = 0.88 },
+  @{ x = 50; y = 6;   scaleX = 1.035; scaleY = 0.990; angle = 6.0;  breath = 0.85; glint = 1.00; slash = 0.30; baseScale = 0.88 },
+  @{ x = 58; y = 8;   scaleX = 1.055; scaleY = 0.978; angle = 12.0; breath = 0.95; glint = 1.00; slash = 1.00; baseScale = 0.88 },
+  @{ x = 48; y = 14;  scaleX = 1.018; scaleY = 0.994; angle = 3.0;  breath = 0.60; glint = 0.45; slash = 0.25; baseScale = 0.88 }
 )
 
 Save-Sheet "kael-idle-sheet.png" $idleFrames
