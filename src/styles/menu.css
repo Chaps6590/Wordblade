@@ -366,6 +366,32 @@
   line-height: 1.35;
 }
 
+.exit-card {
+  display: grid;
+  gap: 0.45rem;
+  margin: 0.75rem auto 0;
+  width: min(100%, 320px);
+}
+
+.btn-exit {
+  min-height: 44px;
+  border-color: rgba(224, 85, 85, 0.6);
+  color: #ffb0b0;
+  background: rgba(70, 20, 24, 0.55);
+  font-weight: 800;
+}
+
+.btn-exit:hover:not(:disabled) {
+  border-color: #ff8a8a;
+  box-shadow: 0 0 16px rgba(224, 85, 85, 0.22);
+}
+
+.exit-card p {
+  color: var(--text-dim);
+  font-size: 0.76rem;
+  line-height: 1.35;
+}
+
 @keyframes heroIdle {
   0%, 100% { transform: translateY(0) scale(1); }
   50% { transform: translateY(-5px) scale(1.015); }
