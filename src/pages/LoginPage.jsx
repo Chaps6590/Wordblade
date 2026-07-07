@@ -28,15 +28,12 @@ export function LoginPage() {
   }
 
   return (
-    <div className="page menu-page">
-      <form className="menu-panel login-panel hero-login-panel" onSubmit={handleSubmit}>
-        <img className="game-logo login-logo" src="/icons/icon-512.png" alt="Emblema de Wordblade" />
-        <h1 className="game-title">
-          Wordblade
-          <span className="game-subtitle">Ingreso de Campeones</span>
-        </h1>
+    <div className="page menu-page login-screen-page">
+      <div className="login-screen-bg" aria-hidden="true" />
+      <div className="login-screen-shade" aria-hidden="true" />
 
-        <div className="login-fields">
+      <form className="login-screen-form" onSubmit={handleSubmit}>
+        <div className="login-fields login-screen-fields">
           <label className="field-label">
             Nombre
             <input
@@ -64,7 +61,13 @@ export function LoginPage() {
           </label>
         </div>
 
-        <section className="race-picker" aria-label="Campeón sabio">
+        {error ? <p className="login-error">{error}</p> : null}
+
+        <button className="btn btn-primary login-submit" type="submit" disabled={submitting}>
+          {submitting ? 'Abriendo portal…' : 'Entrar al juego'}
+        </button>
+
+        <section className="race-picker login-hero-picker" aria-label="Campeón sabio">
           <h2>Elegí tu campeón sabio</h2>
           <div className="race-grid hero-grid">
             {HEROES.map((hero) => (
@@ -87,12 +90,6 @@ export function LoginPage() {
             ))}
           </div>
         </section>
-
-        {error ? <p className="login-error">{error}</p> : null}
-
-        <button className="btn btn-primary login-submit" type="submit" disabled={submitting}>
-          {submitting ? 'Abriendo portal…' : 'Entrar al juego'}
-        </button>
       </form>
     </div>
   )
