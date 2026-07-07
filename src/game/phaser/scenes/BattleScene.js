@@ -167,7 +167,7 @@ export class BattleScene extends Phaser.Scene {
   handleEvent(event) {
     switch (event.kind) {
       case 'playerAttack':
-        this.animatePlayerAttack(event)
+        this.animatePlayerAttackSequence(event)
         break
       case 'enemyAttack':
         this.animateEnemyAttack(event)
