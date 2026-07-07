@@ -1,0 +1,4 @@
+interface:
+  display_name: "Game Animation Designer"
+  short_description: "Polish game sprites, tweens, and VFX"
+  default_prompt: "Use $game-animation-designer to improve this character animation while preserving the current game art style."

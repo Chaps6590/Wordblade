@@ -13,7 +13,12 @@ import { HERO_BY_RACE } from '../../data/heroes.js'
 const W = 800
 const H = 400
 const PLAYER_TEXTURE_KEY = 'player-kael'
+const PLAYER_IDLE_TEXTURE_KEY = 'player-kael-idle'
+const PLAYER_ATTACK_TEXTURE_KEY = 'player-kael-attack'
+const PLAYER_IDLE_ANIM_KEY = 'kael-idle'
+const PLAYER_ATTACK_ANIM_KEY = 'kael-attack'
 const PLAYER_SPRITE = HERO_BY_RACE.LOBO.portrait
+const PLAYER_ANIMATIONS = HERO_BY_RACE.LOBO.animations
 const PLAYER_BASE = { x: 170, y: 304 }
 const ENEMY_BASE = { x: 630, y: 304 }
 
@@ -27,6 +32,14 @@ export class BattleScene extends Phaser.Scene {
     const scenario = getScenario(scenarioId)
 
     this.load.image(PLAYER_TEXTURE_KEY, PLAYER_SPRITE)
+    this.load.spritesheet(PLAYER_IDLE_TEXTURE_KEY, PLAYER_ANIMATIONS.idle.sheet, {
+      frameWidth: PLAYER_ANIMATIONS.idle.frameWidth,
+      frameHeight: PLAYER_ANIMATIONS.idle.frameHeight
+    })
+    this.load.spritesheet(PLAYER_ATTACK_TEXTURE_KEY, PLAYER_ANIMATIONS.attack.sheet, {
+      frameWidth: PLAYER_ANIMATIONS.attack.frameWidth,
+      frameHeight: PLAYER_ANIMATIONS.attack.frameHeight
+    })
 
     if (scenario?.backgroundImage) {
       this.load.image(`scenario-bg-${scenario.id}`, scenario.backgroundImage)
@@ -66,16 +79,46 @@ export class BattleScene extends Phaser.Scene {
     this.kael.setData('baseX', PLAYER_BASE.x)
     this.kael.setData('baseY', PLAYER_BASE.y)
 
-    const sprite = this.add.image(0, 0, PLAYER_TEXTURE_KEY)
+    this.createPlayerAnimations()
+
+    const sprite = this.add.sprite(0, 0, PLAYER_IDLE_TEXTURE_KEY, 0)
     const fitScale = Math.min(198 / sprite.width, 235 / sprite.height)
 
     sprite
       .setScale(fitScale)
       .setOrigin(0.5, 1)
       .setDepth(1)
+      .play(PLAYER_IDLE_ANIM_KEY)
 
     this.kaelSprite = sprite
     this.kael.add(sprite)
+  }
+
+  createPlayerAnimations() {
+    if (!this.anims.exists(PLAYER_IDLE_ANIM_KEY)) {
+      this.anims.create({
+        key: PLAYER_IDLE_ANIM_KEY,
+        frames: this.anims.generateFrameNumbers(PLAYER_IDLE_TEXTURE_KEY, {
+          start: 0,
+          end: PLAYER_ANIMATIONS.idle.frames - 1
+        }),
+        frameRate: PLAYER_ANIMATIONS.idle.frameRate,
+        repeat: -1,
+        yoyo: true
+      })
+    }
+
+    if (!this.anims.exists(PLAYER_ATTACK_ANIM_KEY)) {
+      this.anims.create({
+        key: PLAYER_ATTACK_ANIM_KEY,
+        frames: this.anims.generateFrameNumbers(PLAYER_ATTACK_TEXTURE_KEY, {
+          start: 0,
+          end: PLAYER_ANIMATIONS.attack.frames - 1
+        }),
+        frameRate: PLAYER_ANIMATIONS.attack.frameRate,
+        repeat: 0
+      })
+    }
   }
 
   enemyTextureKey(enemyId) {
@@ -310,6 +353,7 @@ export class BattleScene extends Phaser.Scene {
 
   animatePlayerAttack(event) {
     const startX = this.kael.getData('baseX') ?? this.kael.x
+    this.kaelSprite?.play(PLAYER_ATTACK_ANIM_KEY)
     this.tweens.add({
       targets: this.kael,
       x: startX + 46,
@@ -338,6 +382,7 @@ export class BattleScene extends Phaser.Scene {
       onComplete: () => {
         this.kael.x = startX
         this.kael.scaleX = 1
+        this.kaelSprite?.play(PLAYER_IDLE_ANIM_KEY)
       }
     })
   }

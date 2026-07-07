@@ -2,11 +2,13 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from '../auth/AuthContext.jsx'
 import { useAuth } from '../auth/useAuth.js'
 import { LoginPage } from '../pages/LoginPage.jsx'
+import { OrientationLock } from '../components/OrientationLock.jsx'
 import { routes } from './routes.jsx'
 
 export function App() {
   return (
     <BrowserRouter>
+      <OrientationLock />
       <AuthProvider>
         <Routes>
           <Route

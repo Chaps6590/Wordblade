@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/useAuth.js'
 import { AppExitButton } from '../components/AppExitButton.jsx'
+import { HeroAnimatedArt } from '../components/HeroAnimatedArt.jsx'
 import { PwaInstallButton } from '../components/PwaInstallButton.jsx'
 import { HERO_BY_RACE } from '../game/data/heroes.js'
 import { INITIAL_SCENARIO_ID } from '../game/data/scenarios.js'
@@ -50,7 +51,7 @@ export function MainMenu() {
 
       <main className="main-menu-content">
         <section className="home-hero-stage" aria-label="Campeón activo">
-          {hero ? <img src={hero.portrait} alt={hero.name} /> : null}
+          {hero ? <HeroAnimatedArt hero={hero} alt={hero.name} /> : null}
         </section>
 
         <section className="home-mode-cards" aria-label="Modos de juego">

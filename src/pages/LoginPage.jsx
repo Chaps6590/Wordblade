@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/useAuth.js'
+import { HeroAnimatedArt } from '../components/HeroAnimatedArt.jsx'
 import { HEROES } from '../game/data/heroes.js'
 
 export function LoginPage() {
@@ -80,7 +81,7 @@ export function LoginPage() {
                 aria-pressed={race === hero.race}
               >
                 <span className="hero-art-frame">
-                  <img className="hero-art" src={hero.portrait} alt={hero.name} />
+                  <HeroAnimatedArt hero={hero} className="hero-art" alt={hero.name} />
                 </span>
                 <span className="race-name hero-name">{hero.name}</span>
                 <span className="hero-race">{hero.raceLabel}</span>

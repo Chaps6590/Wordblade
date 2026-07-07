@@ -5,6 +5,22 @@ export const HEROES = [
     name: 'Kael Guardaluna',
     title: 'Guardián del acero azul',
     portrait: '/characters/heroes/kael-guardaluna.png',
+    animations: {
+      idle: {
+        sheet: '/characters/heroes/animations/kael-idle-sheet.png',
+        frameWidth: 1086,
+        frameHeight: 1448,
+        frames: 4,
+        frameRate: 6
+      },
+      attack: {
+        sheet: '/characters/heroes/animations/kael-attack-sheet.png',
+        frameWidth: 1086,
+        frameHeight: 1448,
+        frames: 4,
+        frameRate: 13
+      }
+    },
     description: 'Defensa firme, mirada fría y golpes seguros.',
     accent: '#5cb2ff'
   },
