@@ -1361,6 +1361,11 @@
   text-transform: uppercase;
 }
 
+.install-gate-version {
+  margin: calc(-1 * var(--game-space-2)) 0 var(--game-space-1);
+  font-size: var(--game-text-xs);
+}
+
 .install-gate-text {
   margin: 0;
   color: var(--text-dim);
@@ -1435,6 +1440,10 @@
   .install-gate-title {
     font-size: clamp(1rem, 5vh, 1.35rem);
     line-height: 1.05;
+  }
+
+  .install-gate-version {
+    margin: calc(-1 * var(--game-space-1)) 0 0;
   }
 
   .install-gate-text {

@@ -7,6 +7,8 @@ import {
   hardRefreshApp
 } from '../services/pwaInstall.js'
 
+const APP_VERSION = import.meta.env.VITE_APP_VERSION || '0.1.0+dev'
+
 // Detección por dispositivo (no por tamaño de ventana): una ventana angosta
 // de PC no debe quedar bloqueada por la pantalla de instalación.
 function isMobileDevice() {
@@ -104,6 +106,7 @@ export function InstallGate({ children }) {
       >
         <img className="game-logo" src="/icons/icon-192.png" alt="Wordblade" />
         <h1 className="install-gate-title">Bienvenido a Wordblade</h1>
+        <p className="menu-version install-gate-version">v{APP_VERSION}</p>
 
         {installed ? (
           <p className="install-gate-text">
