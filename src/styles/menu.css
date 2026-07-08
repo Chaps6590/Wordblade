@@ -1317,32 +1317,45 @@
   max-width: none;
   min-height: var(--game-screen-h);
   padding: var(--game-safe-top) var(--game-safe-right) var(--game-safe-bottom) var(--game-safe-left);
-  overflow-y: auto;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  overscroll-behavior: none;
+  touch-action: manipulation;
   background: #050817;
 }
 
 .install-gate-panel {
   width: min(100%, 420px);
-  padding: var(--game-space-7) var(--game-space-6);
+  max-height: calc(var(--game-screen-h) - var(--game-safe-top) - var(--game-safe-bottom));
+  display: grid;
+  align-content: center;
+  padding: var(--game-space-6);
+  overflow: hidden;
 }
 
 .welcome-gate-panel {
   gap: var(--game-space-3);
 }
 
+.install-gate .game-logo {
+  width: clamp(96px, 26vh, 180px);
+  margin: 0 auto var(--game-space-2);
+}
+
 .install-gate-title {
-  margin: 0 0 0.8rem;
+  margin: 0;
   color: #f9f2df;
-  font-size: clamp(1.3rem, 5.5vw, 1.7rem);
+  font-size: clamp(1.05rem, 3.8vh, 1.7rem);
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
 .install-gate-text {
-  margin: 0 0 1.2rem;
+  margin: 0;
   color: var(--text-dim);
   font-size: var(--game-text-md);
-  line-height: 1.5;
+  line-height: 1.35;
 }
 
 .install-gate-btn {
@@ -1355,7 +1368,7 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: var(--game-space-3);
-  margin-top: 0.35rem;
+  margin-top: var(--game-space-1);
 }
 
 .install-gate-status {
@@ -1381,7 +1394,75 @@
 }
 
 .install-gate-help-intro {
-  margin-top: 1.2rem;
+  margin-top: var(--game-space-3);
+}
+
+@media (orientation: landscape) and (max-height: 560px) {
+  .install-gate {
+    padding: var(--game-safe-top) var(--game-safe-right) var(--game-safe-bottom) var(--game-safe-left);
+  }
+
+  .install-gate-panel {
+    width: min(94vw, 760px);
+    grid-template-columns: minmax(120px, 0.42fr) minmax(0, 1fr);
+    gap: var(--game-space-2) var(--game-space-5);
+    padding: var(--game-space-4) var(--game-space-5);
+    text-align: left;
+  }
+
+  .install-gate .game-logo {
+    grid-row: 1 / span 5;
+    align-self: center;
+    width: clamp(112px, 34vh, 170px);
+    margin: 0 auto;
+  }
+
+  .install-gate-panel > :not(.game-logo) {
+    grid-column: 2;
+  }
+
+  .install-gate-title {
+    font-size: clamp(1rem, 5vh, 1.35rem);
+    line-height: 1.05;
+  }
+
+  .install-gate-text {
+    font-size: clamp(0.72rem, 2.6vh, 0.9rem);
+    line-height: 1.25;
+  }
+
+  .install-gate-btn {
+    min-height: var(--game-button-h-md);
+    padding-block: 0.42rem;
+  }
+
+  .install-gate-actions {
+    gap: var(--game-space-2);
+  }
+}
+
+@media (orientation: landscape) and (max-height: 400px) {
+  .install-gate-panel {
+    width: min(96vw, 720px);
+    grid-template-columns: minmax(96px, 0.34fr) minmax(0, 1fr);
+    padding: var(--game-space-3) var(--game-space-4);
+  }
+
+  .install-gate .game-logo {
+    width: clamp(92px, 31vh, 132px);
+  }
+
+  .install-gate-title {
+    font-size: clamp(0.92rem, 4.7vh, 1.15rem);
+  }
+
+  .install-gate-text {
+    font-size: clamp(0.68rem, 2.55vh, 0.82rem);
+  }
+
+  .install-gate-btn {
+    min-height: 38px;
+  }
 }
 
 .exit-card {
