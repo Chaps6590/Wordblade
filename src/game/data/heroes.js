@@ -8,7 +8,7 @@ export const HEROES = [
     animations: {
       idle: {
         sheet: '/characters/heroes/kael-guardaluna/animations/idle-combat.png',
-        frameWidth: 362,
+        frameWidth: 512,
         frameHeight: 512,
         frames: 6,
         frameRate: 7,
@@ -17,7 +17,7 @@ export const HEROES = [
       },
       idleSharpen: {
         sheet: '/characters/heroes/kael-guardaluna/animations/idle-sharpen.png',
-        frameWidth: 362,
+        frameWidth: 512,
         frameHeight: 512,
         frames: 6,
         frameRate: 8,
@@ -26,7 +26,7 @@ export const HEROES = [
       },
       attack: {
         sheet: '/characters/heroes/kael-guardaluna/animations/attack-slash.png',
-        frameWidth: 362,
+        frameWidth: 512,
         frameHeight: 512,
         frames: 6,
         frameRate: 14,
@@ -34,7 +34,7 @@ export const HEROES = [
       },
       hit: {
         sheet: '/characters/heroes/kael-guardaluna/animations/hit.png',
-        frameWidth: 362,
+        frameWidth: 512,
         frameHeight: 512,
         frames: 6,
         frameRate: 12,
@@ -42,7 +42,7 @@ export const HEROES = [
       },
       defeat: {
         sheet: '/characters/heroes/kael-guardaluna/animations/defeat.png',
-        frameWidth: 362,
+        frameWidth: 512,
         frameHeight: 512,
         frames: 6,
         frameRate: 9,
@@ -71,7 +71,7 @@ export const HEROES = [
     animations: {
       idle: {
         sheet: '/characters/heroes/aelar-alacero/animations/idle-guard.png',
-        frameWidth: 362,
+        frameWidth: 512,
         frameHeight: 512,
         frames: 6,
         frameRate: 7,
@@ -80,7 +80,7 @@ export const HEROES = [
       },
       idleWingReady: {
         sheet: '/characters/heroes/aelar-alacero/animations/idle-wing-ready.png',
-        frameWidth: 362,
+        frameWidth: 512,
         frameHeight: 512,
         frames: 6,
         frameRate: 8,
@@ -89,7 +89,7 @@ export const HEROES = [
       },
       attack: {
         sheet: '/characters/heroes/aelar-alacero/animations/attack-lunge.png',
-        frameWidth: 362,
+        frameWidth: 512,
         frameHeight: 512,
         frames: 6,
         frameRate: 14,
@@ -97,7 +97,7 @@ export const HEROES = [
       },
       defeat: {
         sheet: '/characters/heroes/aelar-alacero/animations/defeat.png',
-        frameWidth: 362,
+        frameWidth: 512,
         frameHeight: 512,
         frames: 6,
         frameRate: 9,

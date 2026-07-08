@@ -10,7 +10,7 @@ param(
   [string]$AnimationName,
 
   [int]$Frames = 6,
-  [int]$FrameWidth = 362,
+  [int]$FrameWidth = 512,
   [int]$FrameHeight = 512,
   [double]$SourceFrameWidth = 0,
   [int]$CropY = 110,

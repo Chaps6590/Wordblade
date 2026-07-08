@@ -12,7 +12,8 @@ param(
   [int]$AlphaThreshold = 10,
   [int]$MinComponentArea = 80,
   [int]$CropPadding = 6,
-  [double]$CarryoverRatio = 0.33
+  [double]$CarryoverRatio = 0.33,
+  [switch]$KeepLargestOnly
 )
 
 $ErrorActionPreference = 'Stop'
@@ -144,6 +145,7 @@ $sourceImage = [System.Drawing.Bitmap]::FromFile($sourcePath)
 try {
   $components = [SpriteComponentScanner]::Find($sourcePath, $AlphaThreshold)
   $slotRects = New-Object 'System.Object[]' $Frames
+  $slotAreas = New-Object 'System.Int32[]' $Frames
   $sourceFrameWidth = $sourceImage.Width / $Frames
 
   foreach ($component in $components) {
@@ -156,7 +158,14 @@ try {
     }
 
     $rect = [System.Drawing.Rectangle]::new($component.X, $component.Y, $component.Width, $component.Height)
-    $slotRects[$nearestSlot] = Union-Rect $slotRects[$nearestSlot] $rect
+    if ($KeepLargestOnly) {
+      if ($component.Area -gt $slotAreas[$nearestSlot]) {
+        $slotAreas[$nearestSlot] = $component.Area
+        $slotRects[$nearestSlot] = $rect
+      }
+    } else {
+      $slotRects[$nearestSlot] = Union-Rect $slotRects[$nearestSlot] $rect
+    }
   }
 
   $targetSheet = [System.Drawing.Bitmap]::new($TargetFrameWidth * $Frames, $TargetFrameHeight, [System.Drawing.Imaging.PixelFormat]::Format32bppArgb)

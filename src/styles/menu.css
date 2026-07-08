@@ -824,7 +824,7 @@
 }
 
 .hero-art.hero-animated-art {
-  width: min(112%, 205px);
+  width: min(112%, 250px);
   max-width: 112%;
   max-height: 255px;
   object-fit: initial;
@@ -1099,7 +1099,7 @@
 }
 
 .login-hero-picker .hero-art.hero-animated-art {
-  width: clamp(74px, 8vw, 112px);
+  width: clamp(92px, 10vw, 136px);
 }
 
 .login-hero-picker .hero-name,
