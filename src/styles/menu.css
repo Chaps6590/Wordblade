@@ -962,16 +962,6 @@
   height: 100vh;
   height: 100dvh;
   padding: var(--game-safe-top) var(--game-safe-right) var(--game-safe-bottom) var(--game-safe-left);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  /* La marca (emblema + texto) va arriba y el formulario debajo. El fondo es solo
-     el marco; el logo se compone por capas encima. Si el contenido no entra
-     (pantallas bajas), la pantalla scrollea en vez de solaparse. */
-  justify-content: flex-start;
-  gap: var(--game-space-5);
-  overflow-y: auto;
-  overflow-x: hidden;
   background: #010107;
   isolation: isolate;
 }
@@ -1319,6 +1309,8 @@
   gap: var(--game-space-5);
   min-height: 0;
   padding: 0;
+  /* Levanta ligeramente el conjunto para que no quede pegado al footer. */
+  padding-bottom: clamp(0.4rem, 1.2vh, 1rem);
 }
 
 .home-mode-zone {
@@ -1334,17 +1326,17 @@
 }
 
 .main-menu-logo {
-  width: min(38vw, 620px);
-  max-height: 18vh;
+  width: min(41vw, 670px);
+  max-height: 19.5vh;
   object-fit: contain;
   justify-self: center;
   margin: 0;
 }
 
 .main-menu .main-menu-character {
-  height: min(58vh, 600px);
-  max-width: 34vw;
-  width: min(100%, 430px);
+  height: min(63vh, 650px);
+  max-width: 37vw;
+  width: min(100%, 465px);
   justify-self: center;
   align-self: end;
   place-items: end center;
@@ -1358,12 +1350,12 @@
 }
 
 .main-menu .main-menu-character .hero-animated-art {
-  width: min(100%, 430px);
+  width: min(100%, 465px);
 }
 
 .main-menu .menu-cards {
   width: 100%;
-  max-width: 860px;
+  max-width: 900px;
   display: grid;
   grid-template-columns: repeat(2, minmax(240px, 1fr));
   gap: var(--game-space-4);
@@ -1450,6 +1442,7 @@
 .login-screen-page {
   display: grid;
   place-items: center;
+  justify-content: center;
   width: 100%;
   height: var(--game-screen-h);
   min-height: var(--game-screen-h);
@@ -1457,10 +1450,12 @@
 }
 
 .login-screen-form.login-panel {
-  width: min(92vw, 920px);
+  width: min(92vw, 820px);
   max-height: min(84dvh, 780px);
   min-height: 0;
   margin: 0;
+  justify-self: center;
+  align-self: center;
   display: grid;
   grid-template-rows: auto auto auto auto;
   align-items: start;
@@ -1551,9 +1546,12 @@
 
 .login-hero-picker .hero-art,
 .login-hero-picker .hero-art.hero-animated-art {
-  width: min(100%, 150px);
-  max-width: 100%;
-  max-height: 100%;
+  /* --hero-art-scale (por campeón, ver heroes.js) agranda solo la ilustración:
+     el frame y la carta conservan su tamaño, la imagen puede sangrar un poco
+     por encima del frame (ancla inferior en .hero-art-frame). */
+  width: min(calc(100% * var(--hero-art-scale, 1)), 150px);
+  max-width: calc(100% * var(--hero-art-scale, 1));
+  max-height: calc(100% * var(--hero-art-scale, 1));
 }
 
 .login-hero-picker .hero-name,
@@ -1652,8 +1650,8 @@
   }
 
   .main-menu-logo {
-    max-height: 12vh;
-    width: min(32vw, 360px);
+    max-height: 15vh;
+    width: min(40vw, 460px);
   }
 
   .main-menu .main-menu-character {
@@ -1796,7 +1794,7 @@
   }
 
   .main-menu-logo {
-    max-height: 9vh;
+    max-height: 11.5vh;
   }
 
   .login-screen-form.login-panel {
@@ -1980,6 +1978,24 @@
   color: #ffd166;
   font-size: var(--game-text-sm);
   line-height: 1.35;
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--text-dim);
+  font-size: var(--game-text-sm);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.btn-link:hover {
+  color: var(--accent-bright);
+}
+
+.install-gate-continue {
+  margin-top: var(--game-space-2);
 }
 
 .install-gate-steps {

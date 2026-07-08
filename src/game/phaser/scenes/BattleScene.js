@@ -12,9 +12,11 @@ import { HERO_BY_RACE } from '../../data/heroes.js'
 
 const W = 800
 const H = 400
-const PLAYER_BASE = { x: 170, y: 304 }
-const ENEMY_BASE = { x: 630, y: 304 }
-const PLAYER_FIT = { maxWidth: 210, maxHeight: 300 }
+// Personajes más chicos y más cerca de los bordes: dejan más escenario
+// visible y más espacio central para los efectos de ataque.
+const PLAYER_BASE = { x: 130, y: 304 }
+const ENEMY_BASE = { x: 670, y: 304 }
+const PLAYER_FIT = { maxWidth: 164, maxHeight: 234 }
 
 export class BattleScene extends Phaser.Scene {
   constructor() {
@@ -274,8 +276,8 @@ export class BattleScene extends Phaser.Scene {
   drawEnemyImage(enemyDef) {
     const textureKey = this.enemyTextureKey(enemyDef.id)
     const image = this.add.image(0, enemyDef.spriteScale?.offsetY ?? 0, textureKey)
-    const maxWidth = enemyDef.spriteScale?.maxWidth ?? (enemyDef.boss ? 250 : 210)
-    const maxHeight = enemyDef.spriteScale?.maxHeight ?? (enemyDef.boss ? 238 : 190)
+    const maxWidth = enemyDef.spriteScale?.maxWidth ?? (enemyDef.boss ? 195 : 164)
+    const maxHeight = enemyDef.spriteScale?.maxHeight ?? (enemyDef.boss ? 186 : 148)
     const fitScale = Math.min(maxWidth / image.width, maxHeight / image.height)
 
     image

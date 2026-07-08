@@ -51,7 +51,8 @@ export const HEROES = [
       }
     },
     description: 'Defensa firme, mirada fría y golpes seguros.',
-    accent: '#5cb2ff'
+    accent: '#5cb2ff',
+    artScale: 1.18
   },
   {
     race: 'TIGRE',
@@ -106,7 +107,8 @@ export const HEROES = [
       }
     },
     description: 'Visión táctica, dominio del viento y alcance letal.',
-    accent: '#d8a63e'
+    accent: '#d8a63e',
+    artScale: 1.18
   }
 ]
 

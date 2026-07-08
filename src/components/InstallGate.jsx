@@ -4,8 +4,12 @@ import {
   subscribeInstallPrompt,
   isAppInstalled,
   promptInstall,
-  hardRefreshApp
+  hardRefreshApp,
+  isUpdateAvailable,
+  subscribeUpdateAvailable
 } from '../services/pwaInstall.js'
+
+const CONTINUE_IN_BROWSER_KEY = 'wordblade-continue-browser'
 
 const APP_VERSION = import.meta.env.VITE_APP_VERSION || '0.1.0+dev'
 const APP_COMMIT = import.meta.env.VITE_APP_COMMIT || 'sin-git'
@@ -32,7 +36,11 @@ function isSecureInstallContext() {
 // Siempre muestra bienvenida al iniciar. En celular + navegador bloquea el
 // juego con la instalación; en PC o app instalada deja entrar después.
 export function InstallGate({ children }) {
-  const [gate] = useState(() => typeof window !== 'undefined' && isMobileDevice() && !isAppInstalled())
+  const [installRequired] = useState(() => typeof window !== 'undefined' && isMobileDevice() && !isAppInstalled())
+  const [continueInBrowser, setContinueInBrowser] = useState(
+    () => typeof window !== 'undefined' && sessionStorage.getItem(CONTINUE_IN_BROWSER_KEY) === '1'
+  )
+  const gate = installRequired && !continueInBrowser
   const [showWelcome, setShowWelcome] = useState(true)
   // El prompt lo captura services/pwaInstall.js a nivel módulo (puede llegar
   // antes de montar React); acá solo se lee y se escucha por cambios.
@@ -40,6 +48,7 @@ export function InstallGate({ children }) {
   const [installed, setInstalled] = useState(false)
   const [showHelp, setShowHelp] = useState(false)
   const [updateStatus, setUpdateStatus] = useState(null)
+  const [updateAvailable, setUpdateAvailable] = useState(() => isUpdateAvailable())
   const gateVisible = gate || showWelcome
   const gateMode = gate ? 'install' : 'welcome'
 
@@ -68,6 +77,10 @@ export function InstallGate({ children }) {
       window.removeEventListener('appinstalled', handleInstalled)
     }
   }, [gate])
+
+  // El botón "Actualizar" solo tiene sentido si hay una versión nueva
+  // realmente esperando (service worker instalado, no la primera instalación).
+  useEffect(() => subscribeUpdateAvailable(setUpdateAvailable), [])
 
   if (!gateVisible) return children
 
@@ -98,6 +111,11 @@ export function InstallGate({ children }) {
   function handleEnter() {
     if (gate) return
     setShowWelcome(false)
+  }
+
+  function handleContinueInBrowser() {
+    sessionStorage.setItem(CONTINUE_IN_BROWSER_KEY, '1')
+    setContinueInBrowser(true)
   }
 
   return (
@@ -147,10 +165,22 @@ export function InstallGate({ children }) {
                   Entrar al juego
                 </button>
               )}
-              <button className="btn btn-ghost install-gate-btn" type="button" onClick={handleUpdate}>
-                Actualizar
-              </button>
+              {updateAvailable ? (
+                <button className="btn btn-ghost install-gate-btn" type="button" onClick={handleUpdate}>
+                  Actualizar
+                </button>
+              ) : null}
             </div>
+
+            {gate ? (
+              <button
+                className="btn-link install-gate-continue"
+                type="button"
+                onClick={handleContinueInBrowser}
+              >
+                Continuar en el navegador
+              </button>
+            ) : null}
 
             {updateStatus ? <p className="install-gate-status">{updateStatus}</p> : null}
 

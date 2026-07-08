@@ -106,7 +106,8 @@
 
 @media (max-height: 500px) and (orientation: landscape) {
   :root {
-    --game-touch-min: 38px;
+    /* Piso de 42px: las casillas de letras no deben achicarse más que eso. */
+    --game-touch-min: 42px;
     --game-button-h-md: 38px;
     --game-button-h-lg: 44px;
     --game-battle-console-w: clamp(238px, 28vw, 286px);

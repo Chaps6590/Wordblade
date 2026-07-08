@@ -426,10 +426,11 @@
 }
 
 .phaser-container canvas {
+  /* Nada de width/height/object-fit forzados acá: Phaser.Scale.FIT ya calcula
+     el tamaño y centrado correctos (letterbox) vía estilos inline. Pisarlos
+     con !important + object-fit:cover (que ni siquiera aplica a <canvas>)
+     estiraba/recortaba la escena en contenedores muy bajos o anchos. */
   display: block;
-  width: 100% !important;
-  height: 100% !important;
-  object-fit: cover;
   pointer-events: none;
 }
 
@@ -725,6 +726,12 @@
   min-height: var(--game-button-h-md);
   padding: var(--game-space-2) var(--game-space-3);
   font-size: clamp(0.72rem, 1.2vw, 0.95rem);
+}
+
+/* Deshabilitados legibles: Atacar/Cambiar/Borrar no deben leerse "apagados"
+   del todo (0.4 global quedaba muy tenue para texto corto en un botón chico). */
+.battle-actions .btn:disabled {
+  opacity: 0.58;
 }
 
 .clear-btn {

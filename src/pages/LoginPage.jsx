@@ -80,7 +80,7 @@ export function LoginPage() {
             {HEROES.map((hero) => (
               <button
                 className={`race-card hero-card ${race === hero.race ? 'selected' : ''}`}
-                style={{ '--hero-accent': hero.accent }}
+                style={{ '--hero-accent': hero.accent, '--hero-art-scale': hero.artScale ?? 1 }}
                 type="button"
                 key={hero.race}
                 onClick={() => setRace(hero.race)}

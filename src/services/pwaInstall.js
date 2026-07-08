@@ -7,10 +7,16 @@
 
 let deferredPrompt = null
 let serviceWorkerRegistration = null
+let updateAvailable = false
 const listeners = new Set()
+const updateListeners = new Set()
 
 function notify() {
   for (const listener of listeners) listener(deferredPrompt)
+}
+
+function notifyUpdate() {
+  for (const listener of updateListeners) listener(updateAvailable)
 }
 
 if (typeof window !== 'undefined') {
@@ -46,6 +52,34 @@ export function isAppInstalled() {
 
 export function setServiceWorkerRegistration(registration) {
   serviceWorkerRegistration = registration
+  if (!registration) return
+
+  // Solo cuenta como "actualización disponible" si YA había una versión
+  // controlando la página (si no, es la primera instalación del SW, no un update).
+  const markIfUpdate = (worker) => {
+    if (!worker || !navigator.serviceWorker?.controller) return
+    if (worker.state === 'installed') {
+      updateAvailable = true
+      notifyUpdate()
+    }
+  }
+
+  if (registration.waiting) markIfUpdate(registration.waiting)
+
+  registration.addEventListener('updatefound', () => {
+    const installing = registration.installing
+    if (!installing) return
+    installing.addEventListener('statechange', () => markIfUpdate(installing))
+  })
+}
+
+export function isUpdateAvailable() {
+  return updateAvailable
+}
+
+export function subscribeUpdateAvailable(listener) {
+  updateListeners.add(listener)
+  return () => updateListeners.delete(listener)
 }
 
 export async function updateApp() {
