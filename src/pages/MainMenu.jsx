@@ -32,11 +32,11 @@ export function MainMenu() {
   }
 
   return (
-    <div className="page menu-page main-menu-page">
+    <div className="page menu-page main-menu-page main-menu">
       <div className="main-menu-bg" aria-hidden="true" />
       <div className="main-menu-shade" aria-hidden="true" />
 
-      <header className="main-menu-top">
+      <header className="main-menu-top main-menu-header">
         <section className="home-player-hud" aria-label="Jugador">
           <div className="home-player-portrait">
             {hero ? <img src={hero.portrait} alt={hero.name} /> : null}
@@ -51,8 +51,6 @@ export function MainMenu() {
           </div>
         </section>
 
-        <img className="home-wordblade-logo" src="/brand/wordblade-logo.png" alt="Wordblade" />
-
         <section className="home-resources" aria-label="Recursos">
           <span><b>◉</b> 12,450</span>
           <span><b>◆</b> 320</span>
@@ -63,40 +61,46 @@ export function MainMenu() {
       </header>
 
       <main className="main-menu-content">
-        <section className="home-hero-stage" aria-label="Campeón activo">
+        <section className="home-hero-stage main-menu-character" aria-label="Campeón activo">
           {hero ? <HeroAnimatedArt hero={hero} alt={hero.name} /> : null}
         </section>
 
-        <section className="home-mode-cards" aria-label="Modos de juego">
-          <article
-            className="mode-card mode-card-adventure"
-            onClick={() => navigate(`/battle/${INITIAL_SCENARIO_ID}`)}
-          >
-            <img className="mode-card-image" src="/menu/adventure-mode-card.png" alt="" aria-hidden="true" />
-            <div className="mode-card-overlay">
-              <p>Explorá el reino, enfrentá enemigos y convertite en leyenda.</p>
-              <button className="btn mode-card-btn" type="button">
-                Entrar
-              </button>
-            </div>
-          </article>
+        <section className="home-mode-zone" aria-label="Modos de juego">
+          <img className="home-wordblade-logo main-menu-logo" src="/brand/wordblade-logo.png" alt="Wordblade" />
 
-          <article
-            className="mode-card mode-card-multiplayer"
-            onClick={() => navigate('/multiplayer')}
-          >
-            <img className="mode-card-image" src="/menu/multiplayer-mode-card.png" alt="" aria-hidden="true" />
-            <div className="mode-card-overlay">
-              <p>Desafiá a otros jugadores en duelos en tiempo real.</p>
-              <button className="btn mode-card-btn mode-card-btn-red" type="button">
-                Ver salas
-              </button>
-            </div>
-          </article>
+          <div className="home-mode-cards menu-cards">
+            <article
+              className="mode-card menu-mode-card mode-card-adventure"
+              onClick={() => navigate(`/battle/${INITIAL_SCENARIO_ID}`)}
+            >
+              <img className="mode-card-image" src="/menu/adventure-mode-card.png" alt="" aria-hidden="true" />
+              <div className="mode-card-overlay">
+                <h2 className="mode-card-title">Aventura</h2>
+                <p className="menu-mode-card__description">Explorá el reino y enfrentá enemigos.</p>
+                <button className="btn mode-card-btn" type="button">
+                  Entrar
+                </button>
+              </div>
+            </article>
+
+            <article
+              className="mode-card menu-mode-card mode-card-multiplayer"
+              onClick={() => navigate('/multiplayer')}
+            >
+              <img className="mode-card-image" src="/menu/multiplayer-mode-card.png" alt="" aria-hidden="true" />
+              <div className="mode-card-overlay">
+                <h2 className="mode-card-title">Multijugador</h2>
+                <p className="menu-mode-card__description">Desafiá jugadores en duelos en tiempo real.</p>
+                <button className="btn mode-card-btn mode-card-btn-red" type="button">
+                  Ver salas
+                </button>
+              </div>
+            </article>
+          </div>
         </section>
       </main>
 
-      <footer className="main-menu-bottom">
+      <footer className="main-menu-bottom main-menu-footer">
         <div className="home-system-actions">
           <button className="btn btn-ghost" onClick={handleLogout}>
             Cerrar sesión

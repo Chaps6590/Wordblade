@@ -68,10 +68,17 @@ export function useIsPortrait() {
   return useMediaQuery('(orientation: portrait)')
 }
 
+function isMobileUserAgent() {
+  if (typeof window === 'undefined') return false
+  if (window.navigator.userAgentData?.mobile) return true
+  const iPadOs = window.navigator.platform === 'MacIntel' && window.navigator.maxTouchPoints > 1
+  return /android|iphone|ipad|ipod/i.test(window.navigator.userAgent) || iPadOs
+}
+
 // Señal principal: "mobile" = pantalla chica Y puntero táctil.
 // Pedimos ambas para no tratar como mobile una ventana de desktop angosta.
 export function useIsMobile() {
   const narrow = useMediaQuery(`(max-width: ${MOBILE_MAX_WIDTH}px)`)
   const touch = useIsTouch()
-  return narrow && touch
+  return narrow && (touch || isMobileUserAgent())
 }

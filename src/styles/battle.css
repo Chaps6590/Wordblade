@@ -1371,7 +1371,7 @@
     grid-template-rows:
       minmax(45px, 12vh)
       minmax(0, 1fr)
-      minmax(206px, clamp(206px, 55vh, 248px));
+      minmax(276px, clamp(276px, 72vh, 300px));
     gap: 0.22rem;
   }
 
@@ -1408,7 +1408,7 @@
   .battle-page--adventure .board-and-actions {
     grid-template-columns: minmax(0, 1fr) clamp(78px, 12vw, 108px);
     align-items: end;
-    gap: var(--game-space-1);
+    gap: var(--game-space-2);
   }
 
   .battle-page--adventure .battle-console {
@@ -1426,7 +1426,7 @@
   }
 
   .battle-page--adventure .battle-actions .btn {
-    min-height: 42px;
+    min-height: 44px;
     padding: 0.26rem 0.34rem;
     font-size: clamp(0.56rem, 2.4vh, 0.68rem);
     line-height: 1.05;
@@ -1447,7 +1447,7 @@
 
   .battle-page--adventure .letter-tile {
     min-width: 42px;
-    min-height: 42px;
+    min-height: 44px;
   }
 
   .battle-page--adventure .word-board-label {
@@ -1465,7 +1465,7 @@
   }
 
   .battle-page--adventure .collapsible-battle-panel summary {
-    min-height: 42px;
+    min-height: 44px;
     padding: 0.26rem 0.38rem;
     font-size: clamp(0.56rem, 2.2vh, 0.68rem);
   }
@@ -1495,7 +1495,7 @@
   .battle-page--adventure .btn-back {
     top: calc(var(--game-safe-top) + 46px);
     max-width: 128px;
-    min-height: 34px;
+    min-height: 44px;
     padding: 0.24rem 0.42rem;
     font-size: clamp(0.54rem, 2vh, 0.64rem);
   }
@@ -1689,4 +1689,76 @@
   border: 1px solid rgba(224, 85, 85, 0.45);
   border-radius: var(--game-radius-md);
   padding: var(--game-space-3) var(--game-space-4);
+}
+
+@media (max-height: 520px) and (orientation: landscape) {
+  .battle-page:not(.battle-page--adventure) {
+    padding: var(--game-safe-top) var(--game-safe-right) var(--game-safe-bottom) var(--game-safe-left);
+    display: grid;
+    grid-template-rows: auto auto minmax(0, 1fr);
+    align-items: start;
+    gap: var(--game-space-1);
+    overflow: hidden;
+  }
+
+  .battle-page:not(.battle-page--adventure) .page-title {
+    margin: 0;
+    font-size: clamp(1rem, 5vh, 1.35rem);
+    line-height: 1.05;
+  }
+
+  .battle-page:not(.battle-page--adventure) .duel-error {
+    padding: var(--game-space-1) var(--game-space-3);
+    font-size: var(--game-text-xs);
+    line-height: 1.2;
+  }
+
+  .battle-page:not(.battle-page--adventure) .duel-menu,
+  .battle-page:not(.battle-page--adventure) .duel-lobby {
+    width: min(100%, 640px);
+    margin: 0 auto;
+    gap: var(--game-space-1);
+  }
+
+  .battle-page:not(.battle-page--adventure) .duel-rooms-panel {
+    gap: var(--game-space-1);
+  }
+
+  .battle-page:not(.battle-page--adventure) .duel-section-title {
+    font-size: var(--game-text-xs);
+  }
+
+  .battle-page:not(.battle-page--adventure) .duel-rooms-empty {
+    padding: var(--game-space-1) var(--game-space-3);
+    font-size: var(--game-text-xs);
+    line-height: 1.2;
+  }
+
+  .battle-page:not(.battle-page--adventure) .duel-menu > .btn-primary,
+  .battle-page:not(.battle-page--adventure) .duel-join .btn,
+  .battle-page:not(.battle-page--adventure) .duel-menu > .btn-back,
+  .battle-page:not(.battle-page--adventure) .duel-lobby > .btn {
+    min-height: 44px;
+    padding: var(--game-space-1) var(--game-space-3);
+    font-size: var(--game-text-sm);
+  }
+
+  .battle-page:not(.battle-page--adventure) .duel-private-toggle {
+    font-size: var(--game-text-xs);
+  }
+
+  .battle-page:not(.battle-page--adventure) .duel-join {
+    gap: var(--game-space-2);
+  }
+
+  .battle-page:not(.battle-page--adventure) .duel-code-input {
+    min-height: 44px;
+    padding: var(--game-space-1) var(--game-space-3);
+    font-size: clamp(0.95rem, 4vh, 1.15rem);
+    letter-spacing: 0.18em;
+  }
+
+  .battle-page:not(.battle-page--adventure) .btn-back {
+    margin-top: 0;
+  }
 }

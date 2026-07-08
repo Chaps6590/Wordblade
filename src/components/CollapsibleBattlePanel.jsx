@@ -2,9 +2,14 @@ import { useEffect, useState } from 'react'
 
 const COMPACT_BATTLE_QUERY = '(max-height: 520px) and (orientation: landscape)'
 
+function isCompactBattleViewport() {
+  if (typeof window === 'undefined') return false
+  const mediaMatches = window.matchMedia?.(COMPACT_BATTLE_QUERY).matches ?? false
+  return mediaMatches || (window.innerHeight <= 520 && window.innerWidth > window.innerHeight)
+}
+
 function getInitialOpen(defaultOpen) {
-  if (typeof window === 'undefined' || !window.matchMedia) return defaultOpen
-  return defaultOpen && !window.matchMedia(COMPACT_BATTLE_QUERY).matches
+  return defaultOpen && !isCompactBattleViewport()
 }
 
 export function CollapsibleBattlePanel({ className = '', title, children, defaultOpen = false }) {
@@ -13,13 +18,17 @@ export function CollapsibleBattlePanel({ className = '', title, children, defaul
   useEffect(() => {
     if (!window.matchMedia) return undefined
 
-    const mediaQuery = window.matchMedia(COMPACT_BATTLE_QUERY)
-    const syncOpenState = () => setOpen(defaultOpen && !mediaQuery.matches)
+    const mediaQuery = window.matchMedia?.(COMPACT_BATTLE_QUERY)
+    const syncOpenState = () => setOpen(defaultOpen && !isCompactBattleViewport())
 
     syncOpenState()
-    mediaQuery.addEventListener('change', syncOpenState)
+    mediaQuery?.addEventListener('change', syncOpenState)
+    window.addEventListener('resize', syncOpenState)
 
-    return () => mediaQuery.removeEventListener('change', syncOpenState)
+    return () => {
+      mediaQuery?.removeEventListener('change', syncOpenState)
+      window.removeEventListener('resize', syncOpenState)
+    }
   }, [defaultOpen])
 
   return (

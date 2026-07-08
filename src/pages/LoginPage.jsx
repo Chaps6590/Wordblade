@@ -33,17 +33,17 @@ export function LoginPage() {
       <div className="login-screen-bg" aria-hidden="true" />
       <div className="login-screen-shade" aria-hidden="true" />
 
-      <header className="login-brand">
-        <img
-          className="login-brand-icon"
-          src="/brand/wordblade-icon.png"
-          alt=""
-          aria-hidden="true"
-        />
-        <img className="login-brand-text" src="/brand/wordblade-text.png" alt="Wordblade" />
-      </header>
+      <form className="login-screen-form login-panel" onSubmit={handleSubmit}>
+        <header className="login-brand">
+          <img
+            className="login-brand-icon"
+            src="/brand/wordblade-icon.png"
+            alt=""
+            aria-hidden="true"
+          />
+          <img className="login-brand-text" src="/brand/wordblade-text.png" alt="Wordblade" />
+        </header>
 
-      <form className="login-screen-form" onSubmit={handleSubmit}>
         <div className="login-fields login-screen-fields">
           <label className="field-label">
             Nombre
@@ -74,10 +74,6 @@ export function LoginPage() {
 
         {error ? <p className="login-error">{error}</p> : null}
 
-        <button className="btn btn-primary login-submit" type="submit" disabled={submitting}>
-          {submitting ? 'Abriendo portal…' : 'Entrar al juego'}
-        </button>
-
         <section className="race-picker login-hero-picker" aria-label="Campeón sabio">
           <h2>Elegí tu campeón sabio</h2>
           <div className="race-grid hero-grid">
@@ -101,6 +97,10 @@ export function LoginPage() {
             ))}
           </div>
         </section>
+
+        <button className="btn btn-primary login-submit" type="submit" disabled={submitting}>
+          {submitting ? 'Abriendo portal…' : 'Entrar al juego'}
+        </button>
       </form>
     </div>
   )
