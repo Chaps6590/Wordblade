@@ -4,7 +4,7 @@ import { registerSW } from 'virtual:pwa-register'
 import { App } from './app/App.jsx'
 // Efecto de módulo: engancha `beforeinstallprompt` apenas arranca la app,
 // antes de renderizar React, para no perder el evento de instalación.
-import './services/pwaInstall.js'
+import { setServiceWorkerRegistration } from './services/pwaInstall.js'
 import { InstallGate } from './components/InstallGate.jsx'
 import './styles/global.css'
 import './styles/menu.css'
@@ -16,6 +16,7 @@ registerSW({
   immediate: true,
   onRegisteredSW(swUrl, registration) {
     if (!registration) return
+    setServiceWorkerRegistration(registration)
 
     const checkForUpdate = async () => {
       if (registration.installing || !navigator.onLine) return

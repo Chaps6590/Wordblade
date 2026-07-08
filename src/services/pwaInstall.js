@@ -6,6 +6,7 @@
 // puede leerlo o suscribirse a los cambios, sin riesgo de "perderlo".
 
 let deferredPrompt = null
+let serviceWorkerRegistration = null
 const listeners = new Set()
 
 function notify() {
@@ -41,6 +42,28 @@ export function isAppInstalled() {
     window.matchMedia?.('(display-mode: fullscreen)').matches ||
     window.navigator.standalone === true
   )
+}
+
+export function setServiceWorkerRegistration(registration) {
+  serviceWorkerRegistration = registration
+}
+
+export async function updateApp() {
+  const registration =
+    serviceWorkerRegistration ??
+    (navigator.serviceWorker ? await navigator.serviceWorker.getRegistration() : null)
+
+  if (!registration) {
+    window.location.reload()
+    return
+  }
+
+  if (navigator.onLine === false) throw new Error('offline')
+  await registration.update()
+
+  // En autoUpdate/skipWaiting la nueva versión puede activar sin pedir más
+  // pasos. Recargar asegura que el usuario vea los assets recién descargados.
+  window.location.reload()
 }
 
 // Lanza el diálogo nativo de instalación. Devuelve true si el usuario aceptó.
