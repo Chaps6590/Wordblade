@@ -923,7 +923,7 @@
 @media (max-width: 900px) and (orientation: landscape) {
   .battle-header {
     grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-    gap: 0.45rem;
+    gap: var(--game-space-2);
   }
 
   .combatant-hud {
@@ -953,8 +953,9 @@
   }
 
   .battle-console {
-    width: clamp(270px, 36vw, 330px);
+    width: clamp(240px, 32vw, 300px);
     bottom: clamp(4.75rem, 11vh, 5.7rem);
+    padding: var(--game-space-2);
   }
 
   .collapsible-battle-panel {
@@ -984,12 +985,12 @@
   }
 
   .battle-console {
-    width: clamp(260px, 30vw, 340px);
+    width: clamp(238px, 29vw, 310px);
     bottom: clamp(4.35rem, 9vh, 5.4rem);
   }
 
   .letters-row {
-    width: min(100%, 286px);
+    width: min(100%, 258px);
   }
 
   .collapsible-battle-panel {
@@ -1024,12 +1025,12 @@
   }
 
   .battle-console {
-    width: clamp(238px, 28vw, 286px);
-    bottom: clamp(3.95rem, 8vh, 4.5rem);
+    width: clamp(218px, 27vw, 258px);
+    bottom: clamp(3.7rem, 7.6vh, 4.25rem);
   }
 
   .letters-row {
-    width: min(100%, 236px);
+    width: min(100%, 218px);
   }
 
   .letter-tile {
@@ -1038,7 +1039,7 @@
   }
 
   .battle-actions {
-    width: clamp(238px, 28vw, 286px);
+    width: clamp(218px, 27vw, 258px);
   }
 
   .battle-actions .btn {

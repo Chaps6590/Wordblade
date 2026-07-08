@@ -106,7 +106,6 @@ export function InstallGate({ children }) {
       >
         <img className="game-logo" src="/icons/icon-192.png" alt="Wordblade" />
         <h1 className="install-gate-title">Bienvenido a Wordblade</h1>
-        <p className="menu-version install-gate-version">v{APP_VERSION}</p>
 
         {installed ? (
           <p className="install-gate-text">
@@ -177,6 +176,8 @@ export function InstallGate({ children }) {
             ) : null}
           </>
         )}
+
+        <p className="menu-version install-gate-version">v{APP_VERSION}</p>
       </div>
     </div>
   )

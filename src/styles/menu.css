@@ -360,9 +360,10 @@
   z-index: 4;
   display: flex;
   align-items: flex-end;
-  justify-content: flex-end;
+  justify-content: space-between;
   gap: 1rem;
   padding-top: var(--game-space-2);
+  min-width: 0;
 }
 
 .home-system-actions {
@@ -403,12 +404,12 @@
 }
 
 .menu-version-actions {
-  position: absolute;
-  right: 0;
-  bottom: -0.15rem;
+  position: static;
   display: flex;
   align-items: center;
   gap: var(--game-space-2);
+  justify-content: flex-end;
+  min-width: 0;
 }
 
 .main-menu-page .menu-version {
@@ -486,6 +487,7 @@
   .main-menu-content {
     grid-template-columns: minmax(210px, 38vw) minmax(360px, 1fr);
     align-items: end;
+    padding-bottom: var(--game-space-2);
   }
 
   .home-hero-stage {
@@ -496,7 +498,7 @@
 
   .home-mode-cards {
     grid-column: 2;
-    width: min(100%, 430px);
+    width: min(100%, 400px);
     grid-template-columns: repeat(2, minmax(160px, 1fr));
   }
 
@@ -513,6 +515,32 @@
     padding-inline: 0.7rem;
     font-size: 0.78rem;
   }
+
+  .main-menu-bottom {
+    align-items: center;
+    gap: var(--game-space-2);
+  }
+
+  .home-system-actions {
+    gap: var(--game-space-2);
+  }
+
+  .menu-version-actions {
+    gap: var(--game-space-1);
+  }
+
+  .menu-refresh-btn {
+    min-height: var(--game-button-h-md);
+    padding-inline: 0.55rem;
+  }
+
+  .main-menu-page .menu-version {
+    max-width: 18ch;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.58rem;
+  }
 }
 
 @media (max-height: 620px) and (orientation: landscape) {
@@ -525,7 +553,12 @@
   }
 
   .home-hero-stage {
-    height: min(56vh, 390px);
+    height: min(48vh, 330px);
+  }
+
+  .main-menu-bottom .btn {
+    min-height: var(--game-button-h-md);
+    padding-block: 0.42rem;
   }
 }
 
@@ -1362,7 +1395,7 @@
 }
 
 .install-gate-version {
-  margin: calc(-1 * var(--game-space-2)) 0 var(--game-space-1);
+  margin: var(--game-space-1) 0 0;
   font-size: var(--game-text-xs);
 }
 
@@ -1443,7 +1476,7 @@
   }
 
   .install-gate-version {
-    margin: calc(-1 * var(--game-space-1)) 0 0;
+    margin: 0;
   }
 
   .install-gate-text {

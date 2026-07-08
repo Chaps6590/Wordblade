@@ -20,7 +20,21 @@ $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.Drawing
 
 if (-not ('SpriteComponentScanner' -as [type])) {
-  Add-Type -ReferencedAssemblies 'System.Runtime', 'System.Collections', 'System.Drawing.Common', 'System.Drawing.Primitives', 'System.Private.Windows.GdiPlus', 'System.Private.Windows.Core' -TypeDefinition @'
+  $drawingAssemblies = [AppDomain]::CurrentDomain.GetAssemblies() |
+    Where-Object {
+      $_.GetName().Name -in @(
+        'System.Drawing.Common',
+        'System.Drawing.Primitives',
+        'System.Private.Windows.GdiPlus',
+        'System.Private.Windows.Core',
+        'System.Collections',
+        'System.Runtime',
+        'System.Private.CoreLib'
+      ) -and $_.Location
+    } |
+    ForEach-Object { $_.Location }
+
+  Add-Type -ReferencedAssemblies $drawingAssemblies -TypeDefinition @'
 using System;
 using System.Collections.Generic;
 using System.Drawing;

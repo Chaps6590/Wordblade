@@ -11,9 +11,17 @@ export function PhaserGame({ scenarioId, heroRace = 'LOBO' }) {
   const gameRef = useRef(null)
 
   useEffect(() => {
+    const container = containerRef.current
+
+    if (gameRef.current) {
+      gameRef.current.destroy(true)
+      gameRef.current = null
+    }
+    if (container) container.replaceChildren()
+
     const game = new Phaser.Game({
       type: Phaser.AUTO,
-      parent: containerRef.current,
+      parent: container,
       width: 800,
       height: 400,
       backgroundColor: '#050817',
@@ -33,6 +41,7 @@ export function PhaserGame({ scenarioId, heroRace = 'LOBO' }) {
 
     return () => {
       game.destroy(true)
+      if (container) container.replaceChildren()
       gameRef.current = null
     }
   }, [scenarioId, heroRace])
