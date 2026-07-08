@@ -35,11 +35,25 @@ body,
   min-height: var(--game-screen-h);
 }
 
+html {
+  width: 100%;
+  overflow-x: hidden;
+}
+
 body {
+  width: 100%;
   background: var(--bg);
   color: var(--text);
   font-family: 'Segoe UI', system-ui, sans-serif;
   line-height: 1.4;
+  overflow-x: hidden;
+}
+
+body.install-gate-open {
+  width: 100%;
+  height: var(--game-screen-h);
+  overflow: hidden;
+  overscroll-behavior: none;
 }
 
 .page {
@@ -61,11 +75,18 @@ body {
 }
 
 .game-screen {
+  position: relative;
+  width: 100%;
+  height: var(--game-screen-h);
   min-height: var(--game-screen-h);
   padding: var(--game-safe-top) var(--game-safe-right) var(--game-safe-bottom) var(--game-safe-left);
+  overflow: hidden;
 }
 
 .game-safe-area {
+  width: min(100%, var(--game-content-max));
+  height: 100%;
+  margin: 0 auto;
   padding: var(--game-safe-top) var(--game-safe-right) var(--game-safe-bottom) var(--game-safe-left);
 }
 
@@ -116,6 +137,63 @@ body {
   margin-top: 1rem;
   font-size: 0.85rem;
   color: var(--text-dim);
+}
+
+.orientation-blocker {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  padding: var(--game-safe-top) var(--game-safe-right) var(--game-safe-bottom) var(--game-safe-left);
+  background:
+    radial-gradient(circle at 50% 25%, rgba(45, 126, 255, 0.22), transparent 34%),
+    linear-gradient(180deg, #050817, #071126);
+  overflow: hidden;
+}
+
+.orientation-blocker__panel {
+  width: min(88vw, 360px);
+  display: grid;
+  justify-items: center;
+  gap: var(--game-space-4);
+  padding: var(--game-space-6);
+  border: 1px solid var(--game-panel-border);
+  border-radius: var(--game-radius-lg);
+  background: var(--game-panel-bg);
+  text-align: center;
+  box-shadow: var(--game-shadow-panel);
+}
+
+.orientation-blocker__icon {
+  width: var(--game-icon-lg);
+  height: var(--game-icon-lg);
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--game-gold-border);
+  border-radius: 50%;
+  color: #ffd166;
+  font-size: var(--game-text-xl);
+  animation: orientation-tilt 1.8s ease-in-out infinite;
+}
+
+.orientation-blocker__title {
+  color: var(--steel);
+  font-size: var(--game-text-lg);
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.orientation-blocker__text {
+  color: var(--text-dim);
+  font-size: var(--game-text-md);
+  line-height: 1.4;
+}
+
+@keyframes orientation-tilt {
+  50% {
+    transform: rotate(90deg);
+  }
 }
 
 /* El bloqueo de orientación (juego horizontal) vive en OrientationLock.jsx:

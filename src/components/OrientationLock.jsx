@@ -1,12 +1,15 @@
 import { useEffect } from 'react'
+import { useIsMobile, useIsPortrait } from '../hooks/useDeviceType.js'
 
 // Arranca el juego en horizontal. Bloquea la orientación con la Screen
 // Orientation API: funciona en la PWA instalada (junto con el manifest, que
-// ya declara orientation landscape), así la app abre y se queda en horizontal
-// sin pedirle nada al jugador. En navegador el lock se rechaza y no pasa
-// nada: el layout responsive se adapta solo, sin carteles de "girá el
-// dispositivo".
+// ya declara orientation landscape), así la app abre y se queda en horizontal.
+// En navegador el lock puede rechazarse; si es un celular en vertical mostramos
+// un bloqueo visual simple sin afectar ventanas angostas de escritorio.
 export function OrientationLock() {
+  const isMobile = useIsMobile()
+  const isPortrait = useIsPortrait()
+
   useEffect(() => {
     const lockLandscape = () => {
       try {
@@ -22,5 +25,15 @@ export function OrientationLock() {
     return () => window.removeEventListener('orientationchange', lockLandscape)
   }, [])
 
-  return null
+  if (!isMobile || !isPortrait) return null
+
+  return (
+    <div className="orientation-blocker" role="status" aria-live="polite">
+      <div className="orientation-blocker__panel">
+        <span className="orientation-blocker__icon" aria-hidden="true">↻</span>
+        <p className="orientation-blocker__title">Girando tu dispositivo</p>
+        <p className="orientation-blocker__text">vivirás una mejor experiencia.</p>
+      </div>
+    </div>
+  )
 }

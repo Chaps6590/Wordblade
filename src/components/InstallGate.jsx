@@ -37,6 +37,17 @@ export function InstallGate({ children }) {
   const [installed, setInstalled] = useState(false)
   const [showHelp, setShowHelp] = useState(false)
   const [updateStatus, setUpdateStatus] = useState(null)
+  const gateVisible = gate || showWelcome
+  const gateMode = gate ? 'install' : 'welcome'
+
+  useEffect(() => {
+    if (!gateVisible) {
+      document.body.classList.remove('install-gate-open')
+      return
+    }
+    document.body.classList.add('install-gate-open')
+    return () => document.body.classList.remove('install-gate-open')
+  }, [gateVisible])
 
   useEffect(() => {
     if (!gate) return
@@ -55,7 +66,7 @@ export function InstallGate({ children }) {
     }
   }, [gate])
 
-  if (!gate && !showWelcome) return children
+  if (!gateVisible) return children
 
   async function handleInstall() {
     // Plan A: el diálogo nativo. Si no está disponible o el usuario lo
@@ -87,8 +98,10 @@ export function InstallGate({ children }) {
   }
 
   return (
-    <div className="page menu-page install-gate">
-      <div className="menu-panel install-gate-panel welcome-gate-panel">
+    <div className={`page menu-page install-gate install-gate--${gateMode}`}>
+      <div
+        className={`menu-panel install-gate-panel welcome-gate-panel${showHelp ? ' install-gate-panel--help' : ''}`}
+      >
         <img className="game-logo" src="/icons/icon-192.png" alt="Wordblade" />
         <h1 className="install-gate-title">Bienvenido a Wordblade</h1>
 
@@ -99,7 +112,7 @@ export function InstallGate({ children }) {
           </p>
         ) : (
           <>
-            <p className="install-gate-text">
+            <p className="install-gate-text install-gate-text--flavor">
               Forjá palabras, cargá energía y peleá con tus campeones sabios.
             </p>
 

@@ -51,7 +51,7 @@
 }
 
 .home-wordblade-logo {
-  width: min(100%, clamp(320px, 39vw, 620px));
+  width: min(100%, var(--game-main-logo-w));
   justify-self: center;
   margin-top: clamp(-0.4rem, -1vw, 0rem);
   filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.72));
@@ -157,7 +157,7 @@
 }
 
 .home-resources > span {
-  min-height: 42px;
+  min-height: var(--game-touch-min);
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
@@ -257,8 +257,8 @@
   position: relative;
   /* min-height chico para que quepa en pantallas bajas; crece hasta el tope
      y nunca desborda su fila (max-height: 100%) para no chocar con el footer. */
-  min-height: 240px;
-  height: clamp(240px, 50vh, 440px);
+  min-height: var(--game-card-min);
+  height: var(--game-menu-card-h);
   max-height: 100%;
   border: 2px solid var(--game-gold-border);
   border-radius: var(--game-radius-lg);
@@ -444,17 +444,17 @@
 
   .main-menu-content {
     grid-template-columns: minmax(220px, 1fr) minmax(400px, 48vw);
-    gap: 1rem;
+    gap: var(--game-space-4);
   }
 
   .home-mode-cards {
-    gap: 0.8rem;
+    gap: var(--game-space-3);
   }
 }
 
 @media (max-width: 920px) and (orientation: landscape) {
   .main-menu-page {
-    padding: 0.45rem 0.65rem;
+    padding: var(--game-safe-top) var(--game-safe-right) var(--game-safe-bottom) var(--game-safe-left);
   }
 
   .main-menu-top {
@@ -464,7 +464,7 @@
 
   .home-player-hud {
     grid-template-columns: 46px minmax(0, 1fr);
-    gap: 0.4rem;
+    gap: var(--game-space-2);
   }
 
   .home-player-portrait {
@@ -501,7 +501,7 @@
   }
 
   .mode-card {
-    min-height: 238px;
+    min-height: var(--game-card-min);
   }
 
   .mode-card p {
@@ -509,7 +509,7 @@
   }
 
   .home-system-actions .btn {
-    min-height: 42px;
+    min-height: var(--game-button-h-md);
     padding-inline: 0.7rem;
     font-size: 0.78rem;
   }
@@ -521,7 +521,7 @@
   }
 
   .mode-card {
-    min-height: clamp(220px, 45vh, 330px);
+    min-height: var(--game-card-min);
   }
 
   .home-hero-stage {
@@ -562,7 +562,7 @@
 
   .main-menu-content {
     grid-template-columns: 1fr;
-    gap: 0.8rem;
+    gap: var(--game-space-3);
   }
 
   .home-hero-stage {
@@ -577,7 +577,7 @@
   }
 
   .mode-card {
-    min-height: 360px;
+    min-height: var(--game-card-min);
   }
 
   .main-menu-bottom {
@@ -614,7 +614,7 @@
 }
 
 .game-title {
-  font-size: clamp(2.35rem, 11vw, 3.5rem);
+  font-size: var(--game-text-hero);
   letter-spacing: 4px;
   display: flex;
   flex-direction: column;
@@ -669,10 +669,12 @@
 
 .login-panel {
   width: min(92vw, 560px);
+  max-height: var(--game-login-panel-h);
 }
 
 .hero-login-panel {
-  width: min(96vw, 1040px);
+  width: var(--game-login-panel-w);
+  max-height: var(--game-login-panel-h);
 }
 
 .login-logo {
@@ -750,7 +752,7 @@
 
 .hero-card {
   --hero-accent: var(--accent-bright);
-  min-height: 390px;
+  min-height: clamp(150px, 32vh, 390px);
   position: relative;
   overflow: hidden;
   align-content: end;
@@ -807,7 +809,7 @@
   display: grid;
   place-items: end center;
   width: 100%;
-  height: 225px;
+  height: clamp(150px, 28vh, 225px);
   margin: -0.35rem 0 0.35rem;
 }
 
@@ -826,7 +828,7 @@
   position: relative;
   z-index: 1;
   max-width: 112%;
-  max-height: 255px;
+  max-height: clamp(170px, 32vh, 255px);
   object-fit: contain;
   object-position: center bottom;
   filter:
@@ -839,7 +841,7 @@
 .hero-art.hero-animated-art {
   width: min(112%, 250px);
   max-width: 112%;
-  max-height: 255px;
+  max-height: clamp(170px, 32vh, 255px);
   object-fit: initial;
   animation: heroIdle 3.4s ease-in-out infinite;
 }
@@ -893,6 +895,10 @@
   color: var(--text-dim);
   font-size: 0.74rem;
   line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .login-error {
@@ -1017,7 +1023,8 @@
 }
 
 .login-screen-form {
-  width: min(94vw, 720px);
+  width: var(--game-login-panel-w);
+  max-height: var(--game-login-panel-h);
   flex: 0 0 auto;
   margin-bottom: auto;
   display: flex;
@@ -1135,8 +1142,8 @@
 
   .login-screen-form {
     width: min(96vw, 900px);
-    gap: 0.42rem;
-    padding: 0.7rem 1rem;
+    gap: var(--game-space-2);
+    padding: var(--game-space-3) var(--game-space-4);
   }
 
   .login-install-action {
@@ -1144,23 +1151,23 @@
   }
 
   .login-install-action .install-btn {
-    min-height: 38px;
+    min-height: var(--game-button-h-md);
     padding: 0.55rem 0.75rem;
     font-size: 0.72rem;
   }
 
   .login-screen-fields .field-label {
-    gap: 0.22rem;
+    gap: var(--game-space-1);
     font-size: 0.68rem;
   }
 
   .login-screen-fields .text-field {
-    min-height: 38px;
+    min-height: var(--game-button-h-md);
     padding: 0.6rem 0.8rem;
   }
 
   .login-screen-form .login-submit {
-    min-height: 40px;
+    min-height: var(--game-button-h-md);
     padding: 0.62rem 1rem;
   }
 
@@ -1254,8 +1261,8 @@
 }
 
 .player-badge img {
-  width: 42px;
-  height: 42px;
+  width: var(--game-icon-md);
+  height: var(--game-icon-md);
   object-fit: contain;
   object-position: center 18%;
   border-radius: 50%;
@@ -1315,6 +1322,7 @@
   inset: 0;
   z-index: 100;
   max-width: none;
+  height: var(--game-screen-h);
   min-height: var(--game-screen-h);
   padding: var(--game-safe-top) var(--game-safe-right) var(--game-safe-bottom) var(--game-safe-left);
   display: grid;
@@ -1322,6 +1330,7 @@
   overflow: hidden;
   overscroll-behavior: none;
   touch-action: manipulation;
+  contain: layout size;
   background: #050817;
 }
 
@@ -1332,6 +1341,7 @@
   align-content: center;
   padding: var(--game-space-6);
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 .welcome-gate-panel {
@@ -1407,6 +1417,7 @@
     grid-template-columns: minmax(120px, 0.42fr) minmax(0, 1fr);
     gap: var(--game-space-2) var(--game-space-5);
     padding: var(--game-space-4) var(--game-space-5);
+    align-content: center;
     text-align: left;
   }
 
@@ -1439,6 +1450,17 @@
   .install-gate-actions {
     gap: var(--game-space-2);
   }
+
+  .install-gate-panel--help {
+    align-content: start;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+  }
+
+  .install-gate-panel--help .game-logo {
+    align-self: start;
+  }
 }
 
 @media (orientation: landscape) and (max-height: 400px) {
@@ -1446,6 +1468,7 @@
     width: min(96vw, 720px);
     grid-template-columns: minmax(96px, 0.34fr) minmax(0, 1fr);
     padding: var(--game-space-3) var(--game-space-4);
+    gap: var(--game-space-1) var(--game-space-4);
   }
 
   .install-gate .game-logo {
@@ -1461,7 +1484,26 @@
   }
 
   .install-gate-btn {
-    min-height: 38px;
+    min-height: var(--game-touch-min);
+  }
+}
+
+@media (orientation: landscape) and (max-height: 340px) {
+  .install-gate .game-logo {
+    width: clamp(76px, 28vh, 104px);
+  }
+
+  .install-gate-text--flavor {
+    display: none;
+  }
+
+  .install-gate-title {
+    font-size: clamp(0.86rem, 4.4vh, 1rem);
+  }
+
+  .install-gate-btn {
+    min-height: 34px;
+    padding-block: 0.28rem;
   }
 }
 
@@ -1623,7 +1665,7 @@
 .result-defeat { border-color: var(--danger); box-shadow: 0 0 60px rgba(224, 85, 85, 0.2); }
 
 .result-title {
-  font-size: 2.2rem;
+  font-size: var(--game-text-xl);
   letter-spacing: 3px;
 }
 
@@ -1638,8 +1680,8 @@
 .result-stats {
   display: flex;
   justify-content: center;
-  gap: 1.5rem;
-  margin-bottom: 1.5rem;
+  gap: var(--game-space-5);
+  margin-bottom: var(--game-space-5);
   flex-wrap: wrap;
 }
 
@@ -1649,7 +1691,7 @@
 }
 
 .stat-value {
-  font-size: 1.8rem;
+  font-size: var(--game-text-lg);
   font-weight: bold;
   color: var(--accent-bright);
 }

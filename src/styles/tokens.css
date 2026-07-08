@@ -25,20 +25,35 @@
   --game-text-md: clamp(0.9rem, 1.2vw, 1rem);
   --game-text-lg: clamp(1.08rem, 1.8vw, 1.35rem);
   --game-text-xl: clamp(1.3rem, 3vw, 1.75rem);
+  --game-text-hero: clamp(2.25rem, 4vw, 4.5rem);
 
   --game-touch-min: 44px;
   --game-button-h-sm: 36px;
   --game-button-h-md: 44px;
   --game-button-h-lg: 52px;
+  --game-button-height-sm: var(--game-button-h-sm);
+  --game-button-height-md: var(--game-button-h-md);
+  --game-button-height-lg: var(--game-button-h-lg);
+
+  --game-icon-sm: clamp(28px, 2.4vw, 40px);
+  --game-icon-md: clamp(38px, 3vw, 54px);
+  --game-icon-lg: clamp(50px, 4vw, 76px);
 
   --game-content-max: 1600px;
   --game-panel-max: 760px;
   --game-card-min: 220px;
   --game-battle-console-w: clamp(300px, 29vw, 470px);
+  --game-letter-board-w: min(34vh, 380px);
+  --game-main-logo-w: min(38vw, 620px);
+  --game-menu-card-h: clamp(300px, 48vh, 500px);
+  --game-login-panel-w: min(92vw, 900px);
+  --game-login-panel-h: min(82dvh, 760px);
 
   --game-panel-bg: linear-gradient(180deg, rgba(16, 27, 56, 0.94), rgba(5, 8, 23, 0.9));
   --game-panel-bg-soft: rgba(6, 10, 22, 0.72);
   --game-panel-border: rgba(143, 163, 200, 0.34);
+  --game-gold: #d8a63e;
+  --game-blue: #2d7eff;
   --game-gold-border: rgba(216, 166, 62, 0.62);
   --game-gold-soft: rgba(255, 209, 102, 0.12);
   --game-blue-soft: rgba(45, 126, 255, 0.18);
@@ -56,6 +71,7 @@
     --game-space-5: clamp(0.75rem, 1.2vw, 1rem);
     --game-space-6: clamp(1rem, 1.6vw, 1.35rem);
     --game-button-h-lg: 48px;
+    --game-menu-card-h: clamp(238px, 46vh, 330px);
   }
 }
 
@@ -65,5 +81,7 @@
     --game-button-h-md: 38px;
     --game-button-h-lg: 44px;
     --game-battle-console-w: clamp(238px, 28vw, 286px);
+    --game-letter-board-w: min(48vh, 236px);
+    --game-menu-card-h: clamp(210px, 44vh, 286px);
   }
 }
