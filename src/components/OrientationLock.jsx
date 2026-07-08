@@ -1,17 +1,19 @@
 import { useEffect } from 'react'
 
-// Fuerza el juego a horizontal. Intenta bloquear la orientación (solo
-// funciona con la PWA instalada / en fullscreen en Android) y, en cualquier
-// caso, un overlay CSS tapa toda la pantalla en vertical pidiendo rotar.
+// Arranca el juego en horizontal. Bloquea la orientación con la Screen
+// Orientation API: funciona en la PWA instalada (junto con el manifest, que
+// ya declara orientation landscape), así la app abre y se queda en horizontal
+// sin pedirle nada al jugador. En navegador el lock se rechaza y no pasa
+// nada: el layout responsive se adapta solo, sin carteles de "girá el
+// dispositivo".
 export function OrientationLock() {
   useEffect(() => {
     const lockLandscape = () => {
       try {
         const result = window.screen?.orientation?.lock?.('landscape')
-        // En navegador (sin PWA/fullscreen) rechaza: se ignora y queda el cartel.
         if (result && typeof result.catch === 'function') result.catch(() => {})
       } catch {
-        // API no disponible: el overlay CSS se encarga.
+        // API no disponible: el manifest y el CSS responsive se encargan.
       }
     }
 
@@ -20,11 +22,5 @@ export function OrientationLock() {
     return () => window.removeEventListener('orientationchange', lockLandscape)
   }, [])
 
-  return (
-    <div className="orientation-lock" role="status" aria-live="polite">
-      <span className="rotate-icon" aria-hidden="true" />
-      <strong>Girá tu dispositivo</strong>
-      <p>Wordblade se juega en horizontal.</p>
-    </div>
-  )
+  return null
 }

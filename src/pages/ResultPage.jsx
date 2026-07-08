@@ -58,7 +58,7 @@ export function ResultPage() {
           {scenario?.name}
           {battle.status === 'victory'
             ? ` — ${battle.enemy.name} derrotada`
-            : ` — ${battle.enemy.name} venció a Kael`}
+            : ` — ${battle.enemy.name} venció a ${battle.player.name}`}
         </p>
 
         <div className="result-stats">

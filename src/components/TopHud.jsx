@@ -5,8 +5,8 @@ import { HERO_BY_RACE } from '../game/data/heroes.js'
 
 const EMPTY_STATUS_SLOTS = 3
 
-export function TopHud({ battle, scenario }) {
-  const hero = HERO_BY_RACE.LOBO
+export function TopHud({ battle, scenario, heroRace = 'LOBO' }) {
+  const hero = HERO_BY_RACE[heroRace] ?? HERO_BY_RACE.LOBO
   const enemyDef = ENEMIES[battle.enemy.id]
   const playerLevel = battle.player.level ?? scenario.wordDifficulty
   const enemyLevel = battle.enemy.level ?? ((battle.encounterIndex ?? 0) + 1)

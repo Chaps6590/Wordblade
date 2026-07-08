@@ -34,7 +34,7 @@ export function applyLetterEffects(state, usedTiles) {
       case 'heal': {
         const healed = Math.min(EFFECT_VALUES.heal, player.maxHp - player.hp)
         player.hp += healed
-        effects.push({ type: 'heal', letter: tile.value, amount: healed, text: `La letra A curó ${healed} HP a Kael.` })
+        effects.push({ type: 'heal', letter: tile.value, amount: healed, text: `La letra A curó ${healed} HP a ${player.name}.` })
         break
       }
       case 'shield': {
@@ -109,7 +109,7 @@ export function applyLetterEffects(state, usedTiles) {
   const poisonedUsed = usedTiles.filter((t) => t.poisoned)
   for (const tile of poisonedUsed) {
     player.hp = Math.max(0, player.hp - EFFECT_VALUES.poisonTileDamage)
-    effects.push({ type: 'selfPoison', letter: tile.value, amount: EFFECT_VALUES.poisonTileDamage, text: `La letra ${tile.value} estaba envenenada: Kael sufre ${EFFECT_VALUES.poisonTileDamage} de daño.` })
+    effects.push({ type: 'selfPoison', letter: tile.value, amount: EFFECT_VALUES.poisonTileDamage, text: `La letra ${tile.value} estaba envenenada: ${player.name} sufre ${EFFECT_VALUES.poisonTileDamage} de daño.` })
   }
 
   return { effects, extraPhysical, magicDamage }

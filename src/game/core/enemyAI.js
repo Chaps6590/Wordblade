@@ -71,7 +71,7 @@ export function applyWordReactions(state, events, { lastWordLength = null } = {}
       }
     }
     if (freed > 0) {
-      events.push({ kind: 'effect', effect: 'unlock', text: `¡El grito de Kael rompió todos los silencios! (${freed} letras liberadas)` })
+      events.push({ kind: 'effect', effect: 'unlock', text: `¡El grito de ${state.player.name} rompió todos los silencios! (${freed} letras liberadas)` })
     }
   }
 
@@ -120,10 +120,10 @@ export function enemyTurn(state, events, { lastWordLength = null, wasInvalid = f
     }
   }
 
-  // Plaga fase 3: las palabras inválidas envenenan a Kael
+  // Plaga fase 3: las palabras inválidas envenenan al jugador
   if (abilities.poisonPlayerOnInvalid && wasInvalid) {
     player.hp = Math.max(0, player.hp - abilities.poisonPlayerOnInvalid)
-    events.push({ kind: 'enemyAttack', amount: abilities.poisonPlayerOnInvalid, text: `El error de Kael lo envenena: sufre ${abilities.poisonPlayerOnInvalid} de daño.` })
+    events.push({ kind: 'enemyAttack', amount: abilities.poisonPlayerOnInvalid, text: `El error de ${player.name} lo envenena: sufre ${abilities.poisonPlayerOnInvalid} de daño.` })
   }
 
   // Guardián: gana escudo cada N turnos

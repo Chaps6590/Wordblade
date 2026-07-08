@@ -46,11 +46,13 @@ export function isAppInstalled() {
 // Lanza el diálogo nativo de instalación. Devuelve true si el usuario aceptó.
 export async function promptInstall() {
   if (!deferredPrompt) return false
-  deferredPrompt.prompt()
-  const choice = await deferredPrompt.userChoice
-  if (choice.outcome === 'accepted') {
-    deferredPrompt = null
-    notify()
-  }
+  // El evento es de un solo uso: se descarta apenas se lanza el diálogo.
+  // Si el navegador vuelve a ofrecer instalación, dispara otro
+  // beforeinstallprompt y se captura de nuevo.
+  const prompt = deferredPrompt
+  deferredPrompt = null
+  prompt.prompt()
+  const choice = await prompt.userChoice
+  notify()
   return choice.outcome === 'accepted'
 }

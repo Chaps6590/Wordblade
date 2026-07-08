@@ -79,7 +79,7 @@ export function checkBattleEnd(state, events) {
   }
   if (state.player.hp <= 0) {
     state.status = 'defeat'
-    events.push({ kind: 'end', result: 'defeat', text: 'Kael cayó en combate...' })
+    events.push({ kind: 'end', result: 'defeat', text: `${state.player.name} cayó en combate...` })
     return true
   }
   if (state.timeLeft <= 0) {

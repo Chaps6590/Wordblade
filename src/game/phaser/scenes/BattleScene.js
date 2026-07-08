@@ -12,11 +12,6 @@ import { HERO_BY_RACE } from '../../data/heroes.js'
 
 const W = 800
 const H = 400
-const PLAYER_HERO = HERO_BY_RACE.LOBO
-const PLAYER_TEXTURE_KEY = `player-${PLAYER_HERO.race.toLowerCase()}-portrait`
-const PLAYER_ANIMATION_PREFIX = `player-${PLAYER_HERO.race.toLowerCase()}`
-const PLAYER_SPRITE = PLAYER_HERO.portrait
-const PLAYER_ANIMATIONS = PLAYER_HERO.animations
 const PLAYER_BASE = { x: 170, y: 304 }
 const ENEMY_BASE = { x: 630, y: 304 }
 const PLAYER_FIT = { maxWidth: 210, maxHeight: 300 }
@@ -27,11 +22,15 @@ export class BattleScene extends Phaser.Scene {
   }
 
   preload() {
-    const scenarioId = this.registry.get('scenarioId')
+    const scenarioId = this.game.wordbladeScenarioId ?? this.registry.get('scenarioId')
     const scenario = getScenario(scenarioId)
+    this.playerHero = HERO_BY_RACE[this.game.wordbladeHeroRace ?? this.registry.get('heroRace')] ?? HERO_BY_RACE.LOBO
+    this.playerAnimations = this.playerHero.animations ?? {}
+    this.playerTextureKey = `player-${this.playerHero.race.toLowerCase()}-portrait`
+    this.playerAnimationPrefix = `player-${this.playerHero.race.toLowerCase()}`
 
-    this.load.image(PLAYER_TEXTURE_KEY, PLAYER_SPRITE)
-    for (const [name, animation] of Object.entries(PLAYER_ANIMATIONS ?? {})) {
+    this.load.image(this.playerTextureKey, this.playerHero.portrait)
+    for (const [name, animation] of Object.entries(this.playerAnimations)) {
       if (!animation?.sheet) continue
       this.load.spritesheet(this.playerAnimationTextureKey(name), animation.sheet, {
         frameWidth: animation.frameWidth,
@@ -52,7 +51,7 @@ export class BattleScene extends Phaser.Scene {
   }
 
   create() {
-    const scenarioId = this.registry.get('scenarioId')
+    const scenarioId = this.game.wordbladeScenarioId ?? this.registry.get('scenarioId')
     const scenario = getScenario(scenarioId)
     const enemyDef = scenario ? ENEMIES[getScenarioEncounter(scenario, 0).enemyId] : null
 
@@ -79,7 +78,9 @@ export class BattleScene extends Phaser.Scene {
 
     this.createPlayerAnimations()
 
-    const sprite = this.add.sprite(0, 0, this.playerAnimationTextureKey('idle'), 0)
+    const sprite = this.playerAnimations.idle?.sheet
+      ? this.add.sprite(0, 0, this.playerAnimationTextureKey('idle'), 0)
+      : this.add.image(0, 0, this.playerTextureKey)
     const fitScale = Math.min(PLAYER_FIT.maxWidth / sprite.width, PLAYER_FIT.maxHeight / sprite.height)
     this.kaelSpriteScale = fitScale
 
@@ -87,14 +88,17 @@ export class BattleScene extends Phaser.Scene {
       .setScale(fitScale)
       .setOrigin(0.5, 1)
       .setDepth(1)
-      .play(this.playerAnimationKey('idle'))
+
+    if (this.playerAnimations.idle?.sheet) {
+      sprite.play(this.playerAnimationKey('idle'))
+    }
 
     this.kaelSprite = sprite
     this.kael.add(sprite)
   }
 
   createPlayerAnimations() {
-    for (const [name, animation] of Object.entries(PLAYER_ANIMATIONS ?? {})) {
+    for (const [name, animation] of Object.entries(this.playerAnimations ?? {})) {
       const key = this.playerAnimationKey(name)
       if (this.anims.exists(key) || !animation?.sheet) continue
       this.anims.create({
@@ -111,15 +115,15 @@ export class BattleScene extends Phaser.Scene {
   }
 
   playerAnimationTextureKey(name) {
-    return `${PLAYER_ANIMATION_PREFIX}-${name}-sheet`
+    return `${this.playerAnimationPrefix}-${name}-sheet`
   }
 
   playerAnimationKey(name) {
-    return `${PLAYER_ANIMATION_PREFIX}-${name}`
+    return `${this.playerAnimationPrefix}-${name}`
   }
 
   setPlayerAnimation(name) {
-    const animation = PLAYER_ANIMATIONS?.[name]
+    const animation = this.playerAnimations?.[name]
     if (!this.kaelSprite || !animation?.sheet) return false
 
     this.kaelSprite

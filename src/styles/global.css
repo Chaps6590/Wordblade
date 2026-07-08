@@ -106,68 +106,7 @@ body {
   color: var(--text-dim);
 }
 
-/* ── Bloqueo global de orientación: el juego es horizontal ────────── */
-.orientation-lock {
-  display: none;
-}
-
-@media (orientation: portrait) {
-  .orientation-lock {
-    position: fixed;
-    inset: 0;
-    z-index: 99999;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-    padding: 2rem;
-    text-align: center;
-    color: var(--text);
-    background:
-      radial-gradient(circle at 50% 40%, rgba(45, 126, 255, 0.12), transparent 60%),
-      #050817;
-  }
-
-  .orientation-lock strong {
-    font-size: clamp(1.1rem, 5vw, 1.7rem);
-    letter-spacing: 1px;
-  }
-
-  .orientation-lock p {
-    margin: 0;
-    color: var(--text-dim);
-    font-size: clamp(0.85rem, 3.5vw, 1rem);
-  }
-
-  .orientation-lock .rotate-icon {
-    width: 56px;
-    height: 84px;
-    border: 4px solid var(--accent-bright);
-    border-radius: 12px;
-    position: relative;
-    box-shadow: 0 0 18px var(--glow);
-    animation: rotateHint 2.4s ease-in-out infinite;
-  }
-
-  .orientation-lock .rotate-icon::after {
-    content: '';
-    position: absolute;
-    left: 50%;
-    bottom: 7px;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--accent-bright);
-    transform: translateX(-50%);
-  }
-}
-
-@keyframes rotateHint {
-  0%, 40% { transform: rotate(0deg); }
-  60%, 100% { transform: rotate(90deg); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .orientation-lock .rotate-icon { animation: none; transform: rotate(90deg); }
-}
+/* El bloqueo de orientación (juego horizontal) vive en OrientationLock.jsx:
+   en la app instalada la Screen Orientation API + el manifest fuerzan
+   landscape desde el arranque; en navegador no se bloquea nada y el layout
+   se adapta con los media queries de cada pantalla. */

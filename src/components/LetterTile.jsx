@@ -19,7 +19,7 @@ export function LetterTile({ tile, onClick, disabled, selected = false }) {
     tile.bonusDamage ? `Color especial: +${tile.bonusDamage} de daño` : null,
     data?.effectDesc,
     tile.devoured ? 'Devorada: ya no puede usarse' : tile.locked ? `Bloqueada (${tile.lockTurns} turnos)` : null,
-    tile.poisoned ? 'Envenenada: usarla daña a Kael' : null,
+    tile.poisoned ? 'Envenenada: usarla daña al héroe' : null,
     tile.cursed ? 'Maldita: reduce el daño de la palabra' : null
   ]
     .filter(Boolean)

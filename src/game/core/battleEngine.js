@@ -32,7 +32,7 @@ function generationStrategy(scenario) {
   return `${scenario.hiddenWordLength}_plus_extra`
 }
 
-export function createBattleState(scenarioId, challengeWords = []) {
+export function createBattleState(scenarioId, challengeWords = [], playerProfile = {}) {
   const scenario = getScenario(scenarioId)
   if (!scenario) throw new Error(`Escenario desconocido: ${scenarioId}`)
   const encounterIndex = 0
@@ -48,7 +48,8 @@ export function createBattleState(scenarioId, challengeWords = []) {
     encounterCount: scenario.encounters?.length ?? 1,
     encounterLabel: encounter.label,
     player: {
-      name: 'Kael',
+      name: playerProfile.name ?? 'Héroe',
+      race: playerProfile.race ?? 'LOBO',
       hp: 100,
       maxHp: 100,
       shield: 0,
@@ -90,7 +91,7 @@ export function createBattleState(scenarioId, challengeWords = []) {
 }
 
 // Procesa la palabra escrita por el jugador. Ejecuta el turno completo:
-// ataque de Kael (o turno perdido) + respuesta del enemigo.
+// ataque del jugador (o turno perdido) + respuesta del enemigo.
 // Devuelve la lista de eventos del turno.
 // El store pasa la validación asíncrona (solo-API) en `precomputedValidation`;
 // sin ella se usa la validación local (tests / modo offline de emergencia).
@@ -112,7 +113,7 @@ export function playWord(state, rawWord, precomputedValidation = null) {
 
   if (wasInvalid) {
     state.invalidWords += 1
-    events.push({ kind: 'invalid', text: `✗ ${result.reason} Kael pierde el turno.` })
+    events.push({ kind: 'invalid', text: `✗ ${result.reason} ${state.player.name} pierde el turno.` })
   } else {
     lastWordLength = result.word.length
     attackWithWord(state, result, events)
@@ -154,7 +155,7 @@ export function swapLetterRack(state, newChallengeWords) {
     totalCount: state.letterCount
   })
 
-  events.push({ kind: 'info', text: '♻ Kael invocó una grilla nueva de letras... y pierde el turno.' })
+  events.push({ kind: 'info', text: `♻ ${state.player.name} invocó una grilla nueva de letras... y pierde el turno.` })
 
   if (!checkBattleEnd(state, events)) {
     runEnemyPhase(state, events, { lastWordLength: null, wasInvalid: false })
@@ -212,7 +213,7 @@ function attackWithWord(state, { word, usedTiles }, events) {
   state.totalDamage += totalDealt
   state.score += damage.letterPoints + damage.lengthBonus + damage.tileBonusDamage + secretBonus + (damage.isCritical ? 10 : 0)
 
-  let text = `Kael usó ${word} e hizo ${totalDealt} de daño.`
+  let text = `${state.player.name} usó ${word} e hizo ${totalDealt} de daño.`
   if (tier === 'ultimate') text = `¡¡ATAQUE DEFINITIVO!! ${text}`
   else if (tier === 'special') text = `¡ATAQUE ESPECIAL! ${text}`
   if (foundHiddenWord) text = `¡PALABRA OCULTA DESCUBIERTA! +${secretBonus} de daño. ${text}`

@@ -23,7 +23,7 @@ export const useBattleStore = create((set, get) => ({
   validating: false, // compat: true siempre que pending !== null
   language: 'es',
 
-  startBattle: async (scenarioId) => {
+  startBattle: async (scenarioId, playerProfile = {}) => {
     const requestId = ++startRequestId
     const scenario = getScenario(scenarioId)
     if (!scenario) return
@@ -31,7 +31,7 @@ export const useBattleStore = create((set, get) => ({
     set({ battle: null, pending: 'loading_words', validating: true })
     const challenges = await getWordChallenges(scenario.hiddenWordLength, scenario.wordDifficulty)
     if (requestId !== startRequestId) return
-    const battle = createBattleState(scenarioId, challenges)
+    const battle = createBattleState(scenarioId, challenges, playerProfile)
     set({ battle, pending: null, validating: false })
     logBattleDebug(battle, 'Inicio de batalla')
   },

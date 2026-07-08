@@ -25,10 +25,6 @@ function isSecureInstallContext() {
   return window.isSecureContext || window.location.hostname === 'localhost'
 }
 
-// Chrome dispara beforeinstallprompt poco después de cargar; se espera este
-// margen antes de asumir que no hay instalador automático.
-const PROMPT_GRACE_MS = 2500
-
 // Celular + navegador: bloquea el juego con la pantalla de instalación.
 // PC o app instalada: renderiza el juego normalmente.
 export function InstallGate({ children }) {
@@ -37,26 +33,40 @@ export function InstallGate({ children }) {
   // antes de montar React); acá solo se lee y se escucha por cambios.
   const [installPrompt, setInstallPrompt] = useState(() => (gate ? getInstallPrompt() : null))
   const [installed, setInstalled] = useState(false)
-  const [graceOver, setGraceOver] = useState(
-    () => typeof window !== 'undefined' && (isiOS() || !isSecureInstallContext())
-  )
+  const [showHelp, setShowHelp] = useState(false)
 
   useEffect(() => {
     if (!gate) return
 
-    const unsubscribe = subscribeInstallPrompt(setInstallPrompt)
+    const unsubscribe = subscribeInstallPrompt((prompt) => {
+      setInstallPrompt(prompt)
+      // Llegó el instalador automático: se esconde el plan B.
+      if (prompt) setShowHelp(false)
+    })
     const handleInstalled = () => setInstalled(true)
     window.addEventListener('appinstalled', handleInstalled)
-    const timeoutId = window.setTimeout(() => setGraceOver(true), PROMPT_GRACE_MS)
 
     return () => {
       unsubscribe()
       window.removeEventListener('appinstalled', handleInstalled)
-      window.clearTimeout(timeoutId)
     }
   }, [gate])
 
   if (!gate) return children
+
+  async function handleInstall() {
+    // Plan A: el diálogo nativo. Si no está disponible o el usuario lo
+    // canceló, plan B: instrucciones para instalar desde el menú.
+    if (installPrompt) {
+      try {
+        const accepted = await promptInstall()
+        if (accepted) return
+      } catch {
+        // El evento ya se había consumido o el navegador lo rechazó.
+      }
+    }
+    setShowHelp(true)
+  }
 
   return (
     <div className="page menu-page install-gate">
@@ -71,39 +81,44 @@ export function InstallGate({ children }) {
           </p>
         ) : (
           <>
-            {/* El aviso de instalación obligatoria va primero y en todos los
-                estados: es lo primero que tiene que leer quien abre desde el
-                navegador del celular. */}
             <p className="install-gate-text">
               Para jugar en el celular tenés que instalar la app: se juega en pantalla completa,
               en horizontal y sin distracciones del navegador. Es gratis y tarda unos segundos.
             </p>
-            {installPrompt ? (
-              <button className="btn install-btn install-gate-btn" type="button" onClick={promptInstall}>
-                Instalar Wordblade
-              </button>
-            ) : !isSecureInstallContext() ? (
+
+            {!isSecureInstallContext() ? (
               <p className="install-gate-text">
                 Ojo: la instalación solo funciona con HTTPS. Abrí Wordblade desde su dirección
                 https:// (las URLs http:// con IP local no la habilitan).
               </p>
-            ) : graceOver ? (
-              isiOS() ? (
-                <ol className="install-gate-steps">
-                  <li>Abrí esta página en Safari.</li>
-                  <li>Tocá el botón <b>Compartir</b> (el cuadrado con la flecha).</li>
-                  <li>Elegí <b>Agregar a pantalla de inicio</b>.</li>
-                  <li>Abrí Wordblade desde el ícono nuevo.</li>
-                </ol>
-              ) : (
-                <ol className="install-gate-steps">
-                  <li>Abrí el menú del navegador (⋮ o ≡).</li>
-                  <li>Elegí <b>Instalar app</b> o <b>Agregar a pantalla de inicio</b>.</li>
-                  <li>Abrí Wordblade desde el ícono nuevo.</li>
-                </ol>
-              )
             ) : (
-              <p className="install-gate-hint">Preparando el instalador…</p>
+              <>
+                <button className="btn install-btn install-gate-btn" type="button" onClick={handleInstall}>
+                  Instalar Wordblade
+                </button>
+
+                {showHelp ? (
+                  <>
+                    <p className="install-gate-text install-gate-help-intro">
+                      ¿No apareció el instalador? Hacelo desde el menú del navegador:
+                    </p>
+                    {isiOS() ? (
+                      <ol className="install-gate-steps">
+                        <li>Abrí esta página en Safari.</li>
+                        <li>Tocá el botón <b>Compartir</b> (el cuadrado con la flecha).</li>
+                        <li>Elegí <b>Agregar a pantalla de inicio</b>.</li>
+                        <li>Abrí Wordblade desde el ícono nuevo.</li>
+                      </ol>
+                    ) : (
+                      <ol className="install-gate-steps">
+                        <li>Abrí el menú del navegador (⋮ o ≡).</li>
+                        <li>Elegí <b>Instalar app</b> o <b>Agregar a pantalla de inicio</b>.</li>
+                        <li>Abrí Wordblade desde el ícono nuevo.</li>
+                      </ol>
+                    )}
+                  </>
+                ) : null}
+              </>
             )}
           </>
         )}

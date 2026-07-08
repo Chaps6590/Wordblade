@@ -2,7 +2,7 @@
 // con la que aparece al generar letras aleatorias.
 
 export const LETTER_DATA = {
-  A: { points: 1, effect: 'heal',      effectName: 'Curación',     effectDesc: 'Cura 4 HP a Kael',            frequency: 12 },
+  A: { points: 1, effect: 'heal',      effectName: 'Curación',     effectDesc: 'Cura 4 HP al héroe',          frequency: 12 },
   B: { points: 3, effect: null,        frequency: 2 },
   C: { points: 3, effect: null,        frequency: 4 },
   D: { points: 2, effect: null,        frequency: 5 },
@@ -16,7 +16,7 @@ export const LETTER_DATA = {
   M: { points: 3, effect: 'heavy',     effectName: 'Golpe pesado', effectDesc: '+4 de daño contundente',      frequency: 3 },
   N: { points: 1, effect: null,        frequency: 6 },
   Ñ: { points: 8, effect: 'ancestral', effectName: 'Daño ancestral', effectDesc: '+12 daño ancestral (ignora escudo)', frequency: 1 },
-  O: { points: 1, effect: 'shield',    effectName: 'Escudo',       effectDesc: '+3 de escudo a Kael',         frequency: 9 },
+  O: { points: 1, effect: 'shield',    effectName: 'Escudo',       effectDesc: '+3 de escudo al héroe',       frequency: 9 },
   P: { points: 3, effect: 'poison',    effectName: 'Veneno',       effectDesc: 'Envenena al enemigo (3 daño x 4 turnos)', frequency: 2 },
   Q: { points: 5, effect: null,        frequency: 1 },
   R: { points: 1, effect: 'bleed',     effectName: 'Sangrado',     effectDesc: 'El enemigo sangra (2 daño x 3 turnos)',   frequency: 6 },

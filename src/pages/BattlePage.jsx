@@ -10,10 +10,12 @@ import { SkillLegend } from '../components/SkillLegend.jsx'
 import { BattleBoardPanel } from '../components/BattleBoardPanel.jsx'
 import { CollapsibleBattlePanel } from '../components/CollapsibleBattlePanel.jsx'
 import { eventBus } from '../game/phaser/eventBus.js'
+import { useAuth } from '../auth/useAuth.js'
 
 export function BattlePage() {
   const { scenarioId } = useParams()
   const navigate = useNavigate()
+  const { player } = useAuth()
   const scenario = getScenario(scenarioId)
 
   const battle = useBattleStore((s) => s.battle)
@@ -35,8 +37,8 @@ export function BattlePage() {
     }
     setWord('')
     setSelectedTileIds([])
-    startBattle(scenarioId)
-  }, [scenarioId, scenario, startBattle, navigate])
+    startBattle(scenarioId, { name: player?.name, race: player?.race })
+  }, [scenarioId, scenario, startBattle, navigate, player?.name, player?.race])
 
   // Timer
   useEffect(() => {
@@ -103,10 +105,10 @@ export function BattlePage() {
       <div className="battle-background" aria-hidden="true" />
       <div className="battle-lighting" aria-hidden="true" />
 
-      <TopHud battle={battle} scenario={scenario} />
+      <TopHud battle={battle} scenario={scenario} heroRace={player?.race ?? 'LOBO'} />
 
       <div className="battle-stage">
-        <PhaserGame scenarioId={scenarioId} />
+        <PhaserGame scenarioId={scenarioId} heroRace={player?.race ?? 'LOBO'} />
       </div>
 
       <BattleBoardPanel
@@ -143,11 +145,6 @@ export function BattlePage() {
       <button className="btn btn-back" onClick={() => navigate('/scenarios')}>
         ← Abandonar batalla
       </button>
-
-      <div className="portrait-blocker" role="status" aria-live="polite">
-        <span className="rotate-icon" aria-hidden="true" />
-        <strong>Girá tu dispositivo para jugar</strong>
-      </div>
     </div>
   )
 }
