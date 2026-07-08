@@ -1,9 +1,11 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/useAuth.js'
 import { AppExitButton } from '../components/AppExitButton.jsx'
 import { HeroAnimatedArt } from '../components/HeroAnimatedArt.jsx'
 import { HERO_BY_RACE } from '../game/data/heroes.js'
 import { INITIAL_SCENARIO_ID } from '../game/data/scenarios.js'
+import { hardRefreshApp } from '../services/pwaInstall.js'
 
 const APP_VERSION = import.meta.env.VITE_APP_VERSION || '0.1.0+dev'
 
@@ -12,9 +14,20 @@ export function MainMenu() {
   const { player, logout } = useAuth()
   const hero = player ? HERO_BY_RACE[player.race] : null
   const displayName = player?.name || 'Kael'
+  const [refreshing, setRefreshing] = useState(false)
 
   async function handleLogout() {
     await logout()
+  }
+
+  async function handleHardRefresh() {
+    if (refreshing) return
+    setRefreshing(true)
+    try {
+      await hardRefreshApp()
+    } catch {
+      setRefreshing(false)
+    }
   }
 
   return (
@@ -90,7 +103,17 @@ export function MainMenu() {
           <AppExitButton />
         </div>
 
-        <p className="menu-version">v{APP_VERSION}</p>
+        <div className="menu-version-actions">
+          <button
+            className="btn btn-ghost menu-refresh-btn"
+            type="button"
+            onClick={handleHardRefresh}
+            disabled={refreshing}
+          >
+            {refreshing ? 'Actualizando...' : 'Actualizar'}
+          </button>
+          <p className="menu-version">v{APP_VERSION}</p>
+        </div>
       </footer>
     </div>
   )

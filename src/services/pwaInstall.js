@@ -66,6 +66,27 @@ export async function updateApp() {
   window.location.reload()
 }
 
+export async function hardRefreshApp() {
+  if (navigator.onLine === false) throw new Error('offline')
+
+  const registrations = navigator.serviceWorker
+    ? await navigator.serviceWorker.getRegistrations()
+    : []
+
+  await Promise.allSettled(registrations.map((registration) => registration.update()))
+
+  if (window.caches) {
+    const cacheNames = await window.caches.keys()
+    await Promise.allSettled(cacheNames.map((cacheName) => window.caches.delete(cacheName)))
+  }
+
+  await Promise.allSettled(registrations.map((registration) => registration.unregister()))
+
+  const url = new URL(window.location.href)
+  url.searchParams.set('refresh', Date.now().toString(36))
+  window.location.replace(url.toString())
+}
+
 // Lanza el diálogo nativo de instalación. Devuelve true si el usuario aceptó.
 export async function promptInstall() {
   if (!deferredPrompt) return false

@@ -408,11 +408,29 @@
   background: rgba(5, 8, 23, 0.72);
 }
 
-.main-menu-page .menu-version {
+.menu-version-actions {
   position: absolute;
   right: 0;
   bottom: -0.15rem;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.main-menu-page .menu-version {
   margin: 0;
+}
+
+.menu-refresh-btn {
+  min-height: 34px;
+  padding: 0.32rem 0.75rem;
+  border-color: rgba(127, 192, 255, 0.52);
+  color: #a5d3ff;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: rgba(5, 8, 23, 0.74);
 }
 
 @keyframes homeHeroIdle {
@@ -578,7 +596,7 @@
     justify-content: center;
   }
 
-  .main-menu-page .menu-version {
+  .menu-version-actions {
     position: static;
   }
 }

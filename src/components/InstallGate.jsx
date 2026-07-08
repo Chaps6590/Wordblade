@@ -4,7 +4,7 @@ import {
   subscribeInstallPrompt,
   isAppInstalled,
   promptInstall,
-  updateApp
+  hardRefreshApp
 } from '../services/pwaInstall.js'
 
 // Detección por dispositivo (no por tamaño de ventana): una ventana angosta
@@ -74,7 +74,7 @@ export function InstallGate({ children }) {
   async function handleUpdate() {
     setUpdateStatus('Buscando actualización...')
     try {
-      await updateApp()
+      await hardRefreshApp()
       setUpdateStatus('Wordblade ya está al día.')
     } catch {
       setUpdateStatus('No se pudo actualizar. Revisá la conexión e intentá de nuevo.')
