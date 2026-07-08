@@ -6,6 +6,7 @@ import { App } from './app/App.jsx'
 // antes de renderizar React, para no perder el evento de instalación.
 import { setServiceWorkerRegistration } from './services/pwaInstall.js'
 import { InstallGate } from './components/InstallGate.jsx'
+import './styles/tokens.css'
 import './styles/global.css'
 import './styles/menu.css'
 import './styles/battle.css'

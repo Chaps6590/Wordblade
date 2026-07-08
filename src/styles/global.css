@@ -32,6 +32,7 @@ html,
 body,
 #root {
   min-height: 100vh;
+  min-height: var(--game-screen-h);
 }
 
 body {
@@ -44,18 +45,28 @@ body {
 .page {
   max-width: 900px;
   margin: 0 auto;
-  padding: 1rem;
+  padding: var(--game-safe-top) var(--game-safe-right) var(--game-safe-bottom) var(--game-safe-left);
   min-height: 100vh;
+  min-height: var(--game-screen-h);
   display: flex;
   flex-direction: column;
 }
 
 .page-title {
   text-align: center;
-  margin: 1rem 0 1.5rem;
+  margin: var(--game-space-4) 0 var(--game-space-5);
   color: var(--steel);
   letter-spacing: 2px;
   text-shadow: 0 0 16px var(--glow);
+}
+
+.game-screen {
+  min-height: var(--game-screen-h);
+  padding: var(--game-safe-top) var(--game-safe-right) var(--game-safe-bottom) var(--game-safe-left);
+}
+
+.game-safe-area {
+  padding: var(--game-safe-top) var(--game-safe-right) var(--game-safe-bottom) var(--game-safe-left);
 }
 
 /* Botones */
@@ -63,9 +74,10 @@ body {
   background: var(--bg-panel-2);
   color: var(--text);
   border: 1px solid var(--border);
-  border-radius: 8px;
-  padding: 0.7rem 1.4rem;
-  font-size: 1rem;
+  border-radius: var(--game-radius-sm);
+  min-height: var(--game-button-h-md);
+  padding: 0.65rem var(--game-space-5);
+  font-size: var(--game-text-md);
   cursor: pointer;
   transition: background 0.15s, transform 0.1s, border-color 0.15s;
 }
