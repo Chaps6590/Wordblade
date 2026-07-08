@@ -7,18 +7,47 @@ export const HEROES = [
     portrait: '/characters/heroes/kael-guardaluna.png',
     animations: {
       idle: {
-        sheet: '/characters/heroes/animations/kael-idle-sheet.png',
-        frameWidth: 1086,
-        frameHeight: 1448,
-        frames: 4,
-        frameRate: 6
+        sheet: '/characters/heroes/kael-guardaluna/animations/idle-combat.png',
+        frameWidth: 362,
+        frameHeight: 512,
+        frames: 6,
+        frameRate: 7,
+        repeat: -1,
+        yoyo: true
+      },
+      idleSharpen: {
+        sheet: '/characters/heroes/kael-guardaluna/animations/idle-sharpen.png',
+        frameWidth: 362,
+        frameHeight: 512,
+        frames: 6,
+        frameRate: 8,
+        repeat: -1,
+        yoyo: true
       },
       attack: {
-        sheet: '/characters/heroes/animations/kael-attack-sheet.png',
-        frameWidth: 1086,
-        frameHeight: 1448,
-        frames: 4,
-        frameRate: 13
+        sheet: '/characters/heroes/kael-guardaluna/animations/attack-slash.png',
+        frameWidth: 362,
+        frameHeight: 512,
+        frames: 6,
+        frameRate: 14,
+        repeat: 0
+      },
+      hit: {
+        sheet: '/characters/heroes/kael-guardaluna/animations/hit.png',
+        frameWidth: 362,
+        frameHeight: 512,
+        frames: 6,
+        frameRate: 12,
+        repeat: 0
+      },
+      defeat: {
+        sheet: '/characters/heroes/kael-guardaluna/animations/defeat.png',
+        frameWidth: 362,
+        frameHeight: 512,
+        frames: 6,
+        frameRate: 9,
+        repeat: 0,
+        holdLastFrame: true
       }
     },
     description: 'Defensa firme, mirada fría y golpes seguros.',
@@ -39,6 +68,43 @@ export const HEROES = [
     name: 'Aelar Alacero',
     title: 'Lancero del cielo rúnico',
     portrait: '/characters/heroes/aelar-alacero.png',
+    animations: {
+      idle: {
+        sheet: '/characters/heroes/aelar-alacero/animations/idle-guard.png',
+        frameWidth: 362,
+        frameHeight: 512,
+        frames: 6,
+        frameRate: 7,
+        repeat: -1,
+        yoyo: true
+      },
+      idleWingReady: {
+        sheet: '/characters/heroes/aelar-alacero/animations/idle-wing-ready.png',
+        frameWidth: 362,
+        frameHeight: 512,
+        frames: 6,
+        frameRate: 8,
+        repeat: -1,
+        yoyo: true
+      },
+      attack: {
+        sheet: '/characters/heroes/aelar-alacero/animations/attack-lunge.png',
+        frameWidth: 362,
+        frameHeight: 512,
+        frames: 6,
+        frameRate: 14,
+        repeat: 0
+      },
+      defeat: {
+        sheet: '/characters/heroes/aelar-alacero/animations/defeat.png',
+        frameWidth: 362,
+        frameHeight: 512,
+        frames: 6,
+        frameRate: 9,
+        repeat: 0,
+        holdLastFrame: true
+      }
+    },
     description: 'Visión táctica, dominio del viento y alcance letal.',
     accent: '#d8a63e'
   }

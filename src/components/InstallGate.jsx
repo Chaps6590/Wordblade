@@ -62,50 +62,50 @@ export function InstallGate({ children }) {
     <div className="page menu-page install-gate">
       <div className="menu-panel install-gate-panel">
         <img className="game-logo" src="/icons/icon-192.png" alt="Wordblade" />
-        <h1 className="install-gate-title">Instalá Wordblade</h1>
+        <h1 className="install-gate-title">Necesitás instalar Wordblade</h1>
 
         {installed ? (
           <p className="install-gate-text">
             ¡Listo! Wordblade ya está instalado. Cerrá esta pestaña y abrí el juego desde el ícono
             en tu pantalla de inicio.
           </p>
-        ) : installPrompt ? (
+        ) : (
           <>
+            {/* El aviso de instalación obligatoria va primero y en todos los
+                estados: es lo primero que tiene que leer quien abre desde el
+                navegador del celular. */}
             <p className="install-gate-text">
-              Para jugar en el celular instalá la app: pantalla completa, en horizontal y sin
-              distracciones del navegador.
+              Para jugar en el celular tenés que instalar la app: se juega en pantalla completa,
+              en horizontal y sin distracciones del navegador. Es gratis y tarda unos segundos.
             </p>
-            <button className="btn install-btn install-gate-btn" type="button" onClick={promptInstall}>
-              Instalar Wordblade
-            </button>
-          </>
-        ) : !isSecureInstallContext() ? (
-          <p className="install-gate-text">
-            Para instalar desde el celular, abrí Wordblade con HTTPS. Las URLs http:// con IP
-            local no habilitan la instalación.
-          </p>
-        ) : graceOver ? (
-          <>
-            <p className="install-gate-text">
-              Para jugar en el celular instalá la app desde el menú del navegador:
-            </p>
-            {isiOS() ? (
-              <ol className="install-gate-steps">
-                <li>Abrí esta página en Safari.</li>
-                <li>Tocá el botón <b>Compartir</b> (el cuadrado con la flecha).</li>
-                <li>Elegí <b>Agregar a pantalla de inicio</b>.</li>
-                <li>Abrí Wordblade desde el ícono nuevo.</li>
-              </ol>
+            {installPrompt ? (
+              <button className="btn install-btn install-gate-btn" type="button" onClick={promptInstall}>
+                Instalar Wordblade
+              </button>
+            ) : !isSecureInstallContext() ? (
+              <p className="install-gate-text">
+                Ojo: la instalación solo funciona con HTTPS. Abrí Wordblade desde su dirección
+                https:// (las URLs http:// con IP local no la habilitan).
+              </p>
+            ) : graceOver ? (
+              isiOS() ? (
+                <ol className="install-gate-steps">
+                  <li>Abrí esta página en Safari.</li>
+                  <li>Tocá el botón <b>Compartir</b> (el cuadrado con la flecha).</li>
+                  <li>Elegí <b>Agregar a pantalla de inicio</b>.</li>
+                  <li>Abrí Wordblade desde el ícono nuevo.</li>
+                </ol>
+              ) : (
+                <ol className="install-gate-steps">
+                  <li>Abrí el menú del navegador (⋮ o ≡).</li>
+                  <li>Elegí <b>Instalar app</b> o <b>Agregar a pantalla de inicio</b>.</li>
+                  <li>Abrí Wordblade desde el ícono nuevo.</li>
+                </ol>
+              )
             ) : (
-              <ol className="install-gate-steps">
-                <li>Abrí el menú del navegador (⋮ o ≡).</li>
-                <li>Elegí <b>Instalar app</b> o <b>Agregar a pantalla de inicio</b>.</li>
-                <li>Abrí Wordblade desde el ícono nuevo.</li>
-              </ol>
+              <p className="install-gate-hint">Preparando el instalador…</p>
             )}
           </>
-        ) : (
-          <p className="install-gate-text">Preparando el instalador…</p>
         )}
       </div>
     </div>

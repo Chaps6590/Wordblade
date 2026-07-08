@@ -74,17 +74,17 @@ export function checkBattleEnd(state, events) {
     }
 
     state.status = 'victory'
-    events.push({ kind: 'end', text: `¡${state.enemy.name} fue derrotada! Nivel completado.` })
+    events.push({ kind: 'end', result: 'victory', text: `¡${state.enemy.name} fue derrotada! Nivel completado.` })
     return true
   }
   if (state.player.hp <= 0) {
     state.status = 'defeat'
-    events.push({ kind: 'end', text: 'Kael cayó en combate...' })
+    events.push({ kind: 'end', result: 'defeat', text: 'Kael cayó en combate...' })
     return true
   }
   if (state.timeLeft <= 0) {
     state.status = 'time_over'
-    events.push({ kind: 'end', text: 'Se acabó el tiempo. Derrota.' })
+    events.push({ kind: 'end', result: 'time_over', text: 'Se acabó el tiempo. Derrota.' })
     return true
   }
   return false

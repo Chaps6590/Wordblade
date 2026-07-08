@@ -1359,6 +1359,13 @@
   color: #ffd166;
 }
 
+.install-gate-hint {
+  margin: 0;
+  color: var(--text-dim);
+  font-size: 0.82rem;
+  font-style: italic;
+}
+
 .exit-card {
   display: grid;
   gap: 0.45rem;
