@@ -1301,6 +1301,64 @@
   line-height: 1.35;
 }
 
+/* Pantalla completa de instalación (celular + navegador) */
+
+.install-gate {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  max-width: none;
+  min-height: 100dvh;
+  padding:
+    max(1rem, env(safe-area-inset-top))
+    max(1rem, env(safe-area-inset-right))
+    max(1rem, env(safe-area-inset-bottom))
+    max(1rem, env(safe-area-inset-left));
+  overflow-y: auto;
+  background: #050817;
+}
+
+.install-gate-panel {
+  width: min(100%, 420px);
+  padding: 2.2rem 1.6rem;
+}
+
+.install-gate-title {
+  margin: 0 0 0.8rem;
+  color: #f9f2df;
+  font-size: clamp(1.3rem, 5.5vw, 1.7rem);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.install-gate-text {
+  margin: 0 0 1.2rem;
+  color: var(--text-dim);
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.install-gate-btn {
+  width: 100%;
+  min-height: 52px;
+  font-size: 1.05rem;
+}
+
+.install-gate-steps {
+  margin: 0;
+  padding-left: 1.4rem;
+  text-align: left;
+  color: var(--text-dim);
+  font-size: 0.92rem;
+  line-height: 1.5;
+  display: grid;
+  gap: 0.5rem;
+}
+
+.install-gate-steps b {
+  color: #ffd166;
+}
+
 .exit-card {
   display: grid;
   gap: 0.45rem;

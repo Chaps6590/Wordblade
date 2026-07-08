@@ -2,7 +2,6 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/useAuth.js'
 import { AppExitButton } from '../components/AppExitButton.jsx'
 import { HeroAnimatedArt } from '../components/HeroAnimatedArt.jsx'
-import { PwaInstallButton } from '../components/PwaInstallButton.jsx'
 import { HERO_BY_RACE } from '../game/data/heroes.js'
 import { INITIAL_SCENARIO_ID } from '../game/data/scenarios.js'
 
@@ -85,7 +84,6 @@ export function MainMenu() {
 
       <footer className="main-menu-bottom">
         <div className="home-system-actions">
-          <PwaInstallButton />
           <button className="btn btn-ghost" onClick={handleLogout}>
             Cerrar sesión
           </button>

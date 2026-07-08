@@ -5,6 +5,7 @@ import { App } from './app/App.jsx'
 // Efecto de módulo: engancha `beforeinstallprompt` apenas arranca la app,
 // antes de renderizar React, para no perder el evento de instalación.
 import './services/pwaInstall.js'
+import { InstallGate } from './components/InstallGate.jsx'
 import './styles/global.css'
 import './styles/menu.css'
 import './styles/battle.css'
@@ -47,6 +48,8 @@ registerSW({
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <App />
+    <InstallGate>
+      <App />
+    </InstallGate>
   </StrictMode>
 )
