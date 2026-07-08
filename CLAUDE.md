@@ -125,10 +125,13 @@ limpia la sesión. Rutas protegidas por `ProtectedRoute` en `App.jsx`.
 ## Multiplayer (duelos 1v1)
 
 `MultiplayerPage.jsx` + `src/services/duelSocket.js` (Socket.IO, mismo token que
-la API). Flujo por eventos: `duel:create` / `duel:join` (código de 5 chars) →
-`duel:ready` → `duel:start` (grilla única generada por el server) → `duel:word`
-(cada palabra válida daña al rival) → `duel:hit` / `duel:end`. La lógica y el
-reloj viven en el server; el cliente solo reporta palabra + daño (ver la API).
+la API). Flujo por eventos: `duel:create` (con opción de sala privada) /
+`duel:join` (código de 5 chars) → `duel:ready` → `duel:start` (grilla única
+generada por el server) → `duel:word` (cada palabra válida daña al rival) →
+`duel:hit` / `duel:end` → `duel:rematch` (revancha si ambos aceptan). En el
+menú, `lobby:watch` suscribe al listado en vivo de salas abiertas
+(`lobby:rooms`). La lógica y el reloj viven en el server; el cliente solo
+reporta palabra + daño (ver la API).
 
 ## Producción
 

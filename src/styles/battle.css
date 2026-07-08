@@ -1138,6 +1138,97 @@
 .lobby-players li small { color: var(--text-dim); }
 .lobby-players li.empty-slot { opacity: 0.5; font-style: italic; }
 
+/* Lobby: listado de salas abiertas */
+
+.duel-rooms-panel {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.duel-section-title {
+  margin: 0;
+  color: var(--steel);
+  font-size: 0.95rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.duel-rooms {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.duel-rooms li {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  background: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 0.55rem 0.9rem;
+}
+
+.duel-rooms .room-host {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 700;
+}
+
+.duel-rooms .room-meta {
+  color: var(--text-dim);
+  font-family: monospace;
+  white-space: nowrap;
+}
+
+.duel-rooms .room-join-btn {
+  min-height: 36px;
+  padding: 0.3rem 0.9rem;
+  font-size: 0.85rem;
+}
+
+.duel-rooms-empty {
+  text-align: center;
+  color: var(--text-dim);
+  font-style: italic;
+  font-size: 0.9rem;
+  background: var(--bg-panel);
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+}
+
+.duel-private-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.duel-private-toggle input {
+  accent-color: var(--accent-bright);
+  width: 16px;
+  height: 16px;
+}
+
+.duel-rematch-note {
+  text-align: center;
+  color: #ffd166;
+  font-size: 0.95rem;
+}
+
 .duel-header {
   display: flex;
   justify-content: space-between;

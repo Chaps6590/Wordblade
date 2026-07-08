@@ -23,6 +23,8 @@ export function MultiplayerPage() {
   const [endsAt, setEndsAt] = useState(null)
   const [now, setNow] = useState(Date.now())
   const [joinCode, setJoinCode] = useState('')
+  const [rooms, setRooms] = useState([])
+  const [privateRoom, setPrivateRoom] = useState(false)
   const [error, setError] = useState(null)
   const [log, setLog] = useState([])
   const [word, setWord] = useState('')
@@ -85,6 +87,24 @@ export function MultiplayerPage() {
     }
   }, [player?.id, pushLog])
 
+  // Lobby: mientras se está en el menú, el listado de salas abiertas
+  // llega en vivo desde el server (lobby:rooms en cada cambio).
+  useEffect(() => {
+    if (phase !== 'menu') return
+    const socket = getDuelSocket()
+
+    const onRooms = (list) => setRooms(Array.isArray(list) ? list : [])
+    socket.on('lobby:rooms', onRooms)
+    socket.emit('lobby:watch', (res) => {
+      if (res?.ok) setRooms(res.rooms ?? [])
+    })
+
+    return () => {
+      socket.off('lobby:rooms', onRooms)
+      socket.emit('lobby:unwatch')
+    }
+  }, [phase])
+
   // Reloj local que sigue al endsAt del server
   useEffect(() => {
     if (!endsAt || phase !== 'duel') return
@@ -95,19 +115,20 @@ export function MultiplayerPage() {
   const secondsLeft = endsAt ? Math.max(0, Math.ceil((endsAt - now) / 1000)) : 0
   const you = useMemo(() => duel?.players.find((p) => p.playerId === player?.id) ?? null, [duel, player?.id])
   const rival = useMemo(() => opponentOf(duel, player?.id), [duel, player?.id])
+  const rivalGone = !rival || rival.left
 
   const handleCreate = () => {
     setError(null)
-    getDuelSocket().emit('duel:create', (res) => {
+    getDuelSocket().emit('duel:create', { private: privateRoom }, (res) => {
       if (!res?.ok) return setError(res?.error ?? 'No se pudo crear la sala.')
       setDuel(res.duel)
       setPhase('lobby')
     })
   }
 
-  const handleJoin = () => {
+  const handleJoin = (code) => {
     setError(null)
-    getDuelSocket().emit('duel:join', { code: joinCode }, (res) => {
+    getDuelSocket().emit('duel:join', { code }, (res) => {
       if (!res?.ok) return setError(res?.error ?? 'No se pudo entrar a la sala.')
       setDuel(res.duel)
       setPhase('lobby')
@@ -118,6 +139,13 @@ export function MultiplayerPage() {
     setError(null)
     getDuelSocket().emit('duel:ready', (res) => {
       if (!res?.ok) setError(res?.error ?? 'No se pudo marcar listo.')
+    })
+  }
+
+  const handleRematch = () => {
+    setError(null)
+    getDuelSocket().emit('duel:rematch', (res) => {
+      if (!res?.ok) setError(res?.error ?? 'No se pudo pedir la revancha.')
     })
   }
 
@@ -179,9 +207,37 @@ export function MultiplayerPage() {
 
       {phase === 'menu' && (
         <div className="duel-menu">
+          <section className="duel-rooms-panel" aria-label="Salas abiertas">
+            <h3 className="duel-section-title">Salas abiertas</h3>
+            {rooms.length === 0 ? (
+              <p className="duel-rooms-empty">No hay salas esperando rival. ¡Creá la tuya!</p>
+            ) : (
+              <ul className="duel-rooms">
+                {rooms.map((room) => (
+                  <li key={room.code}>
+                    <span className="room-host">{room.hostName}</span>
+                    <small className="room-meta">{room.players}/2 · {room.code}</small>
+                    <button className="btn room-join-btn" onClick={() => handleJoin(room.code)}>
+                      Entrar
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
           <button className="btn btn-primary" onClick={handleCreate}>
             ⚔ Crear sala
           </button>
+          <label className="duel-private-toggle">
+            <input
+              type="checkbox"
+              checked={privateRoom}
+              onChange={(e) => setPrivateRoom(e.target.checked)}
+            />
+            Sala privada (solo se entra con el código)
+          </label>
+
           <div className="duel-join">
             <input
               className="text-field duel-code-input"
@@ -190,7 +246,7 @@ export function MultiplayerPage() {
               placeholder="CÓDIGO"
               maxLength={5}
             />
-            <button className="btn" onClick={handleJoin} disabled={joinCode.trim().length < 5}>
+            <button className="btn" onClick={() => handleJoin(joinCode)} disabled={joinCode.trim().length < 5}>
               Unirse
             </button>
           </div>
@@ -200,7 +256,11 @@ export function MultiplayerPage() {
 
       {phase === 'lobby' && duel && (
         <div className="duel-lobby">
-          <p className="duel-share">Compartí este código con tu rival:</p>
+          <p className="duel-share">
+            {duel.isPrivate
+              ? 'Sala privada: compartí este código con tu rival.'
+              : 'Tu sala aparece en "Salas abiertas". También podés compartir el código:'}
+          </p>
           <div className="room-code">{duel.code}</div>
 
           <ul className="lobby-players">
@@ -295,8 +355,28 @@ export function MultiplayerPage() {
                     .join(' · ')}
                 </p>
               )}
+
+              {rivalGone ? (
+                <p className="duel-rematch-note">Tu rival dejó la sala.</p>
+              ) : rival?.rematchRequested && !you?.rematchRequested ? (
+                <p className="duel-rematch-note">⚔ ¡{rival.name} quiere la revancha!</p>
+              ) : null}
+
               <div className="result-buttons">
-                <button className="btn btn-primary" onClick={handleExit}>⌂ Volver al menú</button>
+                {!rivalGone && (
+                  <button
+                    className="btn btn-primary"
+                    onClick={handleRematch}
+                    disabled={you?.rematchRequested}
+                  >
+                    {you?.rematchRequested
+                      ? 'Esperando al rival...'
+                      : rival?.rematchRequested
+                        ? '⚔ ¡Aceptar revancha!'
+                        : '⚔ Revancha'}
+                  </button>
+                )}
+                <button className="btn" onClick={handleExit}>⌂ Volver al menú</button>
               </div>
             </div>
           )}
