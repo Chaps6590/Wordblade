@@ -28,9 +28,16 @@
   padding: 0;
 }
 
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
 html,
 body,
 #root {
+  width: 100%;
+  height: 100%;
   min-height: 100vh;
   min-height: var(--game-screen-h);
 }
@@ -42,11 +49,34 @@ html {
 
 body {
   width: 100%;
+  min-width: 320px;
   background: var(--bg);
   color: var(--text);
   font-family: 'Segoe UI', system-ui, sans-serif;
   line-height: 1.4;
   overflow-x: hidden;
+}
+
+img,
+picture,
+svg,
+canvas {
+  max-width: 100%;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button,
+[role='button'],
+input,
+select,
+textarea {
+  touch-action: manipulation;
 }
 
 body.install-gate-open {
@@ -79,15 +109,20 @@ body.install-gate-open {
   width: 100%;
   height: var(--game-screen-h);
   min-height: var(--game-screen-h);
-  padding: var(--game-safe-top) var(--game-safe-right) var(--game-safe-bottom) var(--game-safe-left);
   overflow: hidden;
 }
 
 .game-safe-area {
   width: min(100%, var(--game-content-max));
   height: 100%;
+  min-height: 0;
   margin: 0 auto;
-  padding: var(--game-safe-top) var(--game-safe-right) var(--game-safe-bottom) var(--game-safe-left);
+  box-sizing: border-box;
+  padding:
+    max(var(--game-space-3), env(safe-area-inset-top))
+    max(var(--game-space-3), env(safe-area-inset-right))
+    max(var(--game-space-3), env(safe-area-inset-bottom))
+    max(var(--game-space-3), env(safe-area-inset-left));
 }
 
 /* Botones */
@@ -95,12 +130,17 @@ body.install-gate-open {
   background: var(--bg-panel-2);
   color: var(--text);
   border: 1px solid var(--border);
-  border-radius: var(--game-radius-sm);
+  border-radius: var(--game-control-radius);
   min-height: var(--game-button-h-md);
-  padding: 0.65rem var(--game-space-5);
+  padding: var(--game-space-3) var(--game-space-5);
   font-size: var(--game-text-md);
   cursor: pointer;
-  transition: background 0.15s, transform 0.1s, border-color 0.15s;
+  transition:
+    background var(--game-transition-fast),
+    transform var(--game-transition-fast),
+    border-color var(--game-transition-fast),
+    box-shadow var(--game-transition-fast),
+    opacity var(--game-transition-fast);
 }
 
 .btn:hover:not(:disabled) {
@@ -116,6 +156,16 @@ body.install-gate-open {
 .btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+
+.btn:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: none;
+  box-shadow: var(--game-focus-ring);
 }
 
 .btn-primary {
@@ -142,7 +192,7 @@ body.install-gate-open {
 .orientation-blocker {
   position: fixed;
   inset: 0;
-  z-index: 200;
+  z-index: var(--game-z-modal);
   display: grid;
   place-items: center;
   padding: var(--game-safe-top) var(--game-safe-right) var(--game-safe-bottom) var(--game-safe-left);
@@ -159,7 +209,7 @@ body.install-gate-open {
   gap: var(--game-space-4);
   padding: var(--game-space-6);
   border: 1px solid var(--game-panel-border);
-  border-radius: var(--game-radius-lg);
+  border-radius: var(--game-panel-radius);
   background: var(--game-panel-bg);
   text-align: center;
   box-shadow: var(--game-shadow-panel);
@@ -193,6 +243,17 @@ body.install-gate-open {
 @keyframes orientation-tilt {
   50% {
     transform: rotate(90deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
   }
 }
 

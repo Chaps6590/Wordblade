@@ -47,7 +47,7 @@
   align-items: start;
   gap: var(--game-space-5);
   min-height: clamp(76px, 13vh, 132px);
-  z-index: 3;
+  z-index: var(--game-z-board);
 }
 
 .home-wordblade-logo {
@@ -96,7 +96,7 @@
 .home-player-name {
   min-width: 0;
   color: #f9f2df;
-  font-size: clamp(1rem, 1.7vw, 1.45rem);
+  font-size: var(--game-text-lg);
   font-weight: 900;
   text-transform: uppercase;
   overflow: hidden;
@@ -110,7 +110,7 @@
   color: #1d1207;
   background: linear-gradient(180deg, #ffe6a1, #d8a63e 60%, #8a5a1f);
   border: 1px solid rgba(255, 236, 181, 0.82);
-  border-radius: 999px;
+  border-radius: var(--game-radius-pill);
   padding: 0.16rem 0.6rem;
   font-size: clamp(0.64rem, 1vw, 0.82rem);
   font-weight: 900;
@@ -163,7 +163,7 @@
   gap: 0.45rem;
   padding: 0.45rem 0.85rem;
   border: 1px solid rgba(143, 163, 200, 0.34);
-  border-radius: 999px;
+  border-radius: var(--game-radius-pill);
   background: rgba(5, 8, 23, 0.72);
   color: #f9f2df;
   font-weight: 900;
@@ -175,13 +175,13 @@
 }
 
 .home-icon-btn {
-  width: clamp(42px, 4.8vw, 56px);
+  width: var(--game-icon-md);
   aspect-ratio: 1;
   border: 1px solid rgba(216, 166, 62, 0.68);
   border-radius: var(--game-radius-sm);
   background: rgba(5, 8, 23, 0.62);
   color: #ffd166;
-  font-size: clamp(1rem, 1.7vw, 1.35rem);
+  font-size: var(--game-text-lg);
   cursor: pointer;
 }
 
@@ -261,12 +261,15 @@
   height: var(--game-menu-card-h);
   max-height: 100%;
   border: 2px solid var(--game-gold-border);
-  border-radius: var(--game-radius-lg);
+  border-radius: var(--game-card-radius);
   overflow: hidden;
   background: #0a0d1c;
   box-shadow: var(--game-shadow-card);
   cursor: pointer;
-  transition: transform 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
+  transition:
+    transform var(--game-transition-normal),
+    border-color var(--game-transition-normal),
+    box-shadow var(--game-transition-normal);
 }
 
 .mode-card::after {
@@ -296,7 +299,7 @@
   height: 100%;
   object-fit: cover;
   object-position: center top;
-  transition: transform 0.45s ease;
+  transition: transform var(--game-transition-slow);
 }
 
 .mode-card:hover .mode-card-image,
@@ -319,9 +322,10 @@
 
 .mode-card p {
   color: #f3ead2;
-  font-size: clamp(0.78rem, 1vw, 0.95rem);
+  font-size: var(--game-text-sm);
   line-height: 1.4;
   max-width: 26ch;
+  overflow-wrap: anywhere;
   text-shadow: 0 1px 3px #000;
 }
 
@@ -329,7 +333,7 @@
   width: min(100%, 250px);
   min-height: var(--game-button-h-lg);
   border: 1px solid #7fc0ff;
-  border-radius: var(--game-radius-md);
+  border-radius: var(--game-control-radius);
   background: linear-gradient(180deg, #4d94ff, #2058b8 55%, #163e85);
   color: #fff;
   font-weight: 900;
@@ -357,7 +361,7 @@
 
 .main-menu-bottom {
   position: relative;
-  z-index: 4;
+  z-index: var(--game-z-hud);
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
@@ -632,7 +636,7 @@
   text-align: center;
   background: var(--bg-panel);
   border: 2px solid var(--border);
-  border-radius: var(--game-radius-lg);
+  border-radius: var(--game-panel-radius);
   padding: var(--game-space-7) var(--game-space-6);
   box-shadow: var(--game-shadow-panel);
 }
@@ -692,7 +696,7 @@
   margin-top: 0.65rem;
   color: #69627c;
   font-family: monospace;
-  font-size: 0.7rem;
+  font-size: var(--game-text-xs);
   letter-spacing: 0.08em;
 }
 
@@ -725,7 +729,7 @@
   display: grid;
   gap: 0.35rem;
   color: var(--text-dim);
-  font-size: 0.85rem;
+  font-size: var(--game-text-sm);
   letter-spacing: 0.04em;
 }
 
@@ -734,11 +738,15 @@
   background: rgba(5, 8, 23, 0.82);
   color: var(--text);
   border: 1px solid var(--border);
-  border-radius: var(--game-radius-md);
+  border-radius: var(--game-control-radius);
   min-height: var(--game-button-h-md);
   padding: 0.85rem 1rem;
   font: inherit;
   outline: none;
+  transition:
+    border-color var(--game-transition-fast),
+    box-shadow var(--game-transition-fast),
+    background var(--game-transition-fast);
 }
 
 .text-field:focus {
@@ -774,7 +782,7 @@
   background: linear-gradient(180deg, rgba(16, 27, 56, 0.95), rgba(5, 8, 23, 0.95));
   color: var(--text);
   border: 1px solid var(--border);
-  border-radius: var(--game-radius-md);
+  border-radius: var(--game-card-radius);
   padding: var(--game-space-3);
   cursor: pointer;
   display: grid;
@@ -905,13 +913,13 @@
 
 .hero-name {
   color: var(--text);
-  font-size: 1.06rem;
+  font-size: var(--game-text-md);
   text-shadow: 0 0 12px color-mix(in srgb, var(--hero-accent) 38%, transparent);
 }
 
 .hero-race {
   color: var(--hero-accent);
-  font-size: 0.74rem;
+  font-size: var(--game-text-xs);
   font-weight: 800;
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -919,14 +927,16 @@
 
 .hero-title {
   color: var(--steel);
-  font-size: 0.76rem;
+  font-size: var(--game-text-xs);
   font-style: italic;
   line-height: 1.25;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .race-desc {
   color: var(--text-dim);
-  font-size: 0.74rem;
+  font-size: var(--game-text-xs);
   line-height: 1.35;
   display: -webkit-box;
   -webkit-line-clamp: 3;
@@ -939,7 +949,7 @@
   color: #ffc3c3;
   background: rgba(224, 85, 85, 0.12);
   border: 1px solid rgba(224, 85, 85, 0.45);
-  border-radius: var(--game-radius-md);
+  border-radius: var(--game-control-radius);
   padding: 0.75rem;
   font-size: 0.9rem;
 }
@@ -1068,7 +1078,7 @@
   padding: clamp(1rem, 2.4vh, 1.6rem) clamp(1rem, 2.5vw, 2rem);
   background: linear-gradient(180deg, rgba(3, 8, 22, 0.55), rgba(3, 8, 22, 0.9));
   border: 1px solid rgba(92, 178, 255, 0.28);
-  border-radius: var(--game-radius-lg);
+  border-radius: var(--game-panel-radius);
   box-shadow: 0 18px 48px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(158, 215, 255, 0.14);
   backdrop-filter: blur(7px);
 }
@@ -1287,7 +1297,7 @@
   margin: 0 0 1.2rem;
   padding: 0.45rem 1rem 0.45rem 0.55rem;
   border: 1px solid rgba(92, 178, 255, 0.35);
-  border-radius: 999px;
+  border-radius: var(--game-radius-pill);
   background: rgba(45, 126, 255, 0.12);
   box-shadow: inset 0 0 14px rgba(45, 126, 255, 0.12);
   text-align: left;
@@ -1311,7 +1321,7 @@
 
 .player-badge small {
   color: var(--accent-bright);
-  font-size: 0.7rem;
+  font-size: var(--game-text-xs);
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
@@ -1353,7 +1363,7 @@
 .install-gate {
   position: fixed;
   inset: 0;
-  z-index: 100;
+  z-index: var(--game-z-overlay);
   max-width: none;
   height: var(--game-screen-h);
   min-height: var(--game-screen-h);
@@ -1422,7 +1432,7 @@
 .install-gate-status {
   margin: 0.2rem 0 0;
   color: #ffd166;
-  font-size: 0.86rem;
+  font-size: var(--game-text-sm);
   line-height: 1.35;
 }
 
@@ -1431,7 +1441,7 @@
   padding-left: 1.4rem;
   text-align: left;
   color: var(--text-dim);
-  font-size: 0.92rem;
+  font-size: var(--game-text-sm);
   line-height: 1.5;
   display: grid;
   gap: var(--game-space-2);
@@ -1571,7 +1581,7 @@
 
 .exit-card p {
   color: var(--text-dim);
-  font-size: 0.76rem;
+  font-size: var(--game-text-xs);
   line-height: 1.35;
 }
 
@@ -1607,7 +1617,7 @@
   }
 
   .game-subtitle {
-    font-size: 0.85rem;
+    font-size: var(--game-text-sm);
     letter-spacing: 2px;
   }
 
@@ -1642,7 +1652,7 @@
 .scenario-card {
   background: var(--bg-panel);
   border: 1px solid var(--border);
-  border-radius: var(--game-radius-md);
+  border-radius: var(--game-card-radius);
   padding: var(--game-space-5);
   display: flex;
   flex-direction: column;
@@ -1659,6 +1669,8 @@
 .scenario-card h3 {
   color: var(--text);
   font-size: 1.1rem;
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .difficulty {
@@ -1684,7 +1696,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.4rem 1rem;
-  font-size: 0.85rem;
+  font-size: var(--game-text-sm);
   color: var(--text-dim);
 }
 
@@ -1697,7 +1709,7 @@
 .result-panel {
   background: var(--bg-panel);
   border: 2px solid var(--border);
-  border-radius: var(--game-radius-lg);
+  border-radius: var(--game-panel-radius);
   padding: var(--game-space-6);
   text-align: center;
   min-width: min(90vw, 480px);
@@ -1757,7 +1769,7 @@
 }
 
 .result-words h3 {
-  font-size: 0.85rem;
+  font-size: var(--game-text-sm);
   color: var(--text-dim);
   text-transform: uppercase;
   margin-bottom: 0.5rem;

@@ -25,7 +25,7 @@ export function BattleBoardPanel({
 
       {statusMessage && <p className="console-status">{statusMessage}</p>}
 
-      <section className="letters-row">
+      <section className="letters-row letter-grid">
         {battle.letters.map((tile) => (
           <LetterTile
             key={tile.id}

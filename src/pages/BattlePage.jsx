@@ -57,7 +57,7 @@ export function BattlePage() {
 
   if (!battle || !scenario || battle.scenarioId !== scenarioId) {
     return (
-      <div className="page battle-page">
+      <div className="page battle-page battle-page--adventure">
         <div className="battle-background" aria-hidden="true" />
         <div className="battle-lighting" aria-hidden="true" />
         <p className="console-status">♻ Generando letras con palabras reales...</p>
@@ -99,7 +99,7 @@ export function BattlePage() {
 
   return (
     <div
-      className="page battle-page"
+      className="page battle-page battle-page--adventure"
       style={{ '--battle-bg': `url(${scenario.backgroundImage})` }}
     >
       <div className="battle-background" aria-hidden="true" />
@@ -111,36 +111,42 @@ export function BattlePage() {
         <PhaserGame scenarioId={scenarioId} heroRace={player?.race ?? 'LOBO'} />
       </div>
 
-      <BattleBoardPanel
-        battle={battle}
-        word={word}
-        statusMessage={statusMessage}
-        selectedTileIds={selectedTileIds}
-        onTileClick={handleTileClick}
-        playing={playing}
-        validating={validating}
-      />
+      <section className="battle-bottom" aria-label="Interfaz de combate">
+        <CollapsibleBattlePanel className="letter-skills-panel" title="Habilidades" defaultOpen>
+          <SkillLegend />
+        </CollapsibleBattlePanel>
 
-      <section className="battle-actions" aria-label="Acciones de combate">
-        <WordInput
-          value={word}
-          onChange={setWord}
-          onSubmit={handleSubmit}
-          onClear={handleClear}
-          onSwap={handleSwap}
-          disabled={!playing}
-          busy={validating}
-          showInput={false}
-        />
+        <section className="battle-board-panel" aria-label="Tablero y acciones">
+          <div className="board-and-actions">
+            <BattleBoardPanel
+              battle={battle}
+              word={word}
+              statusMessage={statusMessage}
+              selectedTileIds={selectedTileIds}
+              onTileClick={handleTileClick}
+              playing={playing}
+              validating={validating}
+            />
+
+            <section className="battle-actions" aria-label="Acciones de combate">
+              <WordInput
+                value={word}
+                onChange={setWord}
+                onSubmit={handleSubmit}
+                onClear={handleClear}
+                onSwap={handleSwap}
+                disabled={!playing}
+                busy={validating}
+                showInput={false}
+              />
+            </section>
+          </div>
+        </section>
+
+        <CollapsibleBattlePanel className="combat-log-panel" title="Historial" defaultOpen>
+          <BattleLog entries={battle.battleLog} />
+        </CollapsibleBattlePanel>
       </section>
-
-      <CollapsibleBattlePanel className="letter-skills-panel" title="Habilidades de letras">
-        <SkillLegend />
-      </CollapsibleBattlePanel>
-
-      <CollapsibleBattlePanel className="combat-log-panel" title="Historial">
-        <BattleLog entries={battle.battleLog} />
-      </CollapsibleBattlePanel>
 
       <button className="btn btn-back" onClick={() => navigate('/scenarios')}>
         ← Abandonar batalla

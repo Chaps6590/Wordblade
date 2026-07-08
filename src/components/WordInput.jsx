@@ -16,7 +16,7 @@ export function WordInput({ onSubmit, onClear, onSwap, disabled, busy, value, on
   }
 
   return (
-    <form className="word-input" onSubmit={handleSubmit}>
+    <form className="word-input board-actions" onSubmit={handleSubmit}>
       {showInput && (
         <input
           type="text"
