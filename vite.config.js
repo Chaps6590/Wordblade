@@ -6,7 +6,7 @@ import { readFileSync } from 'node:fs'
 
 const packageJson = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'))
 
-function getCommitVersion() {
+function getCommitHash() {
   const environmentCommit =
     process.env.VITE_GIT_COMMIT_SHA ||
     process.env.GIT_COMMIT_SHA ||
@@ -22,18 +22,18 @@ function getCommitVersion() {
       stdio: ['ignore', 'pipe', 'ignore']
     }).trim()
   } catch {
-    // Si el proveedor no incluye .git, el identificador igualmente cambia
-    // en cada build y evita publicar dos versiones indistinguibles.
-    return `build.${Date.now().toString(36)}`
+    return 'sin-git'
   }
 }
 
-const appVersion = `${packageJson.version}+${getCommitVersion()}`
+const appCommit = getCommitHash()
+const appVersion = `${packageJson.version}+${appCommit}`
 
 // https://vite.dev/config/
 export default defineConfig({
   define: {
-    'import.meta.env.VITE_APP_VERSION': JSON.stringify(appVersion)
+    'import.meta.env.VITE_APP_VERSION': JSON.stringify(appVersion),
+    'import.meta.env.VITE_APP_COMMIT': JSON.stringify(appCommit)
   },
   plugins: [
     react(),

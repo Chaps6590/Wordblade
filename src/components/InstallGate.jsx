@@ -8,6 +8,7 @@ import {
 } from '../services/pwaInstall.js'
 
 const APP_VERSION = import.meta.env.VITE_APP_VERSION || '0.1.0+dev'
+const APP_COMMIT = import.meta.env.VITE_APP_COMMIT || 'sin-git'
 
 // Detección por dispositivo (no por tamaño de ventana): una ventana angosta
 // de PC no debe quedar bloqueada por la pantalla de instalación.
@@ -177,7 +178,9 @@ export function InstallGate({ children }) {
           </>
         )}
 
-        <p className="menu-version install-gate-version">v{APP_VERSION}</p>
+        <p className="menu-version install-gate-version" title={`Versión ${APP_VERSION}`}>
+          commit {APP_COMMIT}
+        </p>
       </div>
     </div>
   )

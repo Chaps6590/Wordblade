@@ -8,6 +8,7 @@ import { INITIAL_SCENARIO_ID } from '../game/data/scenarios.js'
 import { hardRefreshApp } from '../services/pwaInstall.js'
 
 const APP_VERSION = import.meta.env.VITE_APP_VERSION || '0.1.0+dev'
+const APP_COMMIT = import.meta.env.VITE_APP_COMMIT || 'sin-git'
 
 export function MainMenu() {
   const navigate = useNavigate()
@@ -112,7 +113,9 @@ export function MainMenu() {
           >
             {refreshing ? 'Actualizando...' : 'Actualizar'}
           </button>
-          <p className="menu-version">v{APP_VERSION}</p>
+          <p className="menu-version" title={`Versión ${APP_VERSION}`}>
+            commit {APP_COMMIT}
+          </p>
         </div>
       </footer>
     </div>
