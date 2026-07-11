@@ -66,14 +66,14 @@ export function MainMenu() {
         </section>
 
         <section className="home-mode-zone" aria-label="Modos de juego">
-          <img className="home-wordblade-logo main-menu-logo" src="/brand/wordblade-logo.png" alt="Wordblade" />
+          <img className="home-wordblade-logo main-menu-logo" src="/brand/wordblade-text.png" alt="Wordblade" />
 
           <div className="home-mode-cards menu-cards">
             <article
               className="mode-card menu-mode-card mode-card-adventure"
               onClick={() => navigate(`/battle/${INITIAL_SCENARIO_ID}`)}
             >
-              <img className="mode-card-image" src="/menu/adventure-mode-card.png" alt="" aria-hidden="true" />
+              <img className="mode-card-image" src="/menu/adventure-card.png" alt="" aria-hidden="true" />
               <div className="mode-card-overlay">
                 <h2 className="mode-card-title">Aventura</h2>
                 <p className="menu-mode-card__description">Explorá el reino y enfrentá enemigos.</p>

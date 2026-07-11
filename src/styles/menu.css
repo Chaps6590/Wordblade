@@ -433,8 +433,8 @@
 }
 
 @keyframes homeHeroIdle {
-  0%, 100% { transform: translateY(0) scale(1); }
-  50% { transform: translateY(-6px) scale(1.012); }
+  0%, 100% { transform: translateY(0) scale(var(--hero-art-scale, 1)); }
+  50% { transform: translateY(-6px) scale(var(--hero-art-scale-lift, 1.012)); }
 }
 
 @keyframes heroSheetIdle {
@@ -1383,12 +1383,23 @@
 }
 
 .mode-card-title {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip-path: inset(50%);
+  position: relative;
+  z-index: 3;
+  width: auto;
+  height: auto;
+  margin: 0;
+  overflow: visible;
+  color: #ffd166;
+  font-size: clamp(1.05rem, 2vw, 1.55rem);
+  font-weight: 950;
+  line-height: 1;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
   white-space: nowrap;
+  text-shadow:
+    0 2px 3px rgba(0, 0, 0, 0.95),
+    0 0 10px rgba(255, 209, 102, 0.72),
+    0 0 22px rgba(216, 166, 62, 0.35);
 }
 
 .main-menu .menu-mode-card__description {
@@ -1761,6 +1772,11 @@
 
   .main-menu .menu-mode-card__description {
     display: none;
+  }
+
+  .main-menu .mode-card-title {
+    font-size: clamp(0.92rem, 4.2vh, 1.15rem);
+    letter-spacing: 0.07em;
   }
 
   .main-menu .mode-card-btn {

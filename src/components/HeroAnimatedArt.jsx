@@ -13,7 +13,9 @@ export function HeroAnimatedArt({ hero, className = '', alt = '' }) {
     '--hero-frame-count': frameCount,
     '--hero-step-count': Math.max(frameCount - 1, 1),
     '--hero-sheet-width': `${frameCount * 100}%`,
-    '--hero-last-frame-translate': `${((frameCount - 1) / frameCount) * 100}%`
+    '--hero-last-frame-translate': `${((frameCount - 1) / frameCount) * 100}%`,
+    '--hero-art-scale': hero.artScale ?? 1,
+    '--hero-art-scale-lift': (hero.artScale ?? 1) * 1.012
   }
 
   return (
