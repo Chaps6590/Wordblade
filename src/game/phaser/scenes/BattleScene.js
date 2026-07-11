@@ -73,6 +73,12 @@ export class BattleScene extends Phaser.Scene {
     this.onResize = () => this.relayout()
     this.scale.on(Phaser.Scale.Events.RESIZE, this.onResize)
 
+    // Con Scale.RESIZE el contenedor suele terminar de estirarse DESPUÉS de
+    // create(): reacomodamos en el próximo tick (y una vez más por las dudas)
+    // para que los personajes tomen el tamaño real y no queden invisibles.
+    this.time.delayedCall(0, () => this.relayout())
+    this.time.delayedCall(150, () => this.relayout())
+
     // Escuchar eventos del motor
     this.onBattleEvent = (event) => this.handleEvent(event)
     eventBus.on('battle-event', this.onBattleEvent)
@@ -83,9 +89,11 @@ export class BattleScene extends Phaser.Scene {
   }
 
   // Calcula posiciones y tamaños en función del tamaño actual del lienzo.
+  // Se protege contra tamaños en 0 (el contenedor aún no se estiró) usando
+  // mínimos razonables, así los personajes nunca quedan en escala 0.
   computeLayout() {
-    const w = this.scale.width
-    const h = this.scale.height
+    const w = Math.max(this.scale.width, 320)
+    const h = Math.max(this.scale.height, 200)
     this.groundY = Math.round(h * GROUND_RATIO)
     this.playerBaseX = Math.round(Math.max(w * PLAYER_X_RATIO, EDGE_MARGIN))
     this.enemyBaseX = Math.round(Math.min(w * ENEMY_X_RATIO, w - EDGE_MARGIN))

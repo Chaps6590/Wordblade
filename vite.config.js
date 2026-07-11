@@ -88,6 +88,12 @@ export default defineConfig({
     })
   ],
   server: {
+    // No vigilar los assets estáticos: no necesitan hot-reload y, en Windows
+    // con OneDrive sincronizando, el watcher se cae con EBUSY sobre imágenes
+    // que quedan bloqueadas un instante. Ignorarlas mantiene el server estable.
+    watch: {
+      ignored: ['**/public/**', '**/dev-dist/**']
+    },
     proxy: {
       '/api': 'http://localhost:3001',
       '/socket.io': {

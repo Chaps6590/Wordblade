@@ -1086,7 +1086,10 @@
   grid-template-rows:
     minmax(68px, clamp(76px, 12vh, 118px))
     minmax(0, 1fr)
-    minmax(212px, clamp(224px, 34vh, 330px));
+    /* La fila inferior (palabra + grilla 4x4 + botones) tiene que entrar
+       COMPLETA. Le damos alto suficiente y que crezca con el contenido; la
+       escena (fila del medio, 1fr) cede el espacio sobrante. */
+    minmax(288px, max-content);
   grid-template-columns: minmax(0, 1fr);
   gap: var(--game-space-3);
   align-items: stretch;
