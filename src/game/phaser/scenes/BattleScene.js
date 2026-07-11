@@ -10,13 +10,16 @@ import { HERO_BY_RACE } from '../../data/heroes.js'
 // Escena de batalla: SOLO renderiza y anima. La lógica vive en game/core.
 // Recibe eventos del motor por el eventBus ('battle-event').
 
-const W = 800
-const H = 400
-// Personajes más chicos y más cerca de los bordes: dejan más escenario
-// visible y más espacio central para los efectos de ataque.
-const PLAYER_BASE = { x: 130, y: 304 }
-const ENEMY_BASE = { x: 670, y: 304 }
-const PLAYER_FIT = { maxWidth: 164, maxHeight: 234 }
+// Todo es relativo al tamaño REAL del lienzo (Scale.RESIZE): la escena ocupa
+// el contenedor completo y se recalcula al cambiar de tamaño u orientación.
+// El fondo lo pone el CSS de la página (una sola imagen); Phaser es
+// transparente y solo dibuja personajes + efectos parados sobre ese fondo.
+const GROUND_RATIO = 0.9 // altura del "piso" donde apoyan los pies
+const PLAYER_X_RATIO = 0.19 // Kael a la izquierda
+const ENEMY_X_RATIO = 0.81 // enemigo a la derecha
+const CHAR_HEIGHT_RATIO = 0.62 // alto máx. del personaje respecto al lienzo
+const CHAR_WIDTH_RATIO = 0.26 // ancho máx. del personaje respecto al lienzo
+const EDGE_MARGIN = 78 // que no se peguen al borde en pantallas angostas
 
 export class BattleScene extends Phaser.Scene {
   constructor() {
@@ -57,7 +60,7 @@ export class BattleScene extends Phaser.Scene {
     const scenario = getScenario(scenarioId)
     const enemyDef = scenario ? ENEMIES[getScenarioEncounter(scenario, 0).enemyId] : null
 
-    this.drawBackground(scenario)
+    this.computeLayout()
 
     this.createPlayer()
     this.createEnemy(enemyDef)
@@ -65,29 +68,84 @@ export class BattleScene extends Phaser.Scene {
     this.startPlayerIdle()
     this.startEnemyIdle()
 
+    // Recolocar personajes cuando cambia el tamaño del lienzo (RESIZE):
+    // rotar el teléfono, redimensionar la ventana, etc.
+    this.onResize = () => this.relayout()
+    this.scale.on(Phaser.Scale.Events.RESIZE, this.onResize)
+
     // Escuchar eventos del motor
     this.onBattleEvent = (event) => this.handleEvent(event)
     eventBus.on('battle-event', this.onBattleEvent)
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       eventBus.off('battle-event', this.onBattleEvent)
+      this.scale.off(Phaser.Scale.Events.RESIZE, this.onResize)
     })
   }
 
+  // Calcula posiciones y tamaños en función del tamaño actual del lienzo.
+  computeLayout() {
+    const w = this.scale.width
+    const h = this.scale.height
+    this.groundY = Math.round(h * GROUND_RATIO)
+    this.playerBaseX = Math.round(Math.max(w * PLAYER_X_RATIO, EDGE_MARGIN))
+    this.enemyBaseX = Math.round(Math.min(w * ENEMY_X_RATIO, w - EDGE_MARGIN))
+    this.charMaxWidth = Math.round(w * CHAR_WIDTH_RATIO)
+    this.charMaxHeight = Math.round(h * CHAR_HEIGHT_RATIO)
+  }
+
+  // Ajusta un sprite/imagen para que entre en un alto/ancho máximos,
+  // conservando su proporción. Devuelve la escala aplicada.
+  fitSprite(sprite, maxWidth, maxHeight) {
+    const scale = Math.min(maxWidth / sprite.width, maxHeight / sprite.height)
+    sprite.setScale(scale)
+    return scale
+  }
+
+  // Reposiciona y reescala a ambos combatientes tras un cambio de tamaño.
+  relayout() {
+    this.computeLayout()
+
+    if (this.kael) {
+      this.kael.setPosition(this.playerBaseX, this.groundY).setScale(1).setAngle(0)
+      this.kael.setData('baseX', this.playerBaseX)
+      this.kael.setData('baseY', this.groundY)
+      if (this.kaelSprite) {
+        this.kaelSpriteScale = this.fitSprite(this.kaelSprite, this.charMaxWidth, this.charMaxHeight)
+      }
+    }
+    if (this.playerShadow) {
+      this.playerShadow.setPosition(this.playerBaseX, this.groundY + 2)
+      this.playerShadow.setSize(this.charMaxWidth * 0.62, this.charMaxHeight * 0.12)
+    }
+
+    if (this.enemy) {
+      this.enemy.setPosition(this.enemyBaseX, this.groundY).setScale(1).setAngle(0)
+      this.enemy.setData('baseX', this.enemyBaseX)
+      this.enemy.setData('baseY', this.groundY)
+      if (this.enemySprite) {
+        const bossFactor = this.enemyIsBoss ? 1.18 : 1
+        this.fitSprite(this.enemySprite, this.charMaxWidth * bossFactor, this.charMaxHeight * bossFactor)
+      }
+    }
+    if (this.enemyShadow) {
+      this.enemyShadow.setPosition(this.enemyBaseX, this.groundY + 2)
+      this.enemyShadow.setSize(this.charMaxWidth * 0.62, this.charMaxHeight * 0.12)
+    }
+  }
+
   createPlayer() {
-    this.kael = this.add.container(PLAYER_BASE.x, PLAYER_BASE.y).setDepth(5)
-    this.kael.setData('baseX', PLAYER_BASE.x)
-    this.kael.setData('baseY', PLAYER_BASE.y)
+    this.kael = this.add.container(this.playerBaseX, this.groundY).setDepth(5)
+    this.kael.setData('baseX', this.playerBaseX)
+    this.kael.setData('baseY', this.groundY)
 
     this.createPlayerAnimations()
 
     const sprite = this.playerAnimations.idle?.sheet
       ? this.add.sprite(0, 0, this.playerAnimationTextureKey('idle'), 0)
       : this.add.image(0, 0, this.playerTextureKey)
-    const fitScale = Math.min(PLAYER_FIT.maxWidth / sprite.width, PLAYER_FIT.maxHeight / sprite.height)
-    this.kaelSpriteScale = fitScale
+    this.kaelSpriteScale = this.fitSprite(sprite, this.charMaxWidth, this.charMaxHeight)
 
     sprite
-      .setScale(fitScale)
       .setOrigin(0.5, 1)
       .setDepth(1)
 
@@ -97,6 +155,9 @@ export class BattleScene extends Phaser.Scene {
 
     this.kaelSprite = sprite
     this.kael.add(sprite)
+
+    this.playerShadow?.destroy()
+    this.playerShadow = this.addGroundShadow(this.playerBaseX)
   }
 
   createPlayerAnimations() {
@@ -162,41 +223,13 @@ export class BattleScene extends Phaser.Scene {
     return `enemy-${enemyId}`
   }
 
-  drawBackground(scenario) {
-    const backgroundKey = scenario?.backgroundImage ? `scenario-bg-${scenario.id}` : null
-    if (backgroundKey && this.textures.exists(backgroundKey)) {
-      const background = this.add.image(W / 2, H / 2, backgroundKey)
-      const scale = Math.max(W / background.width, H / background.height)
-      background
-        .setScale(scale)
-        .setDepth(-20)
-
-      // Viñeta suave para que personajes, textos flotantes y efectos lean mejor.
-      this.add.rectangle(W / 2, H / 2, W, H, 0x020714, 0.2).setDepth(-19)
-      this.add.rectangle(W / 2, H - 45, W, 90, 0x000000, 0.22).setDepth(-18)
-      return
-    }
-
-    const top = scenario?.background?.top ?? 0x101b38
-    const bottom = scenario?.background?.bottom ?? 0x050817
-
-    // Degradado vertical por bandas entre el color de cielo y el de suelo
-    const topColor = Phaser.Display.Color.IntegerToColor(top)
-    const bottomColor = Phaser.Display.Color.IntegerToColor(bottom)
-    const bands = 8
-    for (let i = 0; i < bands; i++) {
-      const c = Phaser.Display.Color.Interpolate.ColorWithColor(topColor, bottomColor, bands - 1, i)
-      this.add.rectangle(W / 2, (i + 0.5) * (H / bands), W, H / bands + 1, Phaser.Display.Color.GetColor(c.r, c.g, c.b))
-    }
-
-    // Luna tenue y colinas lejanas en el horizonte
-    this.add.circle(660, 62, 42, 0xdfe8f7, 0.05)
-    this.add.circle(660, 62, 26, 0xdfe8f7, 0.07)
-    this.add.ellipse(150, H / 2 + 8, 360, 70, 0x000000, 0.18)
-    this.add.ellipse(620, H / 2 + 14, 460, 84, 0x000000, 0.22)
-
-    // "Suelo"
-    this.add.rectangle(W / 2, H - 30, W, 60, 0x000000, 0.25)
+  // Sombra de contacto ovalada bajo un personaje, para "anclarlo" al piso
+  // del fondo (que ahora lo dibuja el CSS de la página).
+  addGroundShadow(x) {
+    const shadow = this.add
+      .ellipse(x, this.groundY + 2, this.charMaxWidth * 0.62, this.charMaxHeight * 0.12, 0x000000, 0.32)
+      .setDepth(4)
+    return shadow
   }
 
   handleEvent(event) {
@@ -250,9 +283,10 @@ export class BattleScene extends Phaser.Scene {
     const enemyColor = enemyDef?.color ?? 0x8a5a2b
     const isBoss = enemyDef?.boss ?? false
     const scale = isBoss ? 1.35 : 1
-    this.enemy = this.add.container(ENEMY_BASE.x, ENEMY_BASE.y).setAlpha(1).setDepth(5)
-    this.enemy.setData('baseX', ENEMY_BASE.x)
-    this.enemy.setData('baseY', ENEMY_BASE.y)
+    this.enemyIsBoss = isBoss
+    this.enemy = this.add.container(this.enemyBaseX, this.groundY).setAlpha(1).setDepth(5)
+    this.enemy.setData('baseX', this.enemyBaseX)
+    this.enemy.setData('baseY', this.groundY)
     this.enemySprite = null
 
     if (enemyDef?.spriteImage && this.textures.exists(this.enemyTextureKey(enemyDef.id))) {
@@ -271,17 +305,18 @@ export class BattleScene extends Phaser.Scene {
           break
       }
     }
+
+    this.enemyShadow?.destroy()
+    this.enemyShadow = this.addGroundShadow(this.enemyBaseX)
   }
 
   drawEnemyImage(enemyDef) {
     const textureKey = this.enemyTextureKey(enemyDef.id)
-    const image = this.add.image(0, enemyDef.spriteScale?.offsetY ?? 0, textureKey)
-    const maxWidth = enemyDef.spriteScale?.maxWidth ?? (enemyDef.boss ? 195 : 164)
-    const maxHeight = enemyDef.spriteScale?.maxHeight ?? (enemyDef.boss ? 186 : 148)
-    const fitScale = Math.min(maxWidth / image.width, maxHeight / image.height)
+    const image = this.add.image(0, 0, textureKey)
+    const bossFactor = enemyDef.boss ? 1.18 : 1
+    this.fitSprite(image, this.charMaxWidth * bossFactor, this.charMaxHeight * bossFactor)
 
     image
-      .setScale(fitScale)
       .setOrigin(0.5, 1)
       .setDepth(1)
 
@@ -336,7 +371,7 @@ export class BattleScene extends Phaser.Scene {
 
   startEnemyIdle() {
     if (!this.enemy) return
-    const baseY = this.enemy.getData('baseY') ?? ENEMY_BASE.y
+    const baseY = this.enemy.getData('baseY') ?? this.groundY
     this.enemyIdleTween = this.tweens.add({
       targets: this.enemy,
       y: baseY - 4,
@@ -351,7 +386,7 @@ export class BattleScene extends Phaser.Scene {
 
   startPlayerIdle() {
     if (!this.kael) return
-    const baseY = this.kael.getData('baseY') ?? PLAYER_BASE.y
+    const baseY = this.kael.getData('baseY') ?? this.groundY
     this.playerIdleTween = this.tweens.add({
       targets: this.kael,
       y: baseY - 5,
@@ -373,14 +408,14 @@ export class BattleScene extends Phaser.Scene {
   }
 
   animateEnemySpawn(event) {
-    showFloatingText(this, 600, 120, event.enemyName ?? '¡Nuevo enemigo!', {
+    showFloatingText(this, this.scale.width * 0.5, this.scale.height * 0.24, event.enemyName ?? '¡Nuevo enemigo!', {
       color: '#ffd166',
       fontSize: 20
     })
     this.flash(0x5cb2ff)
     const enemyDef = ENEMIES[event.enemyId]
     this.createEnemy(enemyDef)
-    const baseX = this.enemy.getData('baseX') ?? ENEMY_BASE.x
+    const baseX = this.enemy.getData('baseX') ?? this.enemyBaseX
     this.enemy.setAlpha(0).setScale(0.92).setX(baseX + 28)
     this.tweens.add({
       targets: this.enemy,
@@ -669,14 +704,16 @@ export class BattleScene extends Phaser.Scene {
   }
 
   showEndOverlay(text) {
-    this.add.rectangle(W / 2, H / 2, W, H, 0x000000, 0.6).setDepth(200)
+    const w = this.scale.width
+    const h = this.scale.height
+    this.add.rectangle(w / 2, h / 2, w, h, 0x000000, 0.6).setDepth(200)
     this.add
-      .text(W / 2, H / 2, text, {
+      .text(w / 2, h / 2, text, {
         fontFamily: 'monospace',
         fontSize: '22px',
         color: '#ffffff',
         align: 'center',
-        wordWrap: { width: W - 100 }
+        wordWrap: { width: w - 100 }
       })
       .setOrigin(0.5)
       .setDepth(201)

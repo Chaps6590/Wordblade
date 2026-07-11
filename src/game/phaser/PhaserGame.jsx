@@ -22,12 +22,15 @@ export function PhaserGame({ scenarioId, heroRace = 'LOBO' }) {
     const game = new Phaser.Game({
       type: Phaser.AUTO,
       parent: container,
-      width: 800,
-      height: 400,
-      backgroundColor: '#050817',
+      width: container?.clientWidth || 1200,
+      height: container?.clientHeight || 400,
+      // Lienzo transparente: el fondo del escenario lo pone el CSS de la
+      // página (una sola imagen). Phaser solo dibuja personajes y efectos.
+      transparent: true,
       scale: {
-        mode: Phaser.Scale.FIT,
-        autoCenter: Phaser.Scale.CENTER_BOTH
+        // RESIZE: el lienzo ocupa TODO el contenedor, sin recuadro ni
+        // barras negras (letterbox). La escena recalcula posiciones.
+        mode: Phaser.Scale.RESIZE
       },
       callbacks: {
         preBoot: (bootingGame) => {
