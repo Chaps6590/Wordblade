@@ -7,7 +7,7 @@ import { WordInput } from '../components/WordInput.jsx'
 import { TopHud } from '../components/TopHud.jsx'
 import { BattleLog } from '../components/BattleLog.jsx'
 import { SkillLegend } from '../components/SkillLegend.jsx'
-import { BattleBoardPanel } from '../components/BattleBoardPanel.jsx'
+import { BattleBoardPanel, CurrentWordDisplay } from '../components/BattleBoardPanel.jsx'
 import { CollapsibleBattlePanel } from '../components/CollapsibleBattlePanel.jsx'
 import { eventBus } from '../game/phaser/eventBus.js'
 import { useAuth } from '../auth/useAuth.js'
@@ -111,6 +111,12 @@ export function BattlePage() {
         <PhaserGame scenarioId={scenarioId} heroRace={player?.race ?? 'LOBO'} />
       </div>
 
+      <CurrentWordDisplay
+        battle={battle}
+        word={word}
+        selectedTileIds={selectedTileIds}
+      />
+
       <section className="battle-bottom" aria-label="Interfaz de combate">
         <CollapsibleBattlePanel className="letter-skills-panel" title="Habilidades" defaultOpen>
           <SkillLegend />
@@ -120,7 +126,6 @@ export function BattlePage() {
           <div className="board-and-actions">
             <BattleBoardPanel
               battle={battle}
-              word={word}
               statusMessage={statusMessage}
               selectedTileIds={selectedTileIds}
               onTileClick={handleTileClick}

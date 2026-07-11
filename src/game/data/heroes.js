@@ -7,7 +7,7 @@ export const HEROES = [
     portrait: '/characters/heroes/kael-guardaluna.png',
     animations: {
       idle: {
-        sheet: '/characters/heroes/kael-guardaluna/animations/idle-combat.png',
+        sheet: '/characters/heroes/kael-guardaluna/animations/idle-combat-normalized.png',
         frameWidth: 512,
         frameHeight: 512,
         frames: 6,

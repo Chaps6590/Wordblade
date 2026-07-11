@@ -526,13 +526,14 @@
 /* La palabra que el jugador está armando flota sobre la grilla. No reserva
    alto dentro de la consola y desaparece al borrar o enviar la palabra. */
 .current-word-float {
-  position: absolute;
-  left: 50%;
-  bottom: calc(100% + 1.15rem);
+  position: fixed;
+  left: 50vw;
+  top: 42dvh;
+  bottom: auto;
   z-index: var(--battle-z-hud);
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
   max-width: min(84vw, 680px);
-  min-height: clamp(3rem, 4.2vw, 3.8rem);
+  min-height: clamp(2.25rem, 4vw, 3rem);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -548,22 +549,69 @@
 }
 
 .current-word-float .current-word-letter {
-  min-width: clamp(30px, 3.4vw, 44px);
-  height: clamp(36px, 4.1vw, 52px);
+  --power-rgb: 92, 178, 255;
+  position: relative;
+  isolation: isolate;
+  overflow: visible;
+  min-width: clamp(28px, 3.2vw, 42px);
+  height: clamp(31px, 3.6vw, 46px);
   display: grid;
   place-items: center;
   border: 1px solid rgba(143, 163, 200, 0.72);
   border-radius: var(--game-radius-xs);
   background: linear-gradient(180deg, #fff, #dfe8f7 55%, #b9c8e2);
   color: #0b1226;
-  font-size: clamp(1.15rem, 2.25vw, 1.6rem);
+  font-size: clamp(0.95rem, 1.8vw, 1.35rem);
   font-weight: 900;
   letter-spacing: 0.02em;
   transform: translateY(0);
   animation: current-word-letter-pop 0.45s cubic-bezier(0.2, 0.9, 0.2, 1.2) both;
 }
 
+.current-word-float .current-word-letter[class*='power-'] {
+  border-width: 2px;
+  text-shadow: 0 0 7px rgba(var(--power-rgb), 0.65);
+  box-shadow:
+    0 0 5px rgba(var(--power-rgb), 0.95),
+    0 0 14px rgba(var(--power-rgb), 0.75),
+    0 0 28px rgba(var(--power-rgb), 0.38),
+    inset 0 0 10px rgba(255, 255, 255, 0.72);
+  animation:
+    current-word-letter-pop 0.45s cubic-bezier(0.2, 0.9, 0.2, 1.2) both,
+    power-letter-aura 1.45s ease-in-out 0.45s infinite;
+}
+
+/* Barrido de luz sobre la gema de poder. */
+.current-word-float .current-word-letter[class*='power-']::before {
+  content: '';
+  position: absolute;
+  z-index: 2;
+  inset: 1px;
+  border-radius: inherit;
+  background: linear-gradient(115deg, transparent 20%, rgba(255, 255, 255, 0.9) 45%, transparent 68%);
+  background-size: 240% 100%;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  animation: power-letter-shimmer 1.8s ease-in-out infinite;
+}
+
+/* Chispa que orbita el borde sin agregar elementos al JSX. */
+.current-word-float .current-word-letter[class*='power-']::after {
+  content: '✦';
+  position: absolute;
+  z-index: 3;
+  top: -0.55em;
+  right: -0.48em;
+  color: rgb(var(--power-rgb));
+  font-size: 0.62em;
+  line-height: 1;
+  filter: drop-shadow(0 0 4px rgb(var(--power-rgb)));
+  pointer-events: none;
+  animation: power-letter-spark 1.2s ease-in-out infinite;
+}
+
 .current-word-float .current-word-letter.power-green {
+  --power-rgb: 71, 215, 138;
   border-color: rgba(71, 215, 138, 0.85);
   background: linear-gradient(180deg, #f4fff8, #d8ffe6 55%, #8fe0a8);
   color: #0d4b2e;
@@ -571,6 +619,7 @@
 }
 
 .current-word-float .current-word-letter.power-yellow {
+  --power-rgb: 255, 205, 80;
   border-color: rgba(255, 205, 80, 0.85);
   background: linear-gradient(180deg, #fffdee, #fff0b3 55%, #ffd84d);
   color: #6a4700;
@@ -578,6 +627,7 @@
 }
 
 .current-word-float .current-word-letter.power-red {
+  --power-rgb: 255, 98, 112;
   border-color: rgba(255, 98, 112, 0.85);
   background: linear-gradient(180deg, #fff4f4, #ffd1d8 55%, #ff6f7f);
   color: #6b1420;
@@ -587,11 +637,11 @@
 @keyframes current-word-float-entry {
   from {
     opacity: 0;
-    transform: translateX(-50%) translateY(8px);
+    transform: translate(-50%, -50%) translateY(8px);
   }
   to {
     opacity: 1;
-    transform: translateX(-50%) translateY(0);
+    transform: translate(-50%, -50%) translateY(0);
   }
 }
 
@@ -607,6 +657,36 @@
     opacity: 1;
     transform: translateY(0) scale(1);
   }
+}
+
+@keyframes power-letter-aura {
+  0%, 100% {
+    filter: brightness(1) saturate(1.08);
+    box-shadow:
+      0 0 4px rgba(var(--power-rgb), 0.85),
+      0 0 12px rgba(var(--power-rgb), 0.58),
+      0 0 22px rgba(var(--power-rgb), 0.28),
+      inset 0 0 8px rgba(255, 255, 255, 0.6);
+  }
+  50% {
+    filter: brightness(1.22) saturate(1.35);
+    box-shadow:
+      0 0 7px rgba(var(--power-rgb), 1),
+      0 0 20px rgba(var(--power-rgb), 0.92),
+      0 0 36px rgba(var(--power-rgb), 0.52),
+      inset 0 0 13px rgba(255, 255, 255, 0.9);
+  }
+}
+
+@keyframes power-letter-shimmer {
+  0%, 28% { background-position: 180% 0; opacity: 0; }
+  42% { opacity: 0.9; }
+  62%, 100% { background-position: -80% 0; opacity: 0; }
+}
+
+@keyframes power-letter-spark {
+  0%, 100% { opacity: 0.35; transform: rotate(0deg) scale(0.65); }
+  50% { opacity: 1; transform: rotate(90deg) scale(1.25); }
 }
 
 @keyframes gem-pulse {
@@ -664,6 +744,33 @@
   transform: translateY(4px) scale(0.94);
   border-color: var(--accent-2);
   box-shadow: 0 1px 0 #060b1c;
+}
+
+/* Una ficha de habilidad ya elegida sigue mostrando energía en la grilla:
+   queda consumida, pero no se confunde con una letra normal apagada. */
+.letter-tile.selected.has-skill {
+  opacity: 0.68;
+  border-color: #b895ff;
+  filter: saturate(1.35) brightness(1.12);
+  box-shadow:
+    0 1px 0 #060b1c,
+    0 0 7px rgba(185, 149, 255, 0.9),
+    0 0 16px rgba(124, 92, 255, 0.58),
+    inset 0 0 12px rgba(207, 183, 255, 0.38);
+  animation: selected-power-tile 1.35s ease-in-out infinite;
+}
+
+@keyframes selected-power-tile {
+  0%, 100% {
+    filter: saturate(1.25) brightness(1.04);
+    outline: 1px solid rgba(185, 149, 255, 0.42);
+    outline-offset: 0;
+  }
+  50% {
+    filter: saturate(1.65) brightness(1.28);
+    outline: 2px solid rgba(207, 183, 255, 0.86);
+    outline-offset: 2px;
+  }
 }
 
 .letter-value {
@@ -1589,16 +1696,17 @@
   }
 
   .battle-page--adventure .current-word-float {
+    top: 40dvh;
+    bottom: auto;
     min-height: 34px;
-    bottom: calc(100% + 0.35rem);
     gap: 3px;
-    padding: 0.2rem 0.35rem;
+    padding: 0.2rem 0.3rem;
   }
 
   .battle-page--adventure .current-word-float span {
-    min-width: clamp(20px, 4.2vh, 25px);
-    height: clamp(23px, 4.8vh, 29px);
-    font-size: clamp(0.76rem, 3vh, 0.95rem);
+    min-width: 25px;
+    height: 27px;
+    font-size: clamp(0.92rem, 4.2vh, 1.2rem);
   }
 
   .battle-page--adventure .word-board-label {

@@ -221,7 +221,9 @@ export class BattleScene extends Phaser.Scene {
 
   setPlayerAnimation(name) {
     const animation = this.playerAnimations?.[name]
-    if (!this.kaelSprite || !animation?.sheet) return false
+    // Solo un Sprite (no un Image de retrato) tiene stop()/play(): si el héroe
+    // no trae hoja de sprites para 'idle', kaelSprite es un Image y no se anima.
+    if (!this.kaelSprite || typeof this.kaelSprite.play !== 'function' || !animation?.sheet) return false
 
     this.kaelSprite
       .stop()
@@ -267,6 +269,12 @@ export class BattleScene extends Phaser.Scene {
   }
 
   handleEvent(event) {
+    // Los eventos llegan por un eventBus global compartido. Si esta escena ya
+    // no está viva (juego de Phaser destruido al desmontar la página o en el
+    // doble montaje de React en dev), la ignoramos en vez de tocar objetos ya
+    // liberados: sin sistemas activos `this.add` es null y los sprites no existen.
+    if (!this.sys?.isActive() || !this.add) return
+
     switch (event.kind) {
       case 'playerAttack':
         this.animatePlayerAttackSequence(event)

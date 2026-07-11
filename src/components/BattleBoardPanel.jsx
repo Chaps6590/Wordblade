@@ -25,39 +25,14 @@ function getPowerClass(tile) {
 
 export function BattleBoardPanel({
   battle,
-  word,
   statusMessage,
   selectedTileIds,
   onTileClick,
   playing,
   validating
 }) {
-  const hasWord = word.length > 0
-  const selectedTiles = selectedTileIds
-    .map((id) => battle.letters.find((tile) => tile.id === id))
-    .filter(Boolean)
-
   return (
     <section className="battle-console board-container">
-      {hasWord ? (
-        <output className="current-word-float" aria-live="polite" aria-label={`Palabra actual: ${word}`}>
-          {word.split('').map((letter, index) => {
-            const tile = selectedTiles[index]
-            const powerClass = getPowerClass(tile ? { ...tile, effect: LETTER_DATA[tile.value]?.effect } : null)
-
-            return (
-              <span
-                key={`${letter}-${index}`}
-                className={powerClass ? `current-word-letter ${powerClass}` : 'current-word-letter'}
-                style={{ animationDelay: `${index * 70}ms` }}
-              >
-                {letter}
-              </span>
-            )
-          })}
-        </output>
-      ) : null}
-
       {statusMessage && <p className="console-status">{statusMessage}</p>}
 
       <section className="letters-row letter-grid">
@@ -72,5 +47,32 @@ export function BattleBoardPanel({
         ))}
       </section>
     </section>
+  )
+}
+
+export function CurrentWordDisplay({ battle, word, selectedTileIds }) {
+  if (!word) return null
+
+  const selectedTiles = selectedTileIds
+    .map((id) => battle.letters.find((tile) => tile.id === id))
+    .filter(Boolean)
+
+  return (
+    <output className="current-word-float" aria-live="polite" aria-label={`Palabra actual: ${word}`}>
+      {word.split('').map((letter, index) => {
+        const tile = selectedTiles[index]
+        const powerClass = getPowerClass(tile ? { ...tile, effect: LETTER_DATA[tile.value]?.effect } : null)
+
+        return (
+          <span
+            key={`${letter}-${index}`}
+            className={powerClass ? `current-word-letter ${powerClass}` : 'current-word-letter'}
+            style={{ animationDelay: `${index * 70}ms` }}
+          >
+            {letter}
+          </span>
+        )
+      })}
+    </output>
   )
 }

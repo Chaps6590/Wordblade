@@ -1,6 +1,10 @@
 // Texto flotante de daño / curación sobre un punto de la escena.
 
 export function showFloatingText(scene, x, y, text, { color = '#ff5555', fontSize = 24 } = {}) {
+  // La escena pudo haberse destruido (desmontar la página, o el doble montaje
+  // de React en dev): sin sistemas activos `scene.add`/`scene.tweens` son null.
+  if (!scene?.sys?.isActive() || !scene.add || !scene.tweens) return
+
   const label = scene.add
     .text(x, y, text, {
       fontFamily: 'monospace',
