@@ -13,15 +13,13 @@ export function BattleBoardPanel({
 
   return (
     <section className="battle-console board-container">
-      <section className={`word-board-header ${hasWord ? 'has-current-word' : ''}`}>
-        <span className="word-board-label">{hasWord ? 'PALABRA ACTUAL' : 'PALABRA OCULTA'}</span>
-        <strong className="word-board-value">
-          {hasWord
-            ? word.split('').map((letter, index) => <span key={`${letter}-${index}`}>{letter}</span>)
-            : '◆'.repeat(battle.hiddenWordLength)}
-        </strong>
-        {!hasWord ? <small>Descubrila para sumar +35 de daño</small> : null}
-      </section>
+      {hasWord ? (
+        <output className="current-word-float" aria-live="polite" aria-label={`Palabra actual: ${word}`}>
+          {word.split('').map((letter, index) => (
+            <span key={`${letter}-${index}`}>{letter}</span>
+          ))}
+        </output>
+      ) : null}
 
       {statusMessage && <p className="console-status">{statusMessage}</p>}
 

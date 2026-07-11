@@ -14,12 +14,36 @@ import { HERO_BY_RACE } from '../../data/heroes.js'
 // el contenedor completo y se recalcula al cambiar de tamaño u orientación.
 // El fondo lo pone el CSS de la página (una sola imagen); Phaser es
 // transparente y solo dibuja personajes + efectos parados sobre ese fondo.
-const GROUND_RATIO = 0.9 // altura del "piso" donde apoyan los pies
 const PLAYER_X_RATIO = 0.19 // Kael a la izquierda
 const ENEMY_X_RATIO = 0.81 // enemigo a la derecha
-const CHAR_HEIGHT_RATIO = 0.62 // alto máx. del personaje respecto al lienzo
-const CHAR_WIDTH_RATIO = 0.26 // ancho máx. del personaje respecto al lienzo
 const EDGE_MARGIN = 78 // que no se peguen al borde en pantallas angostas
+
+// La interfaz inferior ocupa proporcionalmente mucho más espacio en teléfonos
+// apaisados. Estas curvas reducen los personajes por altura (no solo por ancho)
+// para conservar una franja de escenario legible entre el HUD y la consola.
+function sceneMetrics(width, height) {
+  if (height <= 420) {
+    return {
+      groundRatio: 0.82,
+      charHeightRatio: 0.52,
+      charWidthRatio: width <= 680 ? 0.23 : 0.22
+    }
+  }
+
+  if (height <= 620) {
+    return {
+      groundRatio: 0.85,
+      charHeightRatio: 0.55,
+      charWidthRatio: 0.24
+    }
+  }
+
+  return {
+    groundRatio: 0.9,
+    charHeightRatio: 0.58,
+    charWidthRatio: 0.25
+  }
+}
 
 export class BattleScene extends Phaser.Scene {
   constructor() {
@@ -94,11 +118,12 @@ export class BattleScene extends Phaser.Scene {
   computeLayout() {
     const w = Math.max(this.scale.width, 320)
     const h = Math.max(this.scale.height, 200)
-    this.groundY = Math.round(h * GROUND_RATIO)
+    const metrics = sceneMetrics(w, h)
+    this.groundY = Math.round(h * metrics.groundRatio)
     this.playerBaseX = Math.round(Math.max(w * PLAYER_X_RATIO, EDGE_MARGIN))
     this.enemyBaseX = Math.round(Math.min(w * ENEMY_X_RATIO, w - EDGE_MARGIN))
-    this.charMaxWidth = Math.round(w * CHAR_WIDTH_RATIO)
-    this.charMaxHeight = Math.round(h * CHAR_HEIGHT_RATIO)
+    this.charMaxWidth = Math.round(w * metrics.charWidthRatio)
+    this.charMaxHeight = Math.round(h * metrics.charHeightRatio)
   }
 
   // Ajusta un sprite/imagen para que entre en un alto/ancho máximos,
