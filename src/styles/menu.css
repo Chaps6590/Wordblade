@@ -2396,11 +2396,12 @@
 
 .frames-animation-preview > span {
   display: block;
-  width: var(--preview-sheet-width);
+  width: 100%;
   height: 100%;
-  background: var(--preview-sheet) 0 0 / 100% 100% no-repeat;
-  animation: framesPreview var(--preview-duration) steps(var(--preview-steps)) infinite;
-  animation-direction: var(--preview-direction);
+  background-image: var(--preview-sheet);
+  background-size: var(--preview-sheet-size);
+  background-position: var(--preview-position);
+  background-repeat: no-repeat;
 }
 
 .frames-ground-shadow {
@@ -2431,9 +2432,17 @@
   white-space: nowrap;
 }
 
-@keyframes framesPreview {
-  from { transform: translateX(0); }
-  to { transform: translateX(calc(-1 * var(--preview-translate))); }
+.frames-live-counter {
+  position: absolute;
+  right: 0.35rem;
+  bottom: 0.35rem;
+  padding: 0.15rem 0.32rem;
+  border: 1px solid rgba(255, 209, 102, 0.55);
+  border-radius: var(--game-radius-xs);
+  background: rgba(5, 8, 23, 0.76);
+  color: #ffd166;
+  font: 0.6rem monospace;
+  pointer-events: none;
 }
 
 .frames-controls {

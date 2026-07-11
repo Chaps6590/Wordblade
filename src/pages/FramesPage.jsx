@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { HEROES } from '../game/data/heroes.js'
 
@@ -121,19 +121,44 @@ export function FramesPage() {
 function AnimatedSheet({ animation, label }) {
   const frames = animation.frames ?? 1
   const frameRate = animation.frameRate ?? 6
+  const [frame, setFrame] = useState(0)
+
+  useEffect(() => {
+    if (frames <= 1) return undefined
+
+    let current = 0
+    let direction = 1
+    const interval = window.setInterval(() => {
+      if (animation.yoyo) {
+        if (current >= frames - 1) direction = -1
+        if (current <= 0) direction = 1
+        current += direction
+      } else {
+        current = (current + 1) % frames
+      }
+      setFrame(current)
+    }, 1000 / frameRate)
+
+    return () => window.clearInterval(interval)
+  }, [animation.yoyo, frameRate, frames])
+
+  const position = frames <= 1 ? 0 : (frame / (frames - 1)) * 100
   const style = {
     '--preview-sheet': `url(${animation.sheet})`,
-    '--preview-sheet-width': `${frames * 100}%`,
-    '--preview-steps': Math.max(frames - 1, 1),
-    '--preview-translate': `${((frames - 1) / frames) * 100}%`,
-    '--preview-duration': `${frames / frameRate}s`,
     '--preview-aspect': animation.frameWidth / animation.frameHeight,
-    '--preview-direction': animation.yoyo ? 'alternate' : 'normal'
+    '--preview-sheet-size': `${frames * 100}% 100%`,
+    '--preview-position': `${position}% 0%`
   }
 
   return (
-    <div className="frames-animation-preview" style={style} role="img" aria-label={label}>
+    <div
+      className="frames-animation-preview"
+      style={style}
+      role="img"
+      aria-label={`${label}, frame ${frame + 1} de ${frames}`}
+    >
       <span />
+      <strong className="frames-live-counter">{frame + 1}/{frames}</strong>
     </div>
   )
 }
