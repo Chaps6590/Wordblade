@@ -1792,12 +1792,12 @@
 
 @media (max-height: 520px) and (orientation: landscape) {
   .main-menu .main-menu-content {
-    grid-template-columns: minmax(140px, 1fr) minmax(480px, 530px);
+    grid-template-columns: minmax(110px, 1fr) minmax(550px, 600px);
     gap: 8px;
   }
 
   .home-mode-zone {
-    width: min(100%, 530px);
+    width: min(100%, 600px);
     justify-self: end;
     gap: var(--game-space-1);
   }
@@ -1808,13 +1808,20 @@
   }
 
   .main-menu .main-menu-character {
-    height: min(45vh, 240px);
-    max-width: 24vw;
-    transform: translateX(22px);
+    width: min(29vw, 230px);
+    max-width: none;
+    height: min(54vh, 240px);
+    transform: translateX(78px);
+    overflow: visible;
+  }
+
+  .main-menu .main-menu-character .hero-animated-art {
+    width: min(100%, 230px);
+    max-width: none;
   }
 
   .main-menu .menu-mode-card {
-    height: min(53vh, 210px);
+    height: min(58vh, 230px);
   }
 
   .main-menu .menu-mode-card__description {

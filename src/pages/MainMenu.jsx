@@ -60,7 +60,7 @@ export function MainMenu() {
 
       <main className="main-menu-content">
         <section className="home-hero-stage main-menu-character" aria-label="Campeón activo">
-          {hero ? <HeroAnimatedArt hero={hero} alt={hero.name} /> : null}
+          {hero ? <HeroAnimatedArt hero={hero} alt={hero.name} scale={1.2} /> : null}
         </section>
 
         <section className="home-mode-zone" aria-label="Modos de juego">
