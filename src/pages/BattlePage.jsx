@@ -32,7 +32,7 @@ export function BattlePage() {
   // Iniciar batalla al entrar
   useEffect(() => {
     if (!scenario) {
-      navigate('/scenarios')
+      navigate('/')
       return
     }
     setWord('')
@@ -153,7 +153,7 @@ export function BattlePage() {
         </CollapsibleBattlePanel>
       </section>
 
-      <button className="btn btn-back" onClick={() => navigate('/scenarios')}>
+      <button className="btn btn-back" onClick={() => navigate('/')}>
         ← Abandonar batalla
       </button>
     </div>

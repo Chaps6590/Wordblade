@@ -11,7 +11,7 @@ export const HEROES = [
         frameWidth: 512,
         frameHeight: 512,
         frames: 6,
-        frameRate: 7,
+        frameRate: 4,
         repeat: -1,
         yoyo: true
       },
@@ -20,7 +20,7 @@ export const HEROES = [
         frameWidth: 512,
         frameHeight: 512,
         frames: 6,
-        frameRate: 8,
+        frameRate: 5,
         repeat: -1,
         yoyo: true
       },

@@ -44,12 +44,10 @@ export function MainMenu() {
           <div className="home-player-info">
             <span className="home-player-name">{displayName}</span>
             <span className="home-level-badge">Nivel {player?.level ?? 5}</span>
-            <div className="home-xp-bar">
-              <span style={{ width: '71%' }} />
-              <strong>850 / 1200</strong>
-            </div>
           </div>
         </section>
+
+        <img className="home-wordblade-logo main-menu-logo" src="/brand/wordblade-text.png" alt="Wordblade" />
 
         <section className="home-resources" aria-label="Recursos">
           <span><b>◉</b> 12,450</span>
@@ -66,8 +64,6 @@ export function MainMenu() {
         </section>
 
         <section className="home-mode-zone" aria-label="Modos de juego">
-          <img className="home-wordblade-logo main-menu-logo" src="/brand/wordblade-text.png" alt="Wordblade" />
-
           <div className="home-mode-cards menu-cards">
             <article
               className="mode-card menu-mode-card mode-card-adventure"
@@ -109,6 +105,13 @@ export function MainMenu() {
         </div>
 
         <div className="menu-version-actions">
+          <button
+            className="btn btn-ghost menu-refresh-btn menu-frames-btn"
+            type="button"
+            onClick={() => navigate('/frames')}
+          >
+            Frames
+          </button>
           <button
             className="btn btn-ghost menu-refresh-btn"
             type="button"

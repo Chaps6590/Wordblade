@@ -5,6 +5,7 @@ export function HeroAnimatedArt({ hero, className = '', alt = '' }) {
 
   const { idle } = hero.animations
   const frameCount = idle.frames ?? 1
+  const frameRate = idle.frameRate ?? 6
   const style = {
     '--hero-sheet': `url(${idle.sheet})`,
     '--hero-frame-aspect': idle.frameWidth / idle.frameHeight,
@@ -14,6 +15,7 @@ export function HeroAnimatedArt({ hero, className = '', alt = '' }) {
     '--hero-step-count': Math.max(frameCount - 1, 1),
     '--hero-sheet-width': `${frameCount * 100}%`,
     '--hero-last-frame-translate': `${((frameCount - 1) / frameCount) * 100}%`,
+    '--hero-animation-duration': `${frameCount / frameRate}s`,
     '--hero-art-scale': hero.artScale ?? 1,
     '--hero-art-scale-lift': (hero.artScale ?? 1) * 1.012
   }
