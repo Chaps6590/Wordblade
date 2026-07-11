@@ -17,6 +17,7 @@ import { HERO_BY_RACE } from '../../data/heroes.js'
 const PLAYER_X_RATIO = 0.19 // Kael a la izquierda
 const ENEMY_X_RATIO = 0.81 // enemigo a la derecha
 const EDGE_MARGIN = 78 // que no se peguen al borde en pantallas angostas
+const ENEMY_IMAGE_GROUND_OFFSET = 20 // compensa margen transparente inferior de los PNG enemigos
 
 // La interfaz inferior ocupa proporcionalmente mucho más espacio en teléfonos
 // apaisados. Estas curvas reducen los personajes por altura (no solo por ancho)
@@ -351,6 +352,7 @@ export class BattleScene extends Phaser.Scene {
 
     image
       .setOrigin(0.5, 1)
+      .setY(ENEMY_IMAGE_GROUND_OFFSET)
       .setDepth(1)
 
     this.enemySprite = image

@@ -3,6 +3,27 @@ import { LETTER_DATA } from '../game/data/letters.js'
 // Ficha de letra. Estados visuales: normal, bloqueada (🔒 gris),
 // envenenada (verde) y maldita (violeta).
 
+function getPowerClass(tile, data) {
+  switch (data?.effect) {
+    case 'heal':
+    case 'shield':
+      return 'power-green'
+    case 'energy':
+    case 'quick':
+      return 'power-yellow'
+    case 'burn':
+    case 'poison':
+    case 'bleed':
+    case 'lightning':
+    case 'heavy':
+    case 'break':
+    case 'ancestral':
+      return 'power-red'
+    default:
+      return ''
+  }
+}
+
 export function LetterTile({ tile, onClick, disabled, selected = false }) {
   const data = LETTER_DATA[tile.value]
   const classes = ['letter-tile']
@@ -13,6 +34,8 @@ export function LetterTile({ tile, onClick, disabled, selected = false }) {
   if (data?.effect) classes.push('has-skill')
   if (selected) classes.push('selected')
   if (tile.bonusColor) classes.push(`bonus-${tile.bonusColor}`)
+  const powerClass = getPowerClass(tile, data)
+  if (powerClass) classes.push(powerClass)
 
   const title = [
     `${tile.value} · ${data?.points ?? 1} pts`,
