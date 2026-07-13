@@ -38,15 +38,6 @@ export const HEROES = [
         repeat: -1,
         yoyo: true
       },
-      idleSharpen: {
-        sheet: '/characters/heroes/kael-guardaluna/animations/idle-sharpen.png',
-        frameWidth: 512,
-        frameHeight: 512,
-        frames: 6,
-        frameRate: 5,
-        repeat: -1,
-        yoyo: true
-      },
       attack: {
         label: 'Salto golpe',
         sheet: '/characters/heroes/kael-guardaluna/animations/attack-jump-strike.png',
@@ -55,23 +46,6 @@ export const HEROES = [
         frames: 6,
         frameRate: 14,
         repeat: 0
-      },
-      hit: {
-        sheet: '/characters/heroes/kael-guardaluna/animations/hit.png',
-        frameWidth: 512,
-        frameHeight: 512,
-        frames: 6,
-        frameRate: 12,
-        repeat: 0
-      },
-      defeat: {
-        sheet: '/characters/heroes/kael-guardaluna/animations/defeat.png',
-        frameWidth: 512,
-        frameHeight: 512,
-        frames: 6,
-        frameRate: 9,
-        repeat: 0,
-        holdLastFrame: true
       }
     },
     description: 'Defensa firme, mirada fría y golpes seguros.',
