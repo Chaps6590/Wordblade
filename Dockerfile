@@ -1,5 +1,10 @@
 FROM node:20-alpine AS build
 
+# node:alpine no trae git. Sin git, vite.config.js no puede resolver el commit
+# desde el repo clonado y termina mostrando "sin-git". Lo instalamos para que
+# `git rev-parse` funcione cuando la plataforma no inyecta el SHA por build-arg.
+RUN apk add --no-cache git
+
 WORKDIR /app
 
 ARG VITE_API_URL=https://wordblade-api.chapstech.com
@@ -37,6 +42,8 @@ COPY package.json pnpm-lock.yaml ./
 RUN corepack enable && pnpm install --frozen-lockfile
 
 COPY . .
+# git se niega a operar sobre un repo con owner "distinto" dentro del contenedor.
+RUN git config --global --add safe.directory /app || true
 RUN pnpm run build
 
 FROM nginx:1.27-alpine

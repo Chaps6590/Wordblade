@@ -46,6 +46,25 @@ export const HEROES = [
         frames: 6,
         frameRate: 14,
         repeat: 0
+      },
+      hit: {
+        label: 'Herido',
+        sheet: '/characters/heroes/kael-guardaluna/animations/hit.png',
+        frameWidth: 512,
+        frameHeight: 512,
+        frames: 6,
+        frameRate: 12,
+        repeat: 0
+      },
+      defeat: {
+        label: 'Derrotado',
+        sheet: '/characters/heroes/kael-guardaluna/animations/defeat.png',
+        frameWidth: 512,
+        frameHeight: 512,
+        frames: 6,
+        frameRate: 8,
+        repeat: 0,
+        holdLastFrame: true
       }
     },
     description: 'Defensa firme, mirada fría y golpes seguros.',
