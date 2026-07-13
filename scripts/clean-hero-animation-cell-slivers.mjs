@@ -18,6 +18,7 @@ const alphaThreshold = Number(args.alphaThreshold ?? 10)
 const minComponentArea = Number(args.minComponentArea ?? 30)
 const edgeBand = Number(args.edgeBand ?? 14)
 const clearEdgeBand = Number(args.clearEdgeBand ?? 20)
+const keepMainOnly = args.keepMainOnly === 'true'
 
 if (!source || !destination) {
   throw new Error('Usage: node clean-hero-animation-cell-slivers.mjs --source=... --destination=...')
@@ -115,7 +116,7 @@ for (let frame = 0; frame < frames; frame += 1) {
       const touchesLeft = component.minX <= edgeBand
       const touchesRight = component.maxX >= frameWidth - edgeBand
       const isSmallEdgeCarryover = component !== main && (touchesLeft || touchesRight)
-      if (!isSmallEdgeCarryover) continue
+      if (component === main || (!keepMainOnly && !isSmallEdgeCarryover)) continue
 
       for (const pixel of component.pixels) {
         data[(pixel * 4) + 0] = 0

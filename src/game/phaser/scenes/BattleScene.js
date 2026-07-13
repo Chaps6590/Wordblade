@@ -6,6 +6,7 @@ import { screenShake } from '../effects/screenShake.js'
 import { getScenario, getScenarioEncounter } from '../../data/scenarios.js'
 import { ENEMIES } from '../../data/enemies.js'
 import { HERO_BY_RACE } from '../../data/heroes.js'
+import { getAnimationFrameSequence } from '../../animationTiming.js'
 
 // Escena de batalla: SOLO renderiza y anima. La lógica vive en game/core.
 // Recibe eventos del motor por el eventBus ('battle-event').
@@ -198,15 +199,19 @@ export class BattleScene extends Phaser.Scene {
     for (const [name, animation] of Object.entries(this.playerAnimations ?? {})) {
       const key = this.playerAnimationKey(name)
       if (this.anims.exists(key) || !animation?.sheet) continue
+      const textureKey = this.playerAnimationTextureKey(name)
+      const frameSequence = getAnimationFrameSequence(animation)
       this.anims.create({
         key,
-        frames: this.anims.generateFrameNumbers(this.playerAnimationTextureKey(name), {
-          start: 0,
-          end: animation.frames - 1
-        }),
+        frames: frameSequence
+          ? frameSequence.map((frame) => ({ key: textureKey, frame }))
+          : this.anims.generateFrameNumbers(textureKey, {
+            start: 0,
+            end: animation.frames - 1
+          }),
         frameRate: animation.frameRate,
         repeat: animation.repeat ?? 0,
-        yoyo: animation.yoyo ?? false
+        yoyo: frameSequence ? false : animation.yoyo ?? false
       })
     }
   }

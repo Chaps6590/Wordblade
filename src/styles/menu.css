@@ -239,6 +239,11 @@
   animation: heroSheetIdle var(--hero-animation-duration, 1.5s) steps(var(--hero-step-count)) infinite alternate;
 }
 
+.hero-animated-art.is-sequenced .hero-animated-art__sheet {
+  animation: none;
+  transform: translateX(calc(-1 * var(--hero-current-frame-translate, 0%)));
+}
+
 .home-hero-stage .hero-animated-art {
   width: min(100%, 540px);
 }
@@ -2387,7 +2392,8 @@
 .frames-heading h1,
 .frames-heading p,
 .frames-controls h2,
-.frames-strip-panel h2 {
+.frames-strip-panel h2,
+.frames-strip-group h3 {
   margin: 0;
 }
 
@@ -2518,6 +2524,41 @@
   text-transform: uppercase;
 }
 
+.frames-spec-panel {
+  padding-top: var(--game-space-2);
+  border-top: 1px solid rgba(143, 163, 200, 0.24);
+}
+
+.frames-spec-panel dl {
+  margin: 0;
+  display: grid;
+  gap: 0.28rem;
+}
+
+.frames-spec-panel div {
+  min-width: 0;
+  display: grid;
+  grid-template-columns: 4.4rem minmax(0, 1fr);
+  gap: var(--game-space-1);
+  align-items: baseline;
+}
+
+.frames-spec-panel dt {
+  color: #9eb1d2;
+  font-size: 0.58rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.frames-spec-panel dd {
+  min-width: 0;
+  margin: 0;
+  color: #f3ead2;
+  font-size: 0.66rem;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
 .frames-choice-list {
   display: grid;
   gap: var(--game-space-1);
@@ -2565,6 +2606,30 @@
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(54px, 1fr));
   gap: var(--game-space-1);
+}
+
+.frames-strip-combo {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--game-space-2);
+}
+
+.frames-strip-group {
+  min-width: 0;
+  display: grid;
+  gap: var(--game-space-1);
+}
+
+.frames-strip-group h3 {
+  color: #ffd166;
+  font-size: 0.62rem;
+  font-weight: 900;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.frames-strip-group .frames-strip {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .frames-strip figure {
@@ -2637,6 +2702,19 @@
     gap: var(--game-space-1);
   }
 
+  .frames-spec-panel {
+    padding-top: var(--game-space-1);
+  }
+
+  .frames-spec-panel div {
+    grid-template-columns: 3.5rem minmax(0, 1fr);
+  }
+
+  .frames-spec-panel dt,
+  .frames-spec-panel dd {
+    font-size: 0.56rem;
+  }
+
   .frames-choice-list button {
     min-height: 28px;
     padding: 0.18rem 0.35rem;
@@ -2644,6 +2722,11 @@
 
   .frames-strip-panel {
     padding: var(--game-space-1);
+  }
+
+  .frames-strip-combo {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--game-space-1);
   }
 
   .frame-cell {

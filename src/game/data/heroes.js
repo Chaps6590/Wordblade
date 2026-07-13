@@ -1,3 +1,5 @@
+const KAEL_IDLE_BASE_SEQUENCE = [0, 0, 1, 2, 3, 4, 5, 5, 4, 3, 2, 1]
+
 export const HEROES = [
   {
     race: 'LOBO',
@@ -5,13 +7,33 @@ export const HEROES = [
     name: 'Kael Guardaluna',
     title: 'Guardián del acero azul',
     portrait: '/characters/heroes/kael-guardaluna.png',
+    casualIdleAnimations: ['idleCasualGuard', 'idleCasualRead'],
     animations: {
       idle: {
-        sheet: '/characters/heroes/kael-guardaluna/animations/idle-combat-normalized.png',
+        sheet: '/characters/heroes/kael-guardaluna/animations/idle-base.png',
         frameWidth: 512,
         frameHeight: 512,
         frames: 6,
-        frameRate: 4,
+        frameRate: 7,
+        frameDurationMs: 140,
+        frameSequence: KAEL_IDLE_BASE_SEQUENCE,
+        repeat: -1
+      },
+      idleCasualGuard: {
+        sheet: '/characters/heroes/kael-guardaluna/animations/idle-casual-guard.png',
+        frameWidth: 512,
+        frameHeight: 512,
+        frames: 6,
+        frameRate: 6,
+        repeat: -1,
+        yoyo: true
+      },
+      idleCasualRead: {
+        sheet: '/characters/heroes/kael-guardaluna/animations/idle-casual-read.png',
+        frameWidth: 512,
+        frameHeight: 512,
+        frames: 6,
+        frameRate: 6,
         repeat: -1,
         yoyo: true
       },

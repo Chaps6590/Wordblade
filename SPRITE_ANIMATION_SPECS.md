@@ -99,6 +99,27 @@ Hit:     frameRate 12, repeat 0
 Defeat:  frameRate 9, repeat 0, holdLastFrame true
 ```
 
+## Secuencia Suave Para Idle Base
+
+La hoja sigue teniendo `6` frames fisicos. La pausa suave se configura en metadata:
+
+```js
+{
+  frameRate: 7,
+  frameDurationMs: 140,
+  frameSequence: [0, 0, 1, 2, 3, 4, 5, 5, 4, 3, 2, 1],
+  repeat: -1
+}
+```
+
+Equivale visualmente a:
+
+```txt
+1 -> 1 -> 2 -> 3 -> 4 -> 5 -> 6 -> 6 -> 5 -> 4 -> 3 -> 2 -> repetir
+```
+
+Con `frameDurationMs: 140`, los frames normales duran cerca de `140 ms` y los extremos duran cerca de `280 ms` porque se repiten.
+
 ## Checklist
 
 - La hoja mide exactamente `3072x512 px`.
