@@ -45,7 +45,7 @@ export function FramesPage() {
         </button>
         <div className="frames-heading">
           <h1>Laboratorio de Frames</h1>
-          <p>{hero.name} · {labelAnimation(activeName)}</p>
+          <p>{hero.name} · {getAnimationLabel(activeName, animation)}</p>
         </div>
         <div className="frames-metadata">
           {getMetadataBadges(animation).map((badge) => (
@@ -58,7 +58,7 @@ export function FramesPage() {
         <FrameLabPreview
           key={`${hero.race}-${activeName}-${previewRun}`}
           animation={animation}
-          label={`${hero.name}: ${labelAnimation(activeName)}`}
+          label={`${hero.name}: ${getAnimationLabel(activeName, animation)}`}
         />
         <span className="frames-ground-shadow" aria-hidden="true" />
         <button
@@ -66,7 +66,7 @@ export function FramesPage() {
           type="button"
           onClick={() => setPreviewRun((run) => run + 1)}
         >
-          ↻ Repetir {labelAnimation(activeName)}
+          ↻ Repetir {getAnimationLabel(activeName, animation)}
         </button>
       </section>
 
@@ -97,7 +97,7 @@ export function FramesPage() {
                 type="button"
                 onClick={() => selectAnimation(name)}
               >
-                <strong>{labelAnimation(name)}</strong>
+                <strong>{getAnimationLabel(name, definition)}</strong>
                 <small>{formatAnimationSummary(definition)}</small>
               </button>
             ))}
@@ -108,7 +108,7 @@ export function FramesPage() {
       </aside>
 
       <section className="frames-strip-panel" aria-label="Frames individuales">
-        <h2>{labelAnimation(activeName)} — frames individuales</h2>
+        <h2>{getAnimationLabel(activeName, animation)} — frames individuales</h2>
         <FrameStrip animation={animation} />
       </section>
     </main>
@@ -234,7 +234,7 @@ function AnimationSpecs({ animation, name }) {
       <dl>
         <div>
           <dt>Vista</dt>
-          <dd>{labelAnimation(name)}</dd>
+          <dd>{getAnimationLabel(name, animation)}</dd>
         </div>
         {rows.map(([label, value]) => (
           <div key={label}>
@@ -283,4 +283,8 @@ function labelAnimation(name) {
   return String(name)
     .replace(/([a-z])([A-Z])/g, '$1 $2')
     .replace(/^./, (letter) => letter.toUpperCase())
+}
+
+function getAnimationLabel(name, animation) {
+  return animation?.label ?? labelAnimation(name)
 }

@@ -1,4 +1,5 @@
 const KAEL_IDLE_BASE_SEQUENCE = [0, 0, 1, 2, 3, 4, 5, 5, 4, 3, 2, 1]
+const KAEL_IDLE_CASUAL_2_SEQUENCE = [0, 1, 2, 3, 3, 4, 5, 5]
 
 export const HEROES = [
   {
@@ -7,7 +8,7 @@ export const HEROES = [
     name: 'Kael Guardaluna',
     title: 'Guardián del acero azul',
     portrait: '/characters/heroes/kael-guardaluna.png',
-    casualIdleAnimations: ['idleCasualGuard', 'idleCasualRead'],
+    casualIdleAnimations: ['idleCasualGuard', 'idleCasualRead', 'idleCasual2'],
     animations: {
       idle: {
         sheet: '/characters/heroes/kael-guardaluna/animations/idle-base.png',
@@ -37,6 +38,16 @@ export const HEROES = [
         repeat: -1,
         yoyo: true
       },
+      idleCasual2: {
+        label: 'Idle casual 2',
+        sheet: '/characters/heroes/kael-guardaluna/animations/idle-casual-2.png',
+        frameWidth: 512,
+        frameHeight: 512,
+        frames: 6,
+        frameRate: 5,
+        frameSequence: KAEL_IDLE_CASUAL_2_SEQUENCE,
+        repeat: -1
+      },
       idleSharpen: {
         sheet: '/characters/heroes/kael-guardaluna/animations/idle-sharpen.png',
         frameWidth: 512,
@@ -47,7 +58,8 @@ export const HEROES = [
         yoyo: true
       },
       attack: {
-        sheet: '/characters/heroes/kael-guardaluna/animations/attack-slash.png',
+        label: 'Salto golpe',
+        sheet: '/characters/heroes/kael-guardaluna/animations/attack-jump-strike.png',
         frameWidth: 512,
         frameHeight: 512,
         frames: 6,
