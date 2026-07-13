@@ -2,7 +2,8 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 import { execSync } from 'node:child_process'
-import { readFileSync } from 'node:fs'
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { resolve } from 'node:path'
 
 const packageJson = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'))
 
@@ -40,6 +41,31 @@ function getCommitHash() {
 
 const appCommit = getCommitHash()
 const appVersion = `${packageJson.version}+${appCommit}`
+const appVersionPayload = () => {
+  const commit = getCommitHash()
+  return JSON.stringify({
+    version: `${packageJson.version}+${commit}`,
+    commit
+  })
+}
+
+function wordbladeVersionPlugin() {
+  return {
+    name: 'wordblade-version',
+    configureServer(server) {
+      server.middlewares.use('/version.json', (_request, response) => {
+        response.setHeader('Content-Type', 'application/json')
+        response.setHeader('Cache-Control', 'no-store')
+        response.end(appVersionPayload())
+      })
+    },
+    writeBundle() {
+      const outputPath = resolve('dist/version.json')
+      mkdirSync(resolve('dist'), { recursive: true })
+      writeFileSync(outputPath, appVersionPayload())
+    }
+  }
+}
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -49,6 +75,7 @@ export default defineConfig({
   },
   plugins: [
     react(),
+    wordbladeVersionPlugin(),
     VitePWA({
       registerType: 'autoUpdate',
       // En desarrollo local el service worker suele dejar el celular pegado a

@@ -2,13 +2,11 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../auth/useAuth.js'
 import { AppExitButton } from '../components/AppExitButton.jsx'
+import { AppVersionText } from '../components/AppVersionText.jsx'
 import { HeroAnimatedArt } from '../components/HeroAnimatedArt.jsx'
 import { HERO_BY_RACE } from '../game/data/heroes.js'
 import { INITIAL_SCENARIO_ID } from '../game/data/scenarios.js'
 import { hardRefreshApp } from '../services/pwaInstall.js'
-
-const APP_VERSION = import.meta.env.VITE_APP_VERSION || '0.1.0+dev'
-const APP_COMMIT = import.meta.env.VITE_APP_COMMIT || 'sin-git'
 
 export function MainMenu() {
   const navigate = useNavigate()
@@ -120,9 +118,7 @@ export function MainMenu() {
           >
             {refreshing ? 'Actualizando...' : 'Actualizar'}
           </button>
-          <p className="menu-version" title={`Versión ${APP_VERSION}`}>
-            commit {APP_COMMIT}
-          </p>
+          <AppVersionText />
         </div>
       </footer>
     </div>
