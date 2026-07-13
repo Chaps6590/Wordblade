@@ -12,41 +12,62 @@ import './styles/menu.css'
 import './styles/battle.css'
 
 const UPDATE_INTERVAL_MS = 60 * 1000
+const ENABLE_DEV_SW = import.meta.env.VITE_ENABLE_DEV_SW === 'true'
 
-registerSW({
-  immediate: true,
-  onRegisteredSW(swUrl, registration) {
-    if (!registration) return
-    setServiceWorkerRegistration(registration)
+if (import.meta.env.DEV && !ENABLE_DEV_SW) {
+  clearDevelopmentServiceWorkers()
+} else {
+  registerSW({
+    immediate: true,
+    onRegisteredSW(swUrl, registration) {
+      if (!registration) return
+      setServiceWorkerRegistration(registration)
 
-    const checkForUpdate = async () => {
-      if (registration.installing || !navigator.onLine) return
+      const checkForUpdate = async () => {
+        if (registration.installing || !navigator.onLine) return
 
-      try {
-        const response = await fetch(swUrl, {
-          cache: 'no-store',
-          headers: {
+        try {
+          const response = await fetch(swUrl, {
             cache: 'no-store',
-            'cache-control': 'no-cache'
-          }
-        })
-        if (response.ok) await registration.update()
-      } catch {
-        // Sin conexión se conserva la versión instalada y se reintenta luego.
+            headers: {
+              cache: 'no-store',
+              'cache-control': 'no-cache'
+            }
+          })
+          if (response.ok) await registration.update()
+        } catch {
+          // Sin conexión se conserva la versión instalada y se reintenta luego.
+        }
       }
-    }
 
-    const intervalId = window.setInterval(checkForUpdate, UPDATE_INTERVAL_MS)
-    window.addEventListener('focus', checkForUpdate)
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') checkForUpdate()
-    })
-    window.addEventListener('beforeunload', () => window.clearInterval(intervalId), { once: true })
-  },
-  onRegisterError(error) {
-    console.warn('No se pudo registrar la actualización automática:', error)
+      const intervalId = window.setInterval(checkForUpdate, UPDATE_INTERVAL_MS)
+      window.addEventListener('focus', checkForUpdate)
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') checkForUpdate()
+      })
+      window.addEventListener('beforeunload', () => window.clearInterval(intervalId), { once: true })
+    },
+    onRegisterError(error) {
+      console.warn('No se pudo registrar la actualización automática:', error)
+    }
+  })
+}
+
+async function clearDevelopmentServiceWorkers() {
+  if (!navigator.serviceWorker) return
+
+  try {
+    const registrations = await navigator.serviceWorker.getRegistrations()
+    await Promise.allSettled(registrations.map((registration) => registration.unregister()))
+
+    if (window.caches) {
+      const cacheNames = await window.caches.keys()
+      await Promise.allSettled(cacheNames.map((cacheName) => window.caches.delete(cacheName)))
+    }
+  } catch (error) {
+    console.warn('No se pudo limpiar el cache local de desarrollo:', error)
   }
-})
+}
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

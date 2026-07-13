@@ -51,11 +51,10 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      // Registra el service worker también en `vite dev`. Sin SW activo el
-      // navegador nunca dispara `beforeinstallprompt`, así que la instalación
-      // no se puede probar en desarrollo.
+      // En desarrollo local el service worker suele dejar el celular pegado a
+      // bundles viejos. Solo se activa si se necesita probar PWA explícitamente.
       devOptions: {
-        enabled: true,
+        enabled: process.env.VITE_ENABLE_DEV_SW === 'true',
         type: 'module'
       },
       workbox: {
