@@ -1814,15 +1814,15 @@
   }
 
   .main-menu .main-menu-character {
-    width: min(23vw, 188px);
+    width: min(21vw, 172px);
     max-width: none;
-    height: min(47vh, 190px);
-    transform: translateX(18px);
+    height: min(45vh, 176px);
+    transform: translateX(0);
     overflow: visible;
   }
 
   .main-menu .main-menu-character .hero-animated-art {
-    width: min(100%, 188px);
+    width: min(100%, 172px);
     max-width: none;
   }
 
@@ -1867,8 +1867,8 @@
   }
 
   .main-menu .main-menu-content {
-    grid-template-columns: minmax(116px, 0.42fr) minmax(480px, 540px);
-    gap: clamp(8px, 1.3vw, 16px);
+    grid-template-columns: minmax(156px, 0.42fr) minmax(480px, 540px);
+    gap: clamp(18px, 2vw, 28px);
   }
 
   .home-mode-zone {
@@ -1876,13 +1876,13 @@
   }
 
   .main-menu .main-menu-character {
-    width: min(20vw, 170px);
-    height: min(43vh, 170px);
-    transform: translateX(8px);
+    width: min(18vw, 150px);
+    height: min(39vh, 150px);
+    transform: translateX(-10px);
   }
 
   .main-menu .main-menu-character .hero-animated-art {
-    width: min(100%, 170px);
+    width: min(100%, 150px);
   }
 
   .main-menu .menu-mode-card {
@@ -2392,8 +2392,7 @@
 .frames-heading h1,
 .frames-heading p,
 .frames-controls h2,
-.frames-strip-panel h2,
-.frames-strip-group h3 {
+.frames-strip-panel h2 {
   margin: 0;
 }
 
@@ -2608,30 +2607,6 @@
   gap: var(--game-space-1);
 }
 
-.frames-strip-combo {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--game-space-2);
-}
-
-.frames-strip-group {
-  min-width: 0;
-  display: grid;
-  gap: var(--game-space-1);
-}
-
-.frames-strip-group h3 {
-  color: #ffd166;
-  font-size: 0.62rem;
-  font-weight: 900;
-  text-align: center;
-  text-transform: uppercase;
-}
-
-.frames-strip-group .frames-strip {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
 .frames-strip figure {
   min-width: 0;
   margin: 0;
@@ -2722,11 +2697,6 @@
 
   .frames-strip-panel {
     padding: var(--game-space-1);
-  }
-
-  .frames-strip-combo {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--game-space-1);
   }
 
   .frame-cell {
