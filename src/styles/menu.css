@@ -1792,12 +1792,13 @@
 
 @media (max-height: 520px) and (orientation: landscape) {
   .main-menu .main-menu-content {
-    grid-template-columns: minmax(110px, 1fr) minmax(550px, 600px);
-    gap: 8px;
+    grid-template-columns: minmax(132px, 0.5fr) minmax(500px, 560px);
+    gap: clamp(10px, 1.6vw, 18px);
+    align-items: end;
   }
 
   .home-mode-zone {
-    width: min(100%, 600px);
+    width: min(100%, 560px);
     justify-self: end;
     gap: var(--game-space-1);
   }
@@ -1808,20 +1809,20 @@
   }
 
   .main-menu .main-menu-character {
-    width: min(29vw, 230px);
+    width: min(23vw, 188px);
     max-width: none;
-    height: min(54vh, 240px);
-    transform: translateX(78px);
+    height: min(47vh, 190px);
+    transform: translateX(18px);
     overflow: visible;
   }
 
   .main-menu .main-menu-character .hero-animated-art {
-    width: min(100%, 230px);
+    width: min(100%, 188px);
     max-width: none;
   }
 
   .main-menu .menu-mode-card {
-    height: min(58vh, 230px);
+    height: min(48vh, 192px);
   }
 
   .main-menu .menu-mode-card__description {
@@ -1838,14 +1839,62 @@
   }
 
   .main-menu .mode-card-btn {
-    min-height: 44px;
-    padding: 0.32rem var(--game-space-3);
+    min-height: 40px;
+    width: min(100%, 190px);
+    padding: 0.28rem var(--game-space-3);
   }
 
   .main-menu .home-system-actions .btn,
   .main-menu .menu-version-actions .btn {
-    min-height: 44px;
+    min-height: 40px;
     padding: 0.24rem var(--game-space-2);
+  }
+}
+
+@media (max-height: 520px) and (min-aspect-ratio: 19 / 9) and (orientation: landscape) {
+  .main-menu .main-menu-header {
+    min-height: 42px;
+  }
+
+  .main-menu-logo {
+    width: min(32vw, 320px);
+    max-height: 12vh;
+  }
+
+  .main-menu .main-menu-content {
+    grid-template-columns: minmax(116px, 0.42fr) minmax(480px, 540px);
+    gap: clamp(8px, 1.3vw, 16px);
+  }
+
+  .home-mode-zone {
+    width: min(100%, 540px);
+  }
+
+  .main-menu .main-menu-character {
+    width: min(20vw, 170px);
+    height: min(43vh, 170px);
+    transform: translateX(8px);
+  }
+
+  .main-menu .main-menu-character .hero-animated-art {
+    width: min(100%, 170px);
+  }
+
+  .main-menu .menu-mode-card {
+    height: min(44vh, 176px);
+  }
+
+  .main-menu .mode-card-overlay {
+    padding: var(--game-space-2);
+  }
+
+  .main-menu .mode-card-btn {
+    min-height: 38px;
+    width: min(100%, 176px);
+  }
+
+  .main-menu .main-menu-footer {
+    min-height: 36px;
   }
 }
 
