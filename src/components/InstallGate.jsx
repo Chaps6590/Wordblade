@@ -165,11 +165,9 @@ export function InstallGate({ children }) {
                   Entrar al juego
                 </button>
               )}
-              {updateAvailable ? (
-                <button className="btn btn-ghost install-gate-btn" type="button" onClick={handleUpdate}>
-                  Actualizar
-                </button>
-              ) : null}
+              <button className="btn btn-ghost install-gate-btn" type="button" onClick={handleUpdate}>
+                {updateAvailable ? 'Actualizar' : 'Limpiar cache'}
+              </button>
             </div>
 
             {gate ? (
