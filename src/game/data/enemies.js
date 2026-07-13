@@ -34,6 +34,33 @@ export const ENEMIES = {
     spriteKind: 'tick',
     spriteImage: '/characters/enemies/garrapata-exploradora.png',
     spriteScale: { maxWidth: 160, maxHeight: 139, offsetY: 8 },
+    animations: {
+      idle: {
+        sheet: '/characters/enemies/garrapata-exploradora/animations/idle.png',
+        frameWidth: 204,
+        frameHeight: 204,
+        frames: 6,
+        frameRate: 7,
+        repeat: -1,
+        yoyo: true
+      },
+      attack: {
+        sheet: '/characters/enemies/garrapata-exploradora/animations/attack.png',
+        frameWidth: 204,
+        frameHeight: 204,
+        frames: 6,
+        frameRate: 13,
+        repeat: 0
+      },
+      hit: {
+        sheet: '/characters/enemies/garrapata-exploradora/animations/hit.png',
+        frameWidth: 204,
+        frameHeight: 204,
+        frames: 6,
+        frameRate: 12,
+        repeat: 0
+      }
+    },
     abilities: {
       blockEvery: 4,
       blockCount: 1,

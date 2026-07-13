@@ -78,6 +78,13 @@ export class BattleScene extends Phaser.Scene {
       if (enemyDef?.spriteImage) {
         this.load.image(this.enemyTextureKey(enemyDef.id), enemyDef.spriteImage)
       }
+      for (const [name, animation] of Object.entries(enemyDef?.animations ?? {})) {
+        if (!animation?.sheet) continue
+        this.load.spritesheet(this.enemyAnimationTextureKey(enemyDef.id, name), animation.sheet, {
+          frameWidth: animation.frameWidth,
+          frameHeight: animation.frameHeight
+        })
+      }
     }
   }
 
@@ -164,7 +171,7 @@ export class BattleScene extends Phaser.Scene {
       this.enemy.setData('baseY', this.groundY)
       if (this.enemySprite) {
         const bossFactor = this.enemyIsBoss ? 1.18 : 1
-        this.fitSprite(this.enemySprite, this.charMaxWidth * bossFactor, this.charMaxHeight * bossFactor)
+        this.enemySpriteScale = this.fitSprite(this.enemySprite, this.charMaxWidth * bossFactor, this.charMaxHeight * bossFactor)
       }
     }
     if (this.enemyShadow) {
@@ -271,6 +278,57 @@ export class BattleScene extends Phaser.Scene {
     return `enemy-${enemyId}`
   }
 
+  enemyAnimationTextureKey(enemyId, name) {
+    return `enemy-${enemyId}-${name}-sheet`
+  }
+
+  enemyAnimationKey(name) {
+    return `${this.enemyAnimationPrefix}-${name}`
+  }
+
+  createEnemyAnimations(enemyDef) {
+    for (const [name, animation] of Object.entries(enemyDef?.animations ?? {})) {
+      const key = `enemy-${enemyDef.id}-${name}`
+      if (this.anims.exists(key) || !animation?.sheet) continue
+      const textureKey = this.enemyAnimationTextureKey(enemyDef.id, name)
+      const frameSequence = getAnimationFrameSequence(animation)
+      this.anims.create({
+        key,
+        frames: frameSequence
+          ? frameSequence.map((frame) => ({ key: textureKey, frame }))
+          : this.anims.generateFrameNumbers(textureKey, {
+            start: 0,
+            end: animation.frames - 1
+          }),
+        frameRate: animation.frameRate,
+        repeat: animation.repeat ?? 0,
+        yoyo: frameSequence ? false : animation.yoyo ?? false
+      })
+    }
+  }
+
+  setEnemyAnimation(name) {
+    const animation = this.enemyAnimations?.[name]
+    if (!this.enemySprite || typeof this.enemySprite.play !== 'function' || !animation?.sheet) return false
+
+    this.enemySprite
+      .stop()
+      .setTexture(this.enemyAnimationTextureKey(this.enemyDef.id, name), 0)
+      .setAngle(0)
+      .setScale(this.enemySpriteScale)
+      .play(this.enemyAnimationKey(name), true)
+
+    return true
+  }
+
+  playEnemyHit() {
+    if (!this.setEnemyAnimation('hit')) return
+    const hitSprite = this.enemySprite
+    hitSprite.once(`animationcomplete-${this.enemyAnimationKey('hit')}`, () => {
+      if (this.enemySprite === hitSprite) this.setEnemyAnimation('idle')
+    })
+  }
+
   // Sombra de contacto ovalada bajo un personaje, para "anclarlo" al piso
   // del fondo (que ahora lo dibuja el CSS de la página).
   addGroundShadow(x) {
@@ -364,13 +422,19 @@ export class BattleScene extends Phaser.Scene {
     const enemyColor = enemyDef?.color ?? 0x8a5a2b
     const isBoss = enemyDef?.boss ?? false
     const scale = isBoss ? 1.35 : 1
+    this.enemyDef = enemyDef
+    this.enemyAnimations = enemyDef?.animations ?? {}
+    this.enemyAnimationPrefix = enemyDef?.id ? `enemy-${enemyDef.id}` : 'enemy-unknown'
     this.enemyIsBoss = isBoss
     this.enemy = this.add.container(this.enemyBaseX, this.groundY).setAlpha(1).setDepth(5)
     this.enemy.setData('baseX', this.enemyBaseX)
     this.enemy.setData('baseY', this.groundY)
     this.enemySprite = null
+    this.createEnemyAnimations(enemyDef)
 
-    if (enemyDef?.spriteImage && this.textures.exists(this.enemyTextureKey(enemyDef.id))) {
+    if (this.enemyAnimations.idle?.sheet && this.textures.exists(this.enemyAnimationTextureKey(enemyDef.id, 'idle'))) {
+      this.drawEnemyAnimatedSprite(enemyDef, 'idle')
+    } else if (enemyDef?.spriteImage && this.textures.exists(this.enemyTextureKey(enemyDef.id))) {
       this.drawEnemyImage(enemyDef)
     } else {
       switch (enemyDef?.spriteKind) {
@@ -391,11 +455,27 @@ export class BattleScene extends Phaser.Scene {
     this.enemyShadow = this.addGroundShadow(this.enemyBaseX)
   }
 
+  drawEnemyAnimatedSprite(enemyDef, animationName) {
+    const textureKey = this.enemyAnimationTextureKey(enemyDef.id, animationName)
+    const sprite = this.add.sprite(0, 0, textureKey, 0)
+    const bossFactor = enemyDef.boss ? 1.18 : 1
+    this.enemySpriteScale = this.fitSprite(sprite, this.charMaxWidth * bossFactor, this.charMaxHeight * bossFactor)
+
+    sprite
+      .setOrigin(0.5, 1)
+      .setY(enemyDef.spriteScale?.offsetY ?? ENEMY_IMAGE_GROUND_OFFSET)
+      .setDepth(1)
+      .play(this.enemyAnimationKey(animationName))
+
+    this.enemySprite = sprite
+    this.enemy.add(sprite)
+  }
+
   drawEnemyImage(enemyDef) {
     const textureKey = this.enemyTextureKey(enemyDef.id)
     const image = this.add.image(0, 0, textureKey)
     const bossFactor = enemyDef.boss ? 1.18 : 1
-    this.fitSprite(image, this.charMaxWidth * bossFactor, this.charMaxHeight * bossFactor)
+    this.enemySpriteScale = this.fitSprite(image, this.charMaxWidth * bossFactor, this.charMaxHeight * bossFactor)
 
     image
       .setOrigin(0.5, 1)
@@ -453,6 +533,7 @@ export class BattleScene extends Phaser.Scene {
 
   startEnemyIdle() {
     if (!this.enemy) return
+    this.setEnemyAnimation('idle')
     const baseY = this.enemy.getData('baseY') ?? this.groundY
     this.enemyIdleTween = this.tweens.add({
       targets: this.enemy,
@@ -658,6 +739,7 @@ export class BattleScene extends Phaser.Scene {
         color: event.critical ? '#ffd700' : '#ff5555',
         fontSize: event.critical ? 32 : 24
       })
+      this.playEnemyHit()
       this.hitCharacter(this.enemy, 1)
       screenShake(this, {
         intensity: event.critical || event.magic || event.amount >= 20 ? 0.014 : 0.007,
@@ -742,6 +824,7 @@ export class BattleScene extends Phaser.Scene {
           color: event.critical ? '#ffd700' : '#ff5555',
           fontSize: event.critical ? 32 : 24
         })
+        this.playEnemyHit()
         this.hitCharacter(this.enemy, 1)
         if (event.critical || event.magic || event.amount >= 20) {
           screenShake(this, { intensity: 0.012, duration: 250 })
@@ -764,6 +847,7 @@ export class BattleScene extends Phaser.Scene {
     const recoilX = Phaser.Math.Linear(strikeX, startX, 0.24)
     const dashMs = this.dashDuration(startX - strikeX)
     this.enemyIdleTween?.pause()
+    this.setEnemyAnimation('attack')
 
     this.tweens.add({
       targets: this.enemy,
@@ -807,6 +891,7 @@ export class BattleScene extends Phaser.Scene {
                   ease: 'Back.easeOut',
                   onComplete: () => {
                     this.enemy.setPosition(startX, startY).setAngle(0).setScale(1)
+                    this.setEnemyAnimation('idle')
                     this.enemyIdleTween?.resume()
                     done()
                   }
