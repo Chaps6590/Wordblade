@@ -3,14 +3,12 @@ import { useNavigate } from 'react-router-dom'
 import { getAnimationFrameDurationMs, getAnimationFramePositionPercent, getAnimationFrameSequence } from '../game/animationTiming.js'
 import { HEROES } from '../game/data/heroes.js'
 
-const LAB_COMBO_KEY = 'idleLaboratoryCombo'
-
 export function FramesPage() {
   const navigate = useNavigate()
   const heroes = useMemo(() => HEROES.filter((hero) => hero.animations), [])
   const [heroRace, setHeroRace] = useState(heroes[0]?.race)
   const hero = heroes.find((candidate) => candidate.race === heroRace) ?? heroes[0]
-  const labEntries = useMemo(() => buildFrameLabEntries(hero), [hero])
+  const labEntries = useMemo(() => Object.entries(hero?.animations ?? {}), [hero])
   const [animationName, setAnimationName] = useState(labEntries[0]?.[0])
   const [previewRun, setPreviewRun] = useState(0)
   const animation = labEntries.find(([name]) => name === animationName)?.[1] ?? labEntries[0]?.[1]
@@ -18,7 +16,7 @@ export function FramesPage() {
 
   function selectHero(race) {
     const nextHero = heroes.find((candidate) => candidate.race === race)
-    const nextEntries = buildFrameLabEntries(nextHero)
+    const nextEntries = Object.entries(nextHero?.animations ?? {})
     setHeroRace(race)
     setAnimationName(nextEntries[0]?.[0])
     setPreviewRun((run) => run + 1)
@@ -117,34 +115,6 @@ export function FramesPage() {
   )
 }
 
-function buildFrameLabEntries(hero) {
-  const entries = Object.entries(hero?.animations ?? {})
-  const combo = buildIdleLabCombo(hero)
-  return combo ? [...entries, [LAB_COMBO_KEY, combo]] : entries
-}
-
-function buildIdleLabCombo(hero) {
-  const animations = hero?.animations
-  const base = animations?.idle
-  const casualGuard = animations?.idleCasualGuard
-  const casualRead = animations?.idleCasualRead
-  if (!base || !casualGuard || !casualRead) return null
-
-  return {
-    type: 'combo',
-    frameWidth: base.frameWidth,
-    frameHeight: base.frameHeight,
-    frames: base.frames,
-    frameRate: base.frameRate,
-    segments: [
-      { key: 'idle', label: 'Base', animation: base },
-      { key: 'idleCasualGuard', label: 'Casual guard', animation: casualGuard },
-      { key: 'idle', label: 'Base', animation: base },
-      { key: 'idleCasualRead', label: 'Casual read', animation: casualRead }
-    ]
-  }
-}
-
 function FrameLabPreview({ animation, label }) {
   const timeline = useMemo(() => getPreviewTimeline(animation, label), [animation, label])
   const [step, setStep] = useState(timeline[0] ?? null)
@@ -201,12 +171,6 @@ function FrameLabPreview({ animation, label }) {
 }
 
 function getPreviewTimeline(animation, label = 'Animacion') {
-  if (animation?.type === 'combo') {
-    return animation.segments.flatMap((segment) => (
-      buildAnimationTimeline(segment.animation, segment.label)
-    ))
-  }
-
   return buildAnimationTimeline(animation, label)
 }
 
@@ -233,26 +197,6 @@ function getDefaultFrameSequence(animation) {
 }
 
 function FrameStrip({ animation }) {
-  if (animation?.type === 'combo') {
-    return (
-      <div className="frames-strip-combo">
-        {animation.segments.map((segment, segmentIndex) => (
-          <section className="frames-strip-group" key={`${segment.key}-${segmentIndex}`}>
-            <h3>{segment.label}</h3>
-            <div className="frames-strip">
-              {Array.from({ length: segment.animation.frames }, (_, index) => (
-                <figure key={index}>
-                  <FrameCell animation={segment.animation} index={index} />
-                  <figcaption>{index + 1}</figcaption>
-                </figure>
-              ))}
-            </div>
-          </section>
-        ))}
-      </div>
-    )
-  }
-
   return (
     <div className="frames-strip">
       {Array.from({ length: animation.frames }, (_, index) => (
@@ -282,9 +226,7 @@ function FrameCell({ animation, index }) {
 }
 
 function AnimationSpecs({ animation, name }) {
-  const rows = animation?.type === 'combo'
-    ? getComboSpecRows(animation)
-    : getSingleSpecRows(animation)
+  const rows = getSingleSpecRows(animation)
 
   return (
     <section className="frames-spec-panel">
@@ -321,29 +263,7 @@ function getSingleSpecRows(animation) {
   ]
 }
 
-function getComboSpecRows(animation) {
-  const labels = animation.segments.map((segment) => segment.label).join(' -> ')
-  const sheets = [...new Set(animation.segments.map((segment) => getFileName(segment.animation.sheet)))].join(', ')
-  const totalSteps = getPreviewTimeline(animation).length
-
-  return [
-    ['Orden', labels],
-    ['Sheets', sheets],
-    ['Frame', `${animation.frameWidth}x${animation.frameHeight}`],
-    ['Steps', String(totalSteps)],
-    ['Loop', 'Base -> casual -> base -> casual']
-  ]
-}
-
 function getMetadataBadges(animation) {
-  if (animation?.type === 'combo') {
-    return [
-      `${animation.segments.length} bloques`,
-      `${animation.frameWidth}×${animation.frameHeight}`,
-      `${getPreviewTimeline(animation).length} steps`
-    ]
-  }
-
   return [
     `${animation.frames} frames`,
     `${animation.frameWidth}×${animation.frameHeight}`,
@@ -352,10 +272,6 @@ function getMetadataBadges(animation) {
 }
 
 function formatAnimationSummary(animation) {
-  if (animation?.type === 'combo') {
-    return `${animation.segments.length} bloques`
-  }
-
   return `${animation.frames}f · ${animation.frameRate}fps`
 }
 
@@ -364,8 +280,6 @@ function getFileName(path) {
 }
 
 function labelAnimation(name) {
-  if (name === LAB_COMBO_KEY) return 'Combo laboratorio'
-
   return String(name)
     .replace(/([a-z])([A-Z])/g, '$1 $2')
     .replace(/^./, (letter) => letter.toUpperCase())
