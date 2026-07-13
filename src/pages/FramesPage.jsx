@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { getAnimationFrameDurationMs, getAnimationFramePositionPercent, getAnimationFrameSequence } from '../game/animationTiming.js'
+import { getAnimationFrameDurationMs, getAnimationFrameSequence } from '../game/animationTiming.js'
 import { HEROES } from '../game/data/heroes.js'
+
+const ASSET_VERSION = import.meta.env.VITE_APP_COMMIT || 'dev'
 
 export function FramesPage() {
   const navigate = useNavigate()
@@ -13,6 +15,7 @@ export function FramesPage() {
   const [previewRun, setPreviewRun] = useState(0)
   const animation = labEntries.find(([name]) => name === animationName)?.[1] ?? labEntries[0]?.[1]
   const activeName = labEntries.find(([name]) => name === animationName)?.[0] ?? labEntries[0]?.[0]
+  const sheetState = usePreloadedSheet(animation?.sheet, `${hero?.race}-${activeName}-${previewRun}`)
 
   function selectHero(race) {
     const nextHero = heroes.find((candidate) => candidate.race === race)
@@ -59,6 +62,7 @@ export function FramesPage() {
           key={`${hero.race}-${activeName}-${previewRun}`}
           animation={animation}
           label={`${hero.name}: ${getAnimationLabel(activeName, animation)}`}
+          sheetState={sheetState}
         />
         <span className="frames-ground-shadow" aria-hidden="true" />
         <button
@@ -109,13 +113,58 @@ export function FramesPage() {
 
       <section className="frames-strip-panel" aria-label="Frames individuales">
         <h2>{getAnimationLabel(activeName, animation)} — frames individuales</h2>
-        <FrameStrip animation={animation} />
+        <FrameStrip animation={animation} sheetUrl={sheetState.url} />
       </section>
     </main>
   )
 }
 
-function FrameLabPreview({ animation, label }) {
+function usePreloadedSheet(path, cacheScope) {
+  const [sheetState, setSheetState] = useState(() => ({
+    status: path ? 'loading' : 'missing',
+    url: path ? versionedAssetUrl(path, `${ASSET_VERSION}-initial`) : '',
+    path
+  }))
+
+  useEffect(() => {
+    if (!path) {
+      setSheetState({ status: 'missing', url: '', path })
+      return undefined
+    }
+
+    const url = versionedAssetUrl(path, `${ASSET_VERSION}-${cacheScope}-${Date.now()}`)
+    let cancelled = false
+    const image = new Image()
+
+    setSheetState({ status: 'loading', url, path })
+
+    image.onload = () => {
+      if (!cancelled) setSheetState({ status: 'loaded', url, path })
+    }
+    image.onerror = () => {
+      if (!cancelled) setSheetState({ status: 'error', url, path })
+    }
+    image.src = url
+
+    return () => {
+      cancelled = true
+      image.onload = null
+      image.onerror = null
+    }
+  }, [path, cacheScope])
+
+  if (sheetState.path !== path) {
+    return {
+      status: path ? 'loading' : 'missing',
+      url: path ? versionedAssetUrl(path, `${ASSET_VERSION}-${cacheScope}`) : '',
+      path
+    }
+  }
+
+  return sheetState
+}
+
+function FrameLabPreview({ animation, label, sheetState }) {
   const timeline = useMemo(() => getPreviewTimeline(animation, label), [animation, label])
   const [step, setStep] = useState(timeline[0] ?? null)
 
@@ -145,19 +194,22 @@ function FrameLabPreview({ animation, label }) {
   }, [timeline])
 
   if (!step) return null
-
-  const position = getAnimationFramePositionPercent(step.animation, step.frame)
-  const frames = step.animation.frames ?? 1
-  const style = {
-    '--preview-sheet': `url(${step.animation.sheet})`,
-    '--preview-aspect': step.animation.frameWidth / step.animation.frameHeight,
-    '--preview-sheet-size': `${frames * 100}% 100%`,
-    '--preview-position': `${position}% 0%`
+  if (sheetState.status === 'error' || sheetState.status === 'missing') {
+    return (
+      <div className="frames-animation-preview frames-animation-preview--message" role="status">
+        <span>No carga {getFileName(sheetState.path ?? animation.sheet)}</span>
+      </div>
+    )
   }
+
+  const style = {
+    '--preview-aspect': step.animation.frameWidth / step.animation.frameHeight
+  }
+  const spriteStyle = getSpriteSheetStyle(step.animation, step.frame)
 
   return (
     <div
-      className="frames-animation-preview"
+      className={`frames-animation-preview ${sheetState.status === 'loading' ? 'is-loading' : ''}`}
       style={style}
       role="img"
       aria-label={`${label}, ${step.label}, frame ${step.frame + 1} de ${frames}`}
@@ -196,12 +248,12 @@ function getDefaultFrameSequence(animation) {
   return [...forward, ...forward.slice(1, -1).reverse()]
 }
 
-function FrameStrip({ animation }) {
+function FrameStrip({ animation, sheetUrl }) {
   return (
     <div className="frames-strip">
       {Array.from({ length: animation.frames }, (_, index) => (
         <figure key={index}>
-          <FrameCell animation={animation} index={index} />
+          <FrameCell animation={animation} index={index} sheetUrl={sheetUrl} />
           <figcaption>{index + 1}</figcaption>
         </figure>
       ))}
@@ -209,20 +261,30 @@ function FrameStrip({ animation }) {
   )
 }
 
-function FrameCell({ animation, index }) {
-  const frames = animation.frames ?? 1
-  const position = getAnimationFramePositionPercent(animation, index)
+function FrameCell({ animation, index, sheetUrl }) {
+  const spriteStyle = getSpriteSheetStyle(animation, index)
+
   return (
-    <span
-      className="frame-cell"
-      style={{
-        '--frame-image': `url(${animation.sheet})`,
-        '--frame-sheet-size': `${frames * 100}% 100%`,
-        '--frame-position': `${position}% 0%`,
-        '--frame-aspect': animation.frameWidth / animation.frameHeight
-      }}
-    />
+    <span className="frame-cell" style={{ '--frame-aspect': animation.frameWidth / animation.frameHeight }}>
+      <img
+        className="frames-sprite-sheet"
+        src={sheetUrl || versionedAssetUrl(animation.sheet)}
+        alt=""
+        draggable="false"
+        style={spriteStyle}
+      />
+    </span>
   )
+}
+
+function getSpriteSheetStyle(animation, frame) {
+  const frames = animation.frames ?? 1
+  const safeFrame = Math.min(Math.max(frame, 0), frames - 1)
+
+  return {
+    width: `${frames * 100}%`,
+    left: `${safeFrame * -100}%`
+  }
 }
 
 function AnimationSpecs({ animation, name }) {
@@ -277,6 +339,11 @@ function formatAnimationSummary(animation) {
 
 function getFileName(path) {
   return String(path ?? '').split('/').pop()
+}
+
+function versionedAssetUrl(path, version = ASSET_VERSION) {
+  const separator = String(path).includes('?') ? '&' : '?'
+  return `${path}${separator}v=${encodeURIComponent(version)}`
 }
 
 function labelAnimation(name) {

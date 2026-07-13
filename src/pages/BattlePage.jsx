@@ -21,7 +21,6 @@ export function BattlePage() {
   const battle = useBattleStore((s) => s.battle)
   const startBattle = useBattleStore((s) => s.startBattle)
   const submitWord = useBattleStore((s) => s.submitWord)
-  const swapLetters = useBattleStore((s) => s.swapLetters)
   const validating = useBattleStore((s) => s.validating)
   const pending = useBattleStore((s) => s.pending)
   const tick = useBattleStore((s) => s.tick)
@@ -90,13 +89,6 @@ export function BattlePage() {
     eventBus.emit('battle-event', { kind: 'enemyLaugh' })
   }
 
-  const handleSwap = () => {
-    if (!playing || validating) return
-    setWord('')
-    setSelectedTileIds([])
-    swapLetters()
-  }
-
   return (
     <div
       className="page battle-page battle-page--adventure"
@@ -139,7 +131,6 @@ export function BattlePage() {
                 onChange={setWord}
                 onSubmit={handleSubmit}
                 onClear={handleClear}
-                onSwap={handleSwap}
                 disabled={!playing}
                 busy={validating}
                 showInput={false}

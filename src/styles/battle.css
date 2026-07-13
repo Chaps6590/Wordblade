@@ -709,6 +709,9 @@
   aspect-ratio: 1 / 1.04;
   min-width: var(--game-touch-min);
   min-height: var(--game-touch-min);
+  /* Reserva la franja inferior para el puntaje: la letra se centra un poco
+     más arriba y el numerito de la esquina no se le encima. */
+  padding-bottom: 0.32rem;
   border-radius: var(--game-radius-sm);
   border: 1px solid #3d5a94;
   background: linear-gradient(180deg, #1e3057 0%, #101b38 55%, #0b1226 100%);
@@ -746,31 +749,14 @@
   box-shadow: 0 1px 0 #060b1c;
 }
 
-/* Una ficha de habilidad ya elegida sigue mostrando energía en la grilla:
-   queda consumida, pero no se confunde con una letra normal apagada. */
+/* Una ficha ya elegida (con o sin habilidad) se apaga por igual: al tocarla
+   para armar la palabra no debe quedar ningún brillo ni animación encima. */
 .letter-tile.selected.has-skill {
-  opacity: 0.68;
-  border-color: #b895ff;
-  filter: saturate(1.35) brightness(1.12);
-  box-shadow:
-    0 1px 0 #060b1c,
-    0 0 7px rgba(185, 149, 255, 0.9),
-    0 0 16px rgba(124, 92, 255, 0.58),
-    inset 0 0 12px rgba(207, 183, 255, 0.38);
-  animation: selected-power-tile 1.35s ease-in-out infinite;
-}
-
-@keyframes selected-power-tile {
-  0%, 100% {
-    filter: saturate(1.25) brightness(1.04);
-    outline: 1px solid rgba(185, 149, 255, 0.42);
-    outline-offset: 0;
-  }
-  50% {
-    filter: saturate(1.65) brightness(1.28);
-    outline: 2px solid rgba(207, 183, 255, 0.86);
-    outline-offset: 2px;
-  }
+  opacity: 0.35;
+  border-color: var(--accent-2);
+  filter: none;
+  box-shadow: 0 1px 0 #060b1c;
+  animation: none;
 }
 
 .letter-value {
@@ -781,8 +767,12 @@
 
 .letter-points {
   position: absolute;
-  bottom: 3px;
-  right: 5px;
+  bottom: 2px;
+  right: 3px;
+  line-height: 1;
+  padding: 0 2px;
+  border-radius: 4px;
+  background: rgba(6, 11, 26, 0.62);
   font-size: var(--game-text-xs);
   color: var(--text-dim);
 }

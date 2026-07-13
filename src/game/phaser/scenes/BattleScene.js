@@ -27,16 +27,16 @@ function sceneMetrics(width, height) {
   if (height <= 420) {
     return {
       groundRatio: 0.74,
-      charHeightRatio: 0.52,
-      charWidthRatio: width <= 680 ? 0.23 : 0.22
+      charHeightRatio: 0.45,
+      charWidthRatio: width <= 680 ? 0.2 : 0.19
     }
   }
 
   if (height <= 620) {
     return {
       groundRatio: 0.8,
-      charHeightRatio: 0.55,
-      charWidthRatio: 0.24
+      charHeightRatio: 0.49,
+      charWidthRatio: 0.21
     }
   }
 
