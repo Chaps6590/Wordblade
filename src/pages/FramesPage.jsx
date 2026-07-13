@@ -1,26 +1,27 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getAnimationFrameDurationMs, getAnimationFrameSequence } from '../game/animationTiming.js'
+import { ENEMIES } from '../game/data/enemies.js'
 import { HEROES } from '../game/data/heroes.js'
 
 const ASSET_VERSION = import.meta.env.VITE_APP_COMMIT || 'dev'
 
 export function FramesPage() {
   const navigate = useNavigate()
-  const heroes = useMemo(() => HEROES.filter((hero) => hero.animations), [])
-  const [heroRace, setHeroRace] = useState(heroes[0]?.race)
-  const hero = heroes.find((candidate) => candidate.race === heroRace) ?? heroes[0]
-  const labEntries = useMemo(() => Object.entries(hero?.animations ?? {}), [hero])
+  const actors = useMemo(() => getAnimatedActors(), [])
+  const [actorId, setActorId] = useState(actors[0]?.id)
+  const actor = actors.find((candidate) => candidate.id === actorId) ?? actors[0]
+  const labEntries = useMemo(() => Object.entries(actor?.animations ?? {}), [actor])
   const [animationName, setAnimationName] = useState(labEntries[0]?.[0])
   const [previewRun, setPreviewRun] = useState(0)
   const animation = labEntries.find(([name]) => name === animationName)?.[1] ?? labEntries[0]?.[1]
   const activeName = labEntries.find(([name]) => name === animationName)?.[0] ?? labEntries[0]?.[0]
-  const sheetState = usePreloadedSheet(animation?.sheet, `${hero?.race}-${activeName}-${previewRun}`)
+  const sheetState = usePreloadedSheet(animation?.sheet, `${actor?.id}-${activeName}-${previewRun}`)
 
-  function selectHero(race) {
-    const nextHero = heroes.find((candidate) => candidate.race === race)
-    const nextEntries = Object.entries(nextHero?.animations ?? {})
-    setHeroRace(race)
+  function selectActor(id) {
+    const nextActor = actors.find((candidate) => candidate.id === id)
+    const nextEntries = Object.entries(nextActor?.animations ?? {})
+    setActorId(id)
     setAnimationName(nextEntries[0]?.[0])
     setPreviewRun((run) => run + 1)
   }
@@ -30,7 +31,7 @@ export function FramesPage() {
     setPreviewRun((run) => run + 1)
   }
 
-  if (!hero || !animation) {
+  if (!actor || !animation) {
     return (
       <main className="frames-page">
         <p>No hay animaciones configuradas.</p>
@@ -48,7 +49,7 @@ export function FramesPage() {
         </button>
         <div className="frames-heading">
           <h1>Laboratorio de Frames</h1>
-          <p>{hero.name} · {getAnimationLabel(activeName, animation)}</p>
+          <p>{actor.name} · {getAnimationLabel(activeName, animation)}</p>
         </div>
         <div className="frames-metadata">
           {getMetadataBadges(animation).map((badge) => (
@@ -57,11 +58,11 @@ export function FramesPage() {
         </div>
       </header>
 
-      <section className="frames-character-stage" aria-label={`Vista previa de ${hero.name}`}>
+      <section className="frames-character-stage" aria-label={`Vista previa de ${actor.name}`}>
         <FrameLabPreview
-          key={`${hero.race}-${activeName}-${previewRun}`}
+          key={`${actor.id}-${activeName}-${previewRun}`}
           animation={animation}
-          label={`${hero.name}: ${getAnimationLabel(activeName, animation)}`}
+          label={`${actor.name}: ${getAnimationLabel(activeName, animation)}`}
           sheetState={sheetState}
         />
         <span className="frames-ground-shadow" aria-hidden="true" />
@@ -76,16 +77,17 @@ export function FramesPage() {
 
       <aside className="frames-controls">
         <section>
-          <h2>Héroes</h2>
+          <h2>Personajes</h2>
           <div className="frames-choice-list">
-            {heroes.map((candidate) => (
+            {actors.map((candidate) => (
               <button
-                key={candidate.race}
-                className={candidate.race === hero.race ? 'is-active' : ''}
+                key={candidate.id}
+                className={candidate.id === actor.id ? 'is-active' : ''}
                 type="button"
-                onClick={() => selectHero(candidate.race)}
+                onClick={() => selectActor(candidate.id)}
               >
-                {candidate.name}
+                <strong>{candidate.name}</strong>
+                <small>{candidate.kindLabel}</small>
               </button>
             ))}
           </div>
@@ -117,6 +119,28 @@ export function FramesPage() {
       </section>
     </main>
   )
+}
+
+function getAnimatedActors() {
+  const heroes = HEROES
+    .filter((hero) => hero.animations)
+    .map((hero) => ({
+      id: `hero:${hero.race}`,
+      name: hero.name,
+      kindLabel: 'Héroe',
+      animations: hero.animations
+    }))
+
+  const enemies = Object.values(ENEMIES)
+    .filter((enemy) => enemy.animations)
+    .map((enemy) => ({
+      id: `enemy:${enemy.id}`,
+      name: enemy.name,
+      kindLabel: 'Enemigo',
+      animations: enemy.animations
+    }))
+
+  return [...heroes, ...enemies]
 }
 
 function usePreloadedSheet(path, cacheScope) {
