@@ -90,6 +90,9 @@ export class BattleScene extends Phaser.Scene {
 
     this.createPlayer()
     this.createEnemy(enemyDef)
+    this.visualQueue = []
+    this.visualQueueActive = false
+    this.playerDefeated = false
 
     this.startPlayerIdle()
     this.startEnemyIdle()
@@ -109,6 +112,8 @@ export class BattleScene extends Phaser.Scene {
     this.onBattleEvent = (event) => this.handleEvent(event)
     eventBus.on('battle-event', this.onBattleEvent)
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
+      this.visualQueue = []
+      this.visualQueueActive = false
       eventBus.off('battle-event', this.onBattleEvent)
       this.scale.off(Phaser.Scale.Events.RESIZE, this.onResize)
     })
@@ -241,6 +246,7 @@ export class BattleScene extends Phaser.Scene {
   }
 
   restorePlayerIdle() {
+    if (this.playerDefeated) return
     this.setPlayerAnimation('idle')
     this.playerIdleTween?.resume()
     this.playerSpriteIdleTween?.resume()
@@ -254,6 +260,7 @@ export class BattleScene extends Phaser.Scene {
   }
 
   playPlayerDefeat() {
+    this.playerDefeated = true
     if (!this.setPlayerAnimation('defeat')) return
     this.playerIdleTween?.pause()
     this.playerSpriteIdleTween?.pause()
@@ -282,16 +289,16 @@ export class BattleScene extends Phaser.Scene {
 
     switch (event.kind) {
       case 'playerAttack':
-        this.animatePlayerAttackSequence(event)
+        this.enqueueVisual((done) => this.animatePlayerAttackSequence(event, done))
         break
       case 'enemyAttack':
-        this.animateEnemyAttack(event)
+        this.enqueueVisual((done) => this.animateEnemyAttack(event, done))
         break
       case 'enemyLaugh':
         this.animateEnemyLaugh()
         break
       case 'enemySpawn':
-        this.time.delayedCall(520, () => this.animateEnemySpawn(event))
+        this.enqueueVisual((done) => this.time.delayedCall(260, () => this.animateEnemySpawn(event, done)))
         break
       case 'effect':
         this.animateEffect(event)
@@ -313,14 +320,41 @@ export class BattleScene extends Phaser.Scene {
         screenShake(this, { intensity: 0.015, duration: 400 })
         break
       case 'end':
-        if (event.result === 'defeat' || event.result === 'time_over') {
-          this.playPlayerDefeat()
-          this.time.delayedCall(700, () => this.showEndOverlay(event.text))
-        } else {
-          this.showEndOverlay(event.text)
-        }
+        this.enqueueVisual((done) => this.animateBattleEnd(event, done))
         break
     }
+  }
+
+  enqueueVisual(task) {
+    this.visualQueue.push(task)
+    this.playNextVisual()
+  }
+
+  playNextVisual() {
+    if (this.visualQueueActive || !this.sys?.isActive()) return
+
+    const task = this.visualQueue.shift()
+    if (!task) return
+
+    this.visualQueueActive = true
+    task(() => {
+      this.visualQueueActive = false
+      this.playNextVisual()
+    })
+  }
+
+  animateBattleEnd(event, done = () => {}) {
+    if (event.result === 'defeat' || event.result === 'time_over') {
+      this.playPlayerDefeat()
+      this.time.delayedCall(760, () => {
+        this.showEndOverlay(event.text)
+        done()
+      })
+      return
+    }
+
+    this.showEndOverlay(event.text)
+    done()
   }
 
   createEnemy(enemyDef) {
@@ -455,33 +489,142 @@ export class BattleScene extends Phaser.Scene {
     })
   }
 
-  animateEnemySpawn(event) {
+  animateEnemySpawn(event, done = () => {}) {
+    this.animateDefeatedEnemyExit(() => this.dropNextEnemy(event, done))
+  }
+
+  animateDefeatedEnemyExit(done) {
+    if (!this.enemy) {
+      done()
+      return
+    }
+
+    this.enemyIdleTween?.stop()
+    const defeatedEnemy = this.enemy
+    const defeatedShadow = this.enemyShadow
+    const baseY = defeatedEnemy.getData('baseY') ?? this.groundY
+
+    this.tweens.add({
+      targets: defeatedEnemy,
+      y: baseY + 24,
+      angle: -7,
+      scaleX: 0.9,
+      scaleY: 0.78,
+      alpha: 0,
+      duration: 360,
+      ease: 'Cubic.easeIn',
+      onComplete: () => {
+        defeatedEnemy.destroy()
+        if (defeatedShadow) defeatedShadow.destroy()
+        if (this.enemy === defeatedEnemy) this.enemy = null
+        if (this.enemyShadow === defeatedShadow) this.enemyShadow = null
+        done()
+      }
+    })
+
+    if (defeatedShadow) {
+      this.tweens.add({
+        targets: defeatedShadow,
+        alpha: 0,
+        scaleX: 0.35,
+        scaleY: 0.35,
+        duration: 240,
+        ease: 'Sine.easeIn'
+      })
+    }
+  }
+
+  dropNextEnemy(event, done) {
+    const enemyDef = ENEMIES[event.enemyId]
+    this.createEnemy(enemyDef)
+    const baseX = this.enemy.getData('baseX') ?? this.enemyBaseX
+    const baseY = this.enemy.getData('baseY') ?? this.groundY
+    const fallStartY = Math.min(-72, baseY - this.charMaxHeight - 120)
+
     showFloatingText(this, this.scale.width * 0.5, this.scale.height * 0.24, event.enemyName ?? '¡Nuevo enemigo!', {
       color: '#ffd166',
       fontSize: 20
     })
     this.flash(0x5cb2ff)
-    const enemyDef = ENEMIES[event.enemyId]
-    this.createEnemy(enemyDef)
-    const baseX = this.enemy.getData('baseX') ?? this.enemyBaseX
-    this.enemy.setAlpha(0).setScale(0.92).setX(baseX + 28)
+
+    this.enemy.setAlpha(0).setScale(0.82).setPosition(baseX, fallStartY).setAngle(0)
+    this.enemyShadow?.setAlpha(0).setScale(0.28)
+
     this.tweens.add({
       targets: this.enemy,
       alpha: 1,
       scale: 1,
       x: baseX,
-      duration: 450,
+      y: baseY,
+      duration: 620,
+      ease: 'Bounce.easeOut',
+      onComplete: () => {
+        this.enemy.setPosition(baseX, baseY).setScale(1).setAngle(0)
+        this.enemyShadow?.setAlpha(0.32).setScale(1)
+        this.showLandingDust(baseX, baseY)
+        screenShake(this, { intensity: 0.006, duration: 120 })
+        this.startEnemyIdle()
+        done()
+      }
+    })
+
+    if (this.enemyShadow) {
+      this.tweens.add({
+        targets: this.enemyShadow,
+        alpha: 0.32,
+        scaleX: 1,
+        scaleY: 1,
+        duration: 430,
+        ease: 'Sine.easeOut'
+      })
+    }
+  }
+
+  showLandingDust(x, y) {
+    const dust = this.add.ellipse(x, y + 4, this.charMaxWidth * 0.34, this.charMaxHeight * 0.06, 0xd6e6ff, 0.2).setDepth(6)
+    this.tweens.add({
+      targets: dust,
+      scaleX: 1.8,
+      scaleY: 0.55,
+      alpha: 0,
+      duration: 260,
       ease: 'Sine.easeOut',
-      onComplete: () => this.startEnemyIdle()
+      onComplete: () => dust.destroy()
     })
   }
 
-  animatePlayerAttackSequence(event) {
-    if (this.playerAttackActive) return
+  attackReach() {
+    return Phaser.Math.Clamp(this.charMaxWidth * 0.46, 58, 138)
+  }
+
+  playerStrikeX() {
+    const startX = this.kael.getData('baseX') ?? this.kael.x
+    const targetX = this.enemy.x - this.attackReach()
+    return Math.max(startX + 54, targetX)
+  }
+
+  enemyStrikeX() {
+    const startX = this.enemy.getData('baseX') ?? this.enemy.x
+    const targetX = this.kael.x + this.attackReach()
+    return Math.min(startX - 54, targetX)
+  }
+
+  dashDuration(distance) {
+    return Phaser.Math.Clamp(Math.round(Math.abs(distance) * 0.34), 190, 430)
+  }
+
+  animatePlayerAttackSequence(event, done = () => {}) {
+    if (this.playerAttackActive) {
+      done()
+      return
+    }
     this.playerAttackActive = true
 
     const startX = this.kael.getData('baseX') ?? this.kael.x
     const startY = this.kael.getData('baseY') ?? this.kael.y
+    const strikeX = this.playerStrikeX()
+    const recoilX = Phaser.Math.Linear(strikeX, startX, 0.28)
+    const dashMs = this.dashDuration(strikeX - startX)
     this.playerIdleTween?.pause()
     this.playerSpriteIdleTween?.pause()
 
@@ -499,6 +642,7 @@ export class BattleScene extends Phaser.Scene {
       this.playerIdleTween?.resume()
       this.playerSpriteIdleTween?.resume()
       this.playerAttackActive = false
+      done()
     }
 
     const applyHit = () => {
@@ -535,23 +679,23 @@ export class BattleScene extends Phaser.Scene {
       onComplete: () => {
         this.tweens.add({
           targets: this.kael,
-          x: startX + 108,
-          y: startY - 2,
+          x: strikeX,
+          y: startY - 8,
           angle: 13,
           scaleX: 1.13,
           scaleY: 0.94,
-          duration: 145,
+          duration: dashMs,
           ease: 'Cubic.easeIn',
           onComplete: () => {
             applyHit()
             this.tweens.add({
               targets: this.kael,
-              x: startX + 34,
+              x: recoilX,
               y: startY,
               angle: 2,
               scaleX: 1.03,
               scaleY: 1,
-              duration: 90,
+              duration: 110,
               ease: 'Sine.easeOut',
               onComplete: () => {
                 this.tweens.add({
@@ -561,7 +705,7 @@ export class BattleScene extends Phaser.Scene {
                   angle: 0,
                   scaleX: 1,
                   scaleY: 1,
-                  duration: 170,
+                  duration: this.dashDuration(recoilX - startX),
                   ease: 'Back.easeOut',
                   onComplete: finishAttack
                 })
@@ -613,16 +757,69 @@ export class BattleScene extends Phaser.Scene {
     })
   }
 
-  animateEnemyAttack(event) {
+  animateEnemyAttack(event, done = () => {}) {
     const startX = this.enemy.getData('baseX') ?? this.enemy.x
+    const startY = this.enemy.getData('baseY') ?? this.enemy.y
+    const strikeX = this.enemyStrikeX()
+    const recoilX = Phaser.Math.Linear(strikeX, startX, 0.24)
+    const dashMs = this.dashDuration(startX - strikeX)
+    this.enemyIdleTween?.pause()
+
     this.tweens.add({
       targets: this.enemy,
-      x: startX - 54,
-      angle: 3,
-      duration: 170,
-      yoyo: true,
-      ease: 'Power2',
-      onYoyo: () => {
+      x: startX + 18,
+      y: startY - 6,
+      angle: 4,
+      scaleX: 0.98,
+      scaleY: 1.03,
+      duration: 120,
+      ease: 'Sine.easeOut',
+      onComplete: () => {
+        this.tweens.add({
+          targets: this.enemy,
+          x: strikeX,
+          y: startY - 4,
+          angle: -8,
+          scaleX: 1.12,
+          scaleY: 0.94,
+          duration: dashMs,
+          ease: 'Cubic.easeIn',
+          onComplete: () => {
+            this.applyEnemyHit(event)
+            this.tweens.add({
+              targets: this.enemy,
+              x: recoilX,
+              y: startY,
+              angle: -2,
+              scaleX: 1.04,
+              scaleY: 1,
+              duration: 100,
+              ease: 'Sine.easeOut',
+              onComplete: () => {
+                this.tweens.add({
+                  targets: this.enemy,
+                  x: startX,
+                  y: startY,
+                  angle: 0,
+                  scaleX: 1,
+                  scaleY: 1,
+                  duration: this.dashDuration(startX - recoilX),
+                  ease: 'Back.easeOut',
+                  onComplete: () => {
+                    this.enemy.setPosition(startX, startY).setAngle(0).setScale(1)
+                    this.enemyIdleTween?.resume()
+                    done()
+                  }
+                })
+              }
+            })
+          }
+        })
+      }
+    })
+  }
+
+  applyEnemyHit(event) {
         const blocked = event.amount === 0
         showFloatingText(this, this.kael.x, this.kael.y - 90, blocked ? 'BLOQUEADO' : `-${event.amount}`, {
           color: blocked ? '#66aaff' : '#ff5555'
@@ -632,12 +829,6 @@ export class BattleScene extends Phaser.Scene {
           this.hitCharacter(this.kael, -1)
           screenShake(this, { intensity: 0.006, duration: 150 })
         }
-      },
-      onComplete: () => {
-        this.enemy.x = startX
-        this.enemy.angle = 0
-      }
-    })
   }
 
   animateEnemyLaugh() {

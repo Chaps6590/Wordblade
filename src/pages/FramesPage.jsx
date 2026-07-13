@@ -202,6 +202,7 @@ function FrameLabPreview({ animation, label, sheetState }) {
     )
   }
 
+  const frames = step.animation.frames ?? 1
   const style = {
     '--preview-aspect': step.animation.frameWidth / step.animation.frameHeight
   }
@@ -214,7 +215,15 @@ function FrameLabPreview({ animation, label, sheetState }) {
       role="img"
       aria-label={`${label}, ${step.label}, frame ${step.frame + 1} de ${frames}`}
     >
-      <span />
+      <span className="frames-sprite-viewport" aria-hidden="true">
+        <img
+          className="frames-sprite-sheet"
+          src={sheetState.url}
+          alt=""
+          draggable="false"
+          style={spriteStyle}
+        />
+      </span>
       <strong className="frames-live-counter">
         {step.label} {step.frame + 1}/{frames}
       </strong>

@@ -261,10 +261,28 @@ export function tickTime(state) {
   state.timeLeft = Math.max(0, state.timeLeft - 1)
   const events = []
   if (state.timeLeft === 0) {
-    checkBattleEnd(state, events)
+    attackPlayerOnTimeOver(state, events)
     appendLogs(state, events)
   }
   return events
+}
+
+function attackPlayerOnTimeOver(state, events) {
+  const enemyDef = getEnemyDef(state.enemy.id)
+  const phase = getActivePhase(enemyDef, state.enemy)
+  const damage = state.player.shield + Math.max(1, state.player.hp, phase.attack)
+  const absorbed = Math.min(state.player.shield, damage)
+  const dealt = Math.max(0, Math.min(state.player.hp, damage - absorbed))
+
+  state.player.shield = Math.max(0, state.player.shield - absorbed)
+  state.player.hp = 0
+  state.status = 'time_over'
+
+  let text = `${state.enemy.name} aprovechó el final del tiempo y golpeó a ${state.player.name}.`
+  if (absorbed > 0) text += ` El escudo absorbió ${absorbed}.`
+
+  events.push({ kind: 'enemyAttack', amount: dealt, absorbed, finalBlow: true, text })
+  events.push({ kind: 'end', result: 'time_over', afterEnemyAttack: true, text: 'Se acabó el tiempo. Derrota.' })
 }
 
 function appendLogs(state, events) {

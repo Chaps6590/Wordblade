@@ -79,7 +79,12 @@ export function checkBattleEnd(state, events) {
   }
   if (state.player.hp <= 0) {
     state.status = 'defeat'
-    events.push({ kind: 'end', result: 'defeat', text: `${state.player.name} cayó en combate...` })
+    events.push({
+      kind: 'end',
+      result: 'defeat',
+      afterEnemyAttack: events.at(-1)?.kind === 'enemyAttack',
+      text: `${state.player.name} cayó en combate...`
+    })
     return true
   }
   if (state.timeLeft <= 0) {
