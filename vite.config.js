@@ -7,12 +7,24 @@ import { readFileSync } from 'node:fs'
 const packageJson = JSON.parse(readFileSync(new URL('./package.json', import.meta.url), 'utf8'))
 
 function getCommitHash() {
-  const environmentCommit =
+  const environmentCommit = [
     process.env.VITE_GIT_COMMIT_SHA ||
-    process.env.GIT_COMMIT_SHA ||
-    process.env.SOURCE_COMMIT ||
-    process.env.RAILWAY_GIT_COMMIT_SHA ||
-    process.env.COOLIFY_GIT_COMMIT_SHA
+      process.env.VITE_COMMIT_SHA ||
+      process.env.GIT_COMMIT_SHA ||
+      process.env.GIT_COMMIT ||
+      process.env.COMMIT_SHA ||
+      process.env.SOURCE_COMMIT ||
+      process.env.SOURCE_VERSION ||
+      process.env.RAILWAY_GIT_COMMIT_SHA ||
+      process.env.COOLIFY_GIT_COMMIT_SHA ||
+      process.env.DOKPLOY_GIT_COMMIT_SHA ||
+      process.env.DOKPLOY_COMMIT_SHA ||
+      process.env.VERCEL_GIT_COMMIT_SHA ||
+      process.env.CF_PAGES_COMMIT_SHA ||
+      process.env.RENDER_GIT_COMMIT
+  ]
+    .map((value) => String(value ?? '').trim())
+    .find((value) => value && value !== 'null' && value !== 'undefined')
 
   if (environmentCommit) return environmentCommit.slice(0, 7)
 
