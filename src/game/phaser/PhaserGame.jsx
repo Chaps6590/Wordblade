@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Phaser from 'phaser'
 import { BootScene } from './scenes/BootScene.js'
 import { BattleScene } from './scenes/BattleScene.js'
@@ -6,12 +6,14 @@ import { BattleScene } from './scenes/BattleScene.js'
 // Monta el canvas de Phaser dentro de React.
 // Phaser solo renderiza y anima: el estado vive en useBattleStore.
 
-export function PhaserGame({ scenarioId, heroRace = 'LOBO', opponentHeroRace = 'LOBO', battleMode = 'adventure' }) {
+export function PhaserGame({ scenarioId, heroRace = 'LOBO', opponentHeroRace = 'LOBO', battleMode = 'adventure', loadingText = 'Forjando arena...' }) {
   const containerRef = useRef(null)
   const gameRef = useRef(null)
+  const [ready, setReady] = useState(false)
 
   useEffect(() => {
     const container = containerRef.current
+    setReady(false)
 
     if (gameRef.current) {
       gameRef.current.destroy(true)
@@ -38,6 +40,7 @@ export function PhaserGame({ scenarioId, heroRace = 'LOBO', opponentHeroRace = '
           bootingGame.wordbladeHeroRace = heroRace
           bootingGame.wordbladeOpponentHeroRace = opponentHeroRace
           bootingGame.wordbladeBattleMode = battleMode
+          bootingGame.wordbladeOnReady = () => setReady(true)
         }
       },
       scene: [BootScene, BattleScene]
@@ -51,5 +54,16 @@ export function PhaserGame({ scenarioId, heroRace = 'LOBO', opponentHeroRace = '
     }
   }, [scenarioId, heroRace, opponentHeroRace, battleMode])
 
-  return <div ref={containerRef} className="phaser-container" />
+  return (
+    <div className={`phaser-shell ${ready ? 'is-ready' : 'is-loading'}`}>
+      <div ref={containerRef} className="phaser-container" />
+      {!ready && (
+        <div className="battle-loader battle-loader--canvas" role="status" aria-live="polite">
+          <div className="battle-loader__sigil" aria-hidden="true" />
+          <p>{loadingText}</p>
+          <div className="battle-loader__bar" aria-hidden="true"><span /></div>
+        </div>
+      )}
+    </div>
+  )
 }

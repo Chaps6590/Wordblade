@@ -159,7 +159,10 @@ export class BattleScene extends Phaser.Scene {
     // create(): reacomodamos en el próximo tick (y una vez más por las dudas)
     // para que los personajes tomen el tamaño real y no queden invisibles.
     this.time.delayedCall(0, () => this.relayout())
-    this.time.delayedCall(150, () => this.relayout())
+    this.time.delayedCall(150, () => {
+      this.relayout()
+      this.game.wordbladeOnReady?.()
+    })
 
     // Escuchar eventos del motor
     this.onBattleEvent = (event) => this.handleEvent(event)

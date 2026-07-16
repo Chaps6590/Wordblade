@@ -8,7 +8,7 @@ const ASSET_VERSION = import.meta.env.VITE_APP_COMMIT || 'dev'
 
 export function FramesPage() {
   const navigate = useNavigate()
-  const actors = useMemo(() => getAnimatedActors(), [])
+  const actors = getAnimatedActors()
   const [actorId, setActorId] = useState(actors[0]?.id)
   const actor = actors.find((candidate) => candidate.id === actorId) ?? actors[0]
   const labEntries = useMemo(() => Object.entries(actor?.animations ?? {}), [actor])
@@ -58,7 +58,10 @@ export function FramesPage() {
         </div>
       </header>
 
-      <section className="frames-character-stage" aria-label={`Vista previa de ${actor.name}`}>
+      <section
+        className={`frames-character-stage frames-character-stage--${actor.kind}`}
+        aria-label={`Vista previa de ${actor.name}`}
+      >
         <FrameLabPreview
           key={`${actor.id}-${activeName}-${previewRun}`}
           animation={animation}
@@ -127,7 +130,8 @@ function getAnimatedActors() {
     .map((hero) => ({
       id: `hero:${hero.race}`,
       name: hero.name,
-      kindLabel: 'Héroe',
+      kind: 'hero',
+      kindLabel: `Héroe · ${hero.raceLabel}`,
       animations: hero.animations
     }))
 
@@ -136,6 +140,7 @@ function getAnimatedActors() {
     .map((enemy) => ({
       id: `enemy:${enemy.id}`,
       name: enemy.name,
+      kind: 'enemy',
       kindLabel: 'Enemigo',
       animations: enemy.animations
     }))

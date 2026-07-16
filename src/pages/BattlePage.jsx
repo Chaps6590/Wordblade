@@ -12,6 +12,7 @@ import { CollapsibleBattlePanel } from '../components/CollapsibleBattlePanel.jsx
 import { eventBus } from '../game/phaser/eventBus.js'
 import { useAuth } from '../auth/useAuth.js'
 import { buildLetterPower } from '../game/core/letterPowerColors.js'
+import { HERO_BY_RACE } from '../game/data/heroes.js'
 
 export function BattlePage() {
   const { scenarioId } = useParams()
@@ -58,10 +59,18 @@ export function BattlePage() {
 
   if (!battle || !scenario || battle.scenarioId !== scenarioId) {
     return (
-      <div className="page battle-page battle-page--adventure">
+      <div
+        className="page battle-page battle-page--adventure"
+        style={{ '--battle-bg': `url(${scenario?.backgroundImage ?? '/backgrounds/scenarios/forest-easy.png'})` }}
+      >
         <div className="battle-background" aria-hidden="true" />
         <div className="battle-lighting" aria-hidden="true" />
-        <p className="console-status">♻ Generando letras con palabras reales...</p>
+        <BattleLoadingScreen
+          scenario={scenario}
+          heroRace={player?.race ?? 'LOBO'}
+          message="Preparando duelo..."
+          detail="Generando letras reales, cargando escenario y despertando animaciones."
+        />
       </div>
     )
   }
@@ -109,7 +118,11 @@ export function BattlePage() {
       <TopHud battle={battle} scenario={scenario} heroRace={player?.race ?? 'LOBO'} />
 
       <div className="battle-stage">
-        <PhaserGame scenarioId={scenarioId} heroRace={player?.race ?? 'LOBO'} />
+        <PhaserGame
+          scenarioId={scenarioId}
+          heroRace={player?.race ?? 'LOBO'}
+          loadingText="Cargando héroe, enemigo y escenario..."
+        />
       </div>
 
       <CurrentWordDisplay
@@ -157,5 +170,28 @@ export function BattlePage() {
         ← Abandonar batalla
       </button>
     </div>
+  )
+}
+
+function BattleLoadingScreen({ scenario, heroRace, message, detail }) {
+  const hero = HERO_BY_RACE[heroRace] ?? HERO_BY_RACE.LOBO
+
+  return (
+    <section className="battle-loader battle-loader--full" role="status" aria-live="polite">
+      <div className="battle-loader__crest">
+        <img className="battle-loader__icon" src="/brand/wordblade-icon.png" alt="" aria-hidden="true" />
+        <img className="battle-loader__wordmark" src="/brand/wordblade-text.png" alt="Wordblade" />
+      </div>
+      <div className="battle-loader__duel">
+        <img src={hero.portrait} alt="" aria-hidden="true" />
+        <div className="battle-loader__sigil" aria-hidden="true" />
+      </div>
+      <div className="battle-loader__copy">
+        <strong>{message}</strong>
+        <span>{scenario?.name ?? 'Aventura'}</span>
+        <p>{detail}</p>
+      </div>
+      <div className="battle-loader__bar" aria-hidden="true"><span /></div>
+    </section>
   )
 }

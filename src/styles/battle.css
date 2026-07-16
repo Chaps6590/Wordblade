@@ -416,6 +416,13 @@
   pointer-events: none;
 }
 
+.phaser-shell {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
 .phaser-container {
   position: absolute;
   inset: 0;
@@ -432,6 +439,157 @@
      estiraba/recortaba la escena en contenedores muy bajos o anchos. */
   display: block;
   pointer-events: none;
+}
+
+.battle-loader {
+  z-index: var(--battle-z-modal);
+  display: grid;
+  place-items: center;
+  text-align: center;
+  color: #f8eed1;
+  pointer-events: none;
+}
+
+.battle-loader--full {
+  position: absolute;
+  inset: 0;
+  align-content: center;
+  gap: var(--game-space-4);
+  padding: var(--game-safe-top) var(--game-safe-right) var(--game-safe-bottom) var(--game-safe-left);
+  background:
+    radial-gradient(circle at 50% 42%, rgba(216, 166, 62, 0.15), transparent 34%),
+    radial-gradient(circle at 50% 52%, rgba(92, 178, 255, 0.12), transparent 42%),
+    linear-gradient(180deg, rgba(2, 6, 14, 0.18), rgba(2, 6, 14, 0.84));
+}
+
+.battle-loader--canvas {
+  position: absolute;
+  inset: 0;
+  gap: var(--game-space-2);
+  background:
+    radial-gradient(circle at 50% 54%, rgba(12, 18, 38, 0.54), transparent 38%),
+    linear-gradient(180deg, rgba(2, 6, 14, 0.1), rgba(2, 6, 14, 0.42));
+}
+
+.battle-loader__crest {
+  display: grid;
+  justify-items: center;
+  gap: var(--game-space-2);
+}
+
+.battle-loader__icon {
+  width: clamp(58px, 9vw, 88px);
+  filter: drop-shadow(0 16px 24px rgba(0, 0, 0, 0.48));
+}
+
+.battle-loader__wordmark {
+  width: min(62vw, 360px);
+  max-height: 86px;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.56));
+}
+
+.battle-loader__duel {
+  position: relative;
+  width: clamp(132px, 20vw, 210px);
+  aspect-ratio: 1;
+  display: grid;
+  place-items: end center;
+}
+
+.battle-loader__duel img {
+  position: relative;
+  z-index: 2;
+  width: 92%;
+  height: 92%;
+  object-fit: contain;
+  object-position: center bottom;
+  filter: drop-shadow(0 18px 24px rgba(0, 0, 0, 0.56));
+  animation: loaderHeroReady 1.6s ease-in-out infinite;
+}
+
+.battle-loader__sigil {
+  width: clamp(46px, 7vw, 72px);
+  aspect-ratio: 1;
+  border: 2px solid rgba(255, 209, 102, 0.42);
+  border-radius: 50%;
+  background:
+    conic-gradient(from 0deg, transparent 0 22%, rgba(92, 178, 255, 0.82) 24% 31%, transparent 33% 58%, rgba(216, 166, 62, 0.88) 60% 68%, transparent 70%),
+    radial-gradient(circle, rgba(255, 209, 102, 0.2), rgba(92, 178, 255, 0.06) 48%, transparent 52%);
+  box-shadow: 0 0 24px rgba(92, 178, 255, 0.28), inset 0 0 18px rgba(255, 209, 102, 0.14);
+  animation: loaderSigilSpin 1.35s linear infinite;
+}
+
+.battle-loader__duel .battle-loader__sigil {
+  position: absolute;
+  z-index: 1;
+  inset: auto 50% 2%;
+  width: 82%;
+  transform: translateX(50%) rotateX(68deg);
+  animation: loaderGroundSigil 1.8s linear infinite;
+}
+
+.battle-loader__copy {
+  display: grid;
+  justify-items: center;
+  gap: var(--game-space-1);
+  width: min(88vw, 520px);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.72);
+}
+
+.battle-loader__copy strong {
+  color: #fff2bf;
+  font-size: clamp(1.15rem, 2vw, 1.75rem);
+  text-transform: uppercase;
+}
+
+.battle-loader__copy span {
+  color: #7dd8ff;
+  font-weight: 800;
+}
+
+.battle-loader__copy p,
+.battle-loader--canvas p {
+  margin: 0;
+  color: rgba(248, 238, 209, 0.78);
+  font-size: var(--game-text-sm);
+}
+
+.battle-loader__bar {
+  width: min(72vw, 360px);
+  height: 8px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 209, 102, 0.3);
+  border-radius: 999px;
+  background: rgba(3, 7, 18, 0.72);
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.7), 0 0 18px rgba(92, 178, 255, 0.12);
+}
+
+.battle-loader__bar span {
+  display: block;
+  width: 42%;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #5cb2ff, #ffd166, #ff6a35);
+  animation: loaderBarSweep 1.15s ease-in-out infinite;
+}
+
+@keyframes loaderHeroReady {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-5px) scale(1.02); }
+}
+
+@keyframes loaderSigilSpin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes loaderGroundSigil {
+  to { transform: translateX(50%) rotateX(68deg) rotate(360deg); }
+}
+
+@keyframes loaderBarSweep {
+  0% { transform: translateX(-105%); }
+  55%, 100% { transform: translateX(245%); }
 }
 
 /* Consola inferior: palabra compacta + tablero 4x4 */
@@ -1286,7 +1444,10 @@
 @media (prefers-reduced-motion: reduce) {
   .attack-btn:not(:disabled),
   .word-board-value,
-  .console-status { animation: none; }
+  .console-status,
+  .battle-loader__duel img,
+  .battle-loader__sigil,
+  .battle-loader__bar span { animation: none; }
 }
 
 /* Estructura de aventura en "overlay": el escenario (personajes de Phaser)
@@ -1351,6 +1512,7 @@
   pointer-events: none;
 }
 
+.battle-page--adventure .phaser-shell,
 .battle-page--adventure .phaser-container {
   position: absolute;
   inset: 0;
@@ -1958,6 +2120,7 @@
   pointer-events: none;
 }
 
+.duel-arena .phaser-shell,
 .duel-arena .phaser-container {
   position: absolute;
   inset: 0;

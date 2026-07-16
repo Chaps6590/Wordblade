@@ -2455,6 +2455,13 @@
   filter: drop-shadow(0 16px 12px rgba(0, 0, 0, 0.62));
 }
 
+.frames-character-stage--enemy .frames-animation-preview {
+  left: 50%;
+  bottom: 8%;
+  width: min(34vw, 360px);
+  max-width: min(62%, 420px);
+}
+
 .frames-sprite-viewport {
   position: absolute;
   inset: 0;
@@ -2510,6 +2517,11 @@
   transform: translateX(-50%);
 }
 
+.frames-character-stage--enemy .frames-ground-shadow {
+  left: 50%;
+  bottom: 7%;
+}
+
 .frames-replay {
   position: absolute;
   z-index: 4;
@@ -2523,6 +2535,10 @@
   color: #ffd166;
   font-size: var(--game-text-xs);
   white-space: nowrap;
+}
+
+.frames-character-stage--enemy .frames-replay {
+  left: 50%;
 }
 
 .frames-live-counter {
@@ -2697,9 +2713,19 @@
     width: min(27vw, 210px);
   }
 
+  .frames-character-stage--enemy .frames-animation-preview {
+    left: 50%;
+    bottom: 2%;
+    width: min(32vw, 240px);
+  }
+
   .frames-ground-shadow {
     left: 21%;
     bottom: 0;
+  }
+
+  .frames-character-stage--enemy .frames-ground-shadow {
+    left: 50%;
   }
 
   .frames-replay {
@@ -2707,6 +2733,10 @@
     min-height: 28px;
     padding: 0.16rem 0.4rem;
     font-size: 0.58rem;
+  }
+
+  .frames-character-stage--enemy .frames-replay {
+    left: 50%;
   }
 
   .frames-controls {

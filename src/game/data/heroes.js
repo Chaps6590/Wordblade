@@ -167,6 +167,15 @@ export const HEROES = [
         frameRate: 14,
         repeat: 0
       },
+      hit: {
+        label: 'Herido',
+        sheet: '/characters/heroes/aeryn/animations/hit.png',
+        frameWidth: 512,
+        frameHeight: 512,
+        frames: 6,
+        frameRate: 12,
+        repeat: 0
+      },
       defeat: {
         sheet: '/characters/heroes/aeryn/animations/defeat.png',
         frameWidth: 512,
@@ -179,7 +188,7 @@ export const HEROES = [
     },
     description: 'Visión táctica, dominio del viento y alcance letal.',
     accent: '#d8a63e',
-    artScale: 1.18
+    artScale: 1.06
   }
 ]
 
