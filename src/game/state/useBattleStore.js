@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { createBattleState, playWord, tickTime, swapLetterRack } from '../core/battleEngine.js'
+import { createBattleState, playWord, tickTime, swapLetterRack, punishClearWord } from '../core/battleEngine.js'
 import { validateWordHybrid } from '../core/wordValidator.js'
 import { eventBus } from '../phaser/eventBus.js'
 import { getScenario } from '../data/scenarios.js'
@@ -113,6 +113,19 @@ export const useBattleStore = create((set, get) => ({
     const events = swapLetterRack(draft, words)
     set({ battle: draft, pending: null, validating: false })
     logBattleDebug(draft, 'Cambio de letras')
+
+    for (const event of events) {
+      eventBus.emit('battle-event', event)
+    }
+  },
+
+  punishClear: () => {
+    const current = get().battle
+    if (!current || current.status !== 'playing' || get().pending) return
+
+    const draft = structuredClone(current)
+    const events = punishClearWord(draft)
+    set({ battle: draft })
 
     for (const event of events) {
       eventBus.emit('battle-event', event)

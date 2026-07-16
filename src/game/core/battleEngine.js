@@ -18,6 +18,14 @@ const DEFAULT_CHALLENGES = {
 }
 const HIDDEN_WORD_BONUS = 35
 const STATUS_LABELS = { bleed: 'sangrado', poison: 'veneno', burn: 'quemadura' }
+const CLEAR_TAUNTS = [
+  '¡Ja, ja, ja! Burro.',
+  '¡Ja, ja, ja! Soquete.',
+  '¡Ja, ja, ja! Analfabeto.',
+  '¡Ja, ja, ja! Te comió el diccionario.',
+  '¡Ja, ja, ja! Ni una sílaba te salió.',
+  '¡Ja, ja, ja! Volvé a primer grado.'
+]
 
 function pickChallenges(scenario, challengeWords) {
   const validChallenges = challengeWords
@@ -31,6 +39,10 @@ function pickChallenges(scenario, challengeWords) {
 function generationStrategy(scenario) {
   if (scenario.supportWordLength) return `${scenario.hiddenWordLength}_plus_${scenario.supportWordLength}`
   return `${scenario.hiddenWordLength}_plus_extra`
+}
+
+function pickRandom(items) {
+  return items[Math.floor(Math.random() * items.length)]
 }
 
 export function createBattleState(scenarioId, challengeWords = [], playerProfile = {}) {
@@ -160,6 +172,29 @@ export function swapLetterRack(state, newChallengeWords) {
 
   if (!checkBattleEnd(state, events)) {
     runEnemyPhase(state, events, { lastWordLength: null, wasInvalid: false })
+    checkBattleEnd(state, events)
+  }
+
+  if (state.status === 'playing') {
+    advanceTurn(state)
+  }
+
+  appendLogs(state, events)
+  return events
+}
+
+export function punishClearWord(state) {
+  if (state.status !== 'playing') return []
+
+  const events = [
+    { kind: 'info', text: `${state.player.name} borró la palabra y bajó la guardia.` }
+  ]
+
+  if (!checkBattleEnd(state, events)) {
+    runEnemyPhase(state, events, { lastWordLength: null, wasInvalid: true })
+    if (state.status === 'playing') {
+      events.push({ kind: 'enemyLaugh', text: pickRandom(CLEAR_TAUNTS) })
+    }
     checkBattleEnd(state, events)
   }
 

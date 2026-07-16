@@ -76,19 +76,11 @@ export const HEROES = [
     raceLabel: 'Sabios Tigre',
     name: 'Rhygar',
     title: 'Duelista de la garra escarlata',
-    portrait: '/characters/heroes/rakan-filo-rojo.png',
-    description: 'Ataques veloces, presión constante y furia precisa.',
-    accent: '#ff6a35'
-  },
-  {
-    race: 'AGUILA',
-    raceLabel: 'Sabios Águila',
-    name: 'Aeryn',
-    title: 'Lancero del cielo rúnico',
-    portrait: '/characters/heroes/aelar-alacero.png',
+    portrait: '/characters/heroes/rhygar.png',
     animations: {
       idle: {
-        sheet: '/characters/heroes/aelar-alacero/animations/idle-guard.png',
+        label: 'Idle guardia',
+        sheet: '/characters/heroes/rhygar/animations/idle-guard.png',
         frameWidth: 512,
         frameHeight: 512,
         frames: 6,
@@ -96,17 +88,79 @@ export const HEROES = [
         repeat: -1,
         yoyo: true
       },
-      idleWingReady: {
-        sheet: '/characters/heroes/aelar-alacero/animations/idle-wing-ready.png',
+      attack: {
+        label: 'Salto y ataque',
+        sheet: '/characters/heroes/rhygar/animations/attack-leap-slash.png',
+        frameWidth: 512,
+        frameHeight: 512,
+        frames: 6,
+        frameRate: 14,
+        repeat: 0
+      },
+      hit: {
+        label: 'Herido',
+        sheet: '/characters/heroes/rhygar/animations/hit.png',
+        frameWidth: 512,
+        frameHeight: 512,
+        frames: 6,
+        frameRate: 12,
+        repeat: 0
+      },
+      defeat: {
+        label: 'Derrotado',
+        sheet: '/characters/heroes/rhygar/animations/defeat.png',
         frameWidth: 512,
         frameHeight: 512,
         frames: 6,
         frameRate: 8,
+        repeat: 0,
+        holdLastFrame: true
+      },
+      victory: {
+        label: 'Victoria',
+        sheet: '/characters/heroes/rhygar/animations/victory.png',
+        frameWidth: 512,
+        frameHeight: 512,
+        frames: 6,
+        frameRate: 9,
+        repeat: -1,
+        yoyo: true
+      }
+    },
+    description: 'Ataques veloces, presión constante y furia precisa.',
+    accent: '#ff6a35',
+    artScale: 1.12
+  },
+  {
+    race: 'AGUILA',
+    raceLabel: 'Sabios Águila',
+    name: 'Aeryn',
+    title: 'Lancero del cielo rúnico',
+    portrait: '/characters/heroes/aeryn.png',
+    animations: {
+      idle: {
+        label: 'Idle base',
+        sheet: '/characters/heroes/aeryn/animations/idle-base.png',
+        frameWidth: 512,
+        frameHeight: 512,
+        frames: 6,
+        frameRate: 7,
+        repeat: -1,
+        yoyo: true
+      },
+      idleCasual: {
+        label: 'Idle casual',
+        sheet: '/characters/heroes/aeryn/animations/idle-casual.png',
+        frameWidth: 512,
+        frameHeight: 512,
+        frames: 6,
+        frameRate: 7,
         repeat: -1,
         yoyo: true
       },
       attack: {
-        sheet: '/characters/heroes/aelar-alacero/animations/attack-lunge.png',
+        label: 'Ataque vuelo',
+        sheet: '/characters/heroes/aeryn/animations/attack-flight-lunge.png',
         frameWidth: 512,
         frameHeight: 512,
         frames: 6,
@@ -114,7 +168,7 @@ export const HEROES = [
         repeat: 0
       },
       defeat: {
-        sheet: '/characters/heroes/aelar-alacero/animations/defeat.png',
+        sheet: '/characters/heroes/aeryn/animations/defeat.png',
         frameWidth: 512,
         frameHeight: 512,
         frames: 6,

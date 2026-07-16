@@ -428,7 +428,7 @@ export class BattleScene extends Phaser.Scene {
         this.enqueueVisual((done) => this.animateEnemyAttack(event, done))
         break
       case 'enemyLaugh':
-        this.animateEnemyLaugh()
+        this.enqueueVisual((done) => this.animateEnemyLaugh(event, done))
         break
       case 'enemySpawn':
         this.enqueueVisual((done) => this.time.delayedCall(260, () => this.animateEnemySpawn(event, done)))
@@ -1024,8 +1024,8 @@ export class BattleScene extends Phaser.Scene {
         }
   }
 
-  animateEnemyLaugh() {
-    showFloatingText(this, this.enemy.x, this.enemy.y - 75, '¡JA, JA, JA!', {
+  animateEnemyLaugh(event = {}, done = () => {}) {
+    showFloatingText(this, this.enemy.x, this.enemy.y - 75, event.text ?? '¡JA, JA, JA!', {
       color: '#ffd166',
       fontSize: 22
     })
@@ -1041,6 +1041,7 @@ export class BattleScene extends Phaser.Scene {
       onComplete: () => {
         this.enemy.setAngle(0)
         this.enemy.setScale(1)
+        done()
       }
     })
   }

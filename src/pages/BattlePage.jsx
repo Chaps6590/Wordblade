@@ -25,6 +25,7 @@ export function BattlePage() {
   const validating = useBattleStore((s) => s.validating)
   const pending = useBattleStore((s) => s.pending)
   const tick = useBattleStore((s) => s.tick)
+  const punishClear = useBattleStore((s) => s.punishClear)
 
   const [word, setWord] = useState('')
   const [selectedTileIds, setSelectedTileIds] = useState([])
@@ -94,7 +95,7 @@ export function BattlePage() {
     setWord('')
     setSelectedTileIds([])
     eventBus.emit('battle-event', { kind: 'playerAura', power: null })
-    eventBus.emit('battle-event', { kind: 'enemyLaugh' })
+    punishClear()
   }
 
   return (
