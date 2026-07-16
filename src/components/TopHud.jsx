@@ -5,7 +5,7 @@ import { HERO_BY_RACE } from '../game/data/heroes.js'
 
 const EMPTY_STATUS_SLOTS = 3
 
-export function TopHud({ battle, scenario, heroRace = 'LOBO' }) {
+export function TopHud({ battle, scenario, heroRace = 'LOBO', onExit }) {
   const hero = HERO_BY_RACE[heroRace] ?? HERO_BY_RACE.LOBO
   const enemyDef = ENEMIES[battle.enemy.id]
   const playerLevel = battle.player.level ?? scenario.wordDifficulty
@@ -23,6 +23,7 @@ export function TopHud({ battle, scenario, heroRace = 'LOBO' }) {
         encounterLabel={battle.encounterLabel}
         turn={battle.turn}
         timeLeft={battle.timeLeft}
+        onExit={onExit}
       />
       <EnemyHud
         enemy={battle.enemy}
@@ -89,7 +90,7 @@ function EnemyHud({ enemy, enemyDef, level }) {
   )
 }
 
-function CenterHud({ scenario, encounterLabel, turn, timeLeft }) {
+function CenterHud({ scenario, encounterLabel, turn, timeLeft, onExit }) {
   return (
     <section className="center-hud" aria-label="Tiempo y escenario">
       <div className="timer-frame">
@@ -100,6 +101,18 @@ function CenterHud({ scenario, encounterLabel, turn, timeLeft }) {
         subtitle={encounterLabel}
       />
       <span className="round-slot">Turno {turn}</span>
+      {onExit ? (
+        <button
+          type="button"
+          className="battle-exit-btn"
+          onClick={onExit}
+          aria-label="Abandonar batalla y volver al menu"
+          title="Abandonar batalla"
+        >
+          <span aria-hidden="true">←</span>
+          Salir
+        </button>
+      ) : null}
     </section>
   )
 }

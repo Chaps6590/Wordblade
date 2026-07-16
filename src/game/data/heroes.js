@@ -69,7 +69,8 @@ export const HEROES = [
     },
     description: 'Defensa firme, mirada fría y golpes seguros.',
     accent: '#5cb2ff',
-    artScale: 1.18
+    artScale: 1.18,
+    battleScale: 1
   },
   {
     race: 'TIGRE',
@@ -129,7 +130,8 @@ export const HEROES = [
     },
     description: 'Ataques veloces, presión constante y furia precisa.',
     accent: '#ff6a35',
-    artScale: 1.12
+    artScale: 1.12,
+    battleScale: 1.1
   },
   {
     race: 'AGUILA',
@@ -177,6 +179,7 @@ export const HEROES = [
         repeat: 0
       },
       defeat: {
+        label: 'Derrota',
         sheet: '/characters/heroes/aeryn/animations/defeat.png',
         frameWidth: 512,
         frameHeight: 512,
@@ -188,7 +191,8 @@ export const HEROES = [
     },
     description: 'Visión táctica, dominio del viento y alcance letal.',
     accent: '#d8a63e',
-    artScale: 1.06
+    artScale: 1.06,
+    battleScale: 1.04
   }
 ]
 

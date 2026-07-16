@@ -65,6 +65,7 @@ function heroAsOpponentDef(hero) {
     race: hero.race,
     spriteImage: hero.portrait,
     animations: hero.animations ?? {},
+    battleScale: hero.battleScale ?? 1,
     spriteScale: { offsetY: 0 },
     isHeroOpponent: true
   }
@@ -207,7 +208,8 @@ export class BattleScene extends Phaser.Scene {
       this.kael.setData('baseX', this.playerBaseX)
       this.kael.setData('baseY', this.groundY)
       if (this.kaelSprite) {
-        this.kaelSpriteScale = this.fitSprite(this.kaelSprite, this.charMaxWidth, this.charMaxHeight)
+        this.kaelSpriteScale = this.fitSprite(this.kaelSprite, this.charMaxWidth, this.charMaxHeight) * (this.playerHero.battleScale ?? 1)
+        this.kaelSprite.setScale(this.kaelSpriteScale)
       }
       if (this.currentPlayerPower) {
         this.setPlayerAura(this.currentPlayerPower, true)
@@ -224,7 +226,8 @@ export class BattleScene extends Phaser.Scene {
       this.enemy.setData('baseY', this.groundY)
       if (this.enemySprite) {
         const bossFactor = this.enemyIsBoss ? 1.18 : 1
-        this.enemySpriteScale = this.fitSprite(this.enemySprite, this.charMaxWidth * bossFactor, this.charMaxHeight * bossFactor)
+        this.enemySpriteScale = this.fitSprite(this.enemySprite, this.charMaxWidth * bossFactor, this.charMaxHeight * bossFactor) * (this.enemyDef?.battleScale ?? 1)
+        this.enemySprite.setScale(this.enemySpriteScale)
       }
     }
     if (this.enemyShadow) {
@@ -243,7 +246,8 @@ export class BattleScene extends Phaser.Scene {
     const sprite = this.playerAnimations.idle?.sheet
       ? this.add.sprite(0, 0, this.playerAnimationTextureKey('idle'), 0)
       : this.add.image(0, 0, this.playerTextureKey)
-    this.kaelSpriteScale = this.fitSprite(sprite, this.charMaxWidth, this.charMaxHeight)
+    this.kaelSpriteScale = this.fitSprite(sprite, this.charMaxWidth, this.charMaxHeight) * (this.playerHero.battleScale ?? 1)
+    sprite.setScale(this.kaelSpriteScale)
 
     sprite
       .setOrigin(0.5, 1)
@@ -556,7 +560,8 @@ export class BattleScene extends Phaser.Scene {
     const textureKey = this.enemyAnimationTextureKey(enemyDef.id, animationName)
     const sprite = this.add.sprite(0, 0, textureKey, 0)
     const bossFactor = enemyDef.boss ? 1.18 : 1
-    this.enemySpriteScale = this.fitSprite(sprite, this.charMaxWidth * bossFactor, this.charMaxHeight * bossFactor)
+    this.enemySpriteScale = this.fitSprite(sprite, this.charMaxWidth * bossFactor, this.charMaxHeight * bossFactor) * (enemyDef.battleScale ?? 1)
+    sprite.setScale(this.enemySpriteScale)
 
     sprite
       .setOrigin(0.5, 1)
@@ -574,7 +579,8 @@ export class BattleScene extends Phaser.Scene {
     const textureKey = this.enemyTextureKey(enemyDef.id)
     const image = this.add.image(0, 0, textureKey)
     const bossFactor = enemyDef.boss ? 1.18 : 1
-    this.enemySpriteScale = this.fitSprite(image, this.charMaxWidth * bossFactor, this.charMaxHeight * bossFactor)
+    this.enemySpriteScale = this.fitSprite(image, this.charMaxWidth * bossFactor, this.charMaxHeight * bossFactor) * (enemyDef.battleScale ?? 1)
+    image.setScale(this.enemySpriteScale)
 
     image
       .setOrigin(0.5, 1)

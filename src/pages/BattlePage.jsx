@@ -115,7 +115,12 @@ export function BattlePage() {
       <div className="battle-background" aria-hidden="true" />
       <div className="battle-lighting" aria-hidden="true" />
 
-      <TopHud battle={battle} scenario={scenario} heroRace={player?.race ?? 'LOBO'} />
+      <TopHud
+        battle={battle}
+        scenario={scenario}
+        heroRace={player?.race ?? 'LOBO'}
+        onExit={() => navigate('/')}
+      />
 
       <div className="battle-stage">
         <PhaserGame
@@ -165,10 +170,6 @@ export function BattlePage() {
           <BattleLog entries={battle.battleLog} />
         </CollapsibleBattlePanel>
       </section>
-
-      <button className="btn btn-back" onClick={() => navigate('/')}>
-        ← Abandonar batalla
-      </button>
     </div>
   )
 }

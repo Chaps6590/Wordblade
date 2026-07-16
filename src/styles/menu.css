@@ -2445,19 +2445,17 @@
 .frames-animation-preview {
   position: absolute;
   z-index: 2;
-  left: 19%;
-  bottom: 5%;
-  width: min(31vw, 330px);
-  max-width: 54%;
+  left: 50%;
+  top: 50%;
+  width: min(34vw, 370px);
+  max-width: min(70%, 440px);
   aspect-ratio: var(--preview-aspect, 1);
   overflow: hidden;
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
   filter: drop-shadow(0 16px 12px rgba(0, 0, 0, 0.62));
 }
 
 .frames-character-stage--enemy .frames-animation-preview {
-  left: 50%;
-  bottom: 8%;
   width: min(34vw, 360px);
   max-width: min(62%, 420px);
 }
@@ -2507,9 +2505,9 @@
 .frames-ground-shadow {
   position: absolute;
   z-index: 1;
-  left: 19%;
-  bottom: 4%;
-  width: min(18vw, 190px);
+  left: 50%;
+  top: calc(50% + clamp(84px, 15vw, 158px));
+  width: min(20vw, 210px);
   height: clamp(10px, 3vh, 22px);
   border-radius: 50%;
   background: rgba(0, 0, 0, 0.42);
@@ -2518,27 +2516,7 @@
 }
 
 .frames-character-stage--enemy .frames-ground-shadow {
-  left: 50%;
-  bottom: 7%;
-}
-
-.frames-replay {
-  position: absolute;
-  z-index: 4;
-  left: 19%;
-  bottom: 0;
-  min-height: 34px;
-  padding: 0.24rem 0.55rem;
-  transform: translateX(-50%);
-  border-color: rgba(216, 166, 62, 0.62);
-  background: rgba(5, 8, 23, 0.8);
-  color: #ffd166;
-  font-size: var(--game-text-xs);
-  white-space: nowrap;
-}
-
-.frames-character-stage--enemy .frames-replay {
-  left: 50%;
+  top: calc(50% + clamp(86px, 16vw, 166px));
 }
 
 .frames-live-counter {
@@ -2708,35 +2686,19 @@
   }
 
   .frames-animation-preview {
-    left: 21%;
-    bottom: 1%;
-    width: min(27vw, 210px);
+    width: min(31vw, 230px);
   }
 
   .frames-character-stage--enemy .frames-animation-preview {
-    left: 50%;
-    bottom: 2%;
     width: min(32vw, 240px);
   }
 
   .frames-ground-shadow {
-    left: 21%;
-    bottom: 0;
+    top: calc(50% + clamp(56px, 15vw, 88px));
   }
 
   .frames-character-stage--enemy .frames-ground-shadow {
-    left: 50%;
-  }
-
-  .frames-replay {
-    left: 21%;
-    min-height: 28px;
-    padding: 0.16rem 0.4rem;
-    font-size: 0.58rem;
-  }
-
-  .frames-character-stage--enemy .frames-replay {
-    left: 50%;
+    top: calc(50% + clamp(58px, 16vw, 94px));
   }
 
   .frames-controls {

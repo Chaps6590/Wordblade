@@ -69,13 +69,6 @@ export function FramesPage() {
           sheetState={sheetState}
         />
         <span className="frames-ground-shadow" aria-hidden="true" />
-        <button
-          className="btn frames-replay"
-          type="button"
-          onClick={() => setPreviewRun((run) => run + 1)}
-        >
-          ↻ Repetir {getAnimationLabel(activeName, animation)}
-        </button>
       </section>
 
       <aside className="frames-controls">
