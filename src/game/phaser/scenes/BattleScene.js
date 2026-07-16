@@ -251,6 +251,7 @@ export class BattleScene extends Phaser.Scene {
 
     if (this.playerAnimations.idle?.sheet) {
       sprite.play(this.playerAnimationKey('idle'))
+      this.playerAnimationName = 'idle'
     }
 
     this.kaelSprite = sprite
@@ -301,6 +302,9 @@ export class BattleScene extends Phaser.Scene {
       .setAngle(0)
       .setScale(this.kaelSpriteScale)
       .play(this.playerAnimationKey(name), true)
+
+    this.playerAnimationName = name
+    this.syncPlayerAuraSprites(name)
 
     return true
   }
@@ -1029,8 +1033,14 @@ export class BattleScene extends Phaser.Scene {
 
   animateEnemyLaugh(event = {}, done = () => {}) {
     showFloatingText(this, this.enemy.x, this.enemy.y - 75, event.text ?? '¡JA, JA, JA!', {
-      color: '#ffd166',
-      fontSize: 22
+      color: '#1b1030',
+      fontSize: 20,
+      duration: 1900,
+      lift: 28,
+      bubble: true,
+      bubbleColor: 0xfffbef,
+      bubbleAlpha: 0.96,
+      bubbleStroke: 0x8a5a2b
     })
     this.tweens.add({
       targets: this.enemy,
@@ -1113,70 +1123,71 @@ export class BattleScene extends Phaser.Scene {
 
     this.destroyPlayerAura()
     this.playerAuraSignature = signature
-    if (!power || !this.kael) return
+    if (!power || !this.kael || !this.kaelSprite) return
 
     const color = hexToPhaserColor(power.hex)
     const rgb = colorComponents(color)
     const tier = power.tier ?? 1
-    const auraScale = power.auraScale ?? 1
-    const auraWidth = this.charMaxWidth * (0.58 + tier * 0.12) * auraScale
-    const auraHeight = this.charMaxHeight * (0.7 + tier * 0.18) * auraScale
     const aura = this.add.container(0, 0).setDepth(0)
+    const emberColor = Phaser.Display.Color.GetColor(
+      Math.min(255, rgb.r + 64),
+      Math.min(255, rgb.g + 34),
+      Math.min(255, rgb.b + 8)
+    )
+    const softOutline = this.createPlayerAuraSprite(color, 1.08 + tier * 0.012, 0.2 + tier * 0.035)
+    const hotOutline = this.createPlayerAuraSprite(emberColor, 1.035 + tier * 0.008, 0.38 + tier * 0.045)
 
-    const glow = this.add.graphics()
-    glow.fillStyle(color, 0.13 + tier * 0.025)
-    glow.fillEllipse(0, -auraHeight * 0.42, auraWidth, auraHeight)
-    glow.lineStyle(2 + tier, color, 0.34 + tier * 0.08)
-    glow.strokeEllipse(0, -auraHeight * 0.42, auraWidth * 0.82, auraHeight * 0.9)
-
-    const core = this.add.graphics()
-    core.fillStyle(color, 0.17 + tier * 0.04)
-    core.fillTriangle(0, -auraHeight * 0.98, -auraWidth * 0.22, -auraHeight * 0.12, auraWidth * 0.2, -auraHeight * 0.14)
-    core.fillEllipse(0, -auraHeight * 0.32, auraWidth * 0.48, auraHeight * 0.64)
-
-    const flameCount = 2 + tier
-    const flames = []
-    for (let index = 0; index < flameCount; index++) {
-      const flame = this.add.graphics()
-      const offset = (index - (flameCount - 1) / 2) * auraWidth * 0.16
-      const height = auraHeight * Phaser.Math.FloatBetween(0.42, 0.72)
-      flame.fillStyle(color, 0.22)
-      flame.fillTriangle(offset, -height, offset - auraWidth * 0.075, -auraHeight * 0.12, offset + auraWidth * 0.075, -auraHeight * 0.12)
-      flame.fillStyle(Phaser.Display.Color.GetColor(
-        Math.min(255, rgb.r + 42),
-        Math.min(255, rgb.g + 42),
-        Math.min(255, rgb.b + 42)
-      ), 0.16)
-      flame.fillEllipse(offset, -height * 0.48, auraWidth * 0.15, height * 0.7)
-      flames.push(flame)
-    }
-
-    aura.add([glow, ...flames, core])
-    aura.setAlpha(0.78)
+    aura.add([softOutline, hotOutline])
+    aura.setAlpha(0.9)
     this.kael.addAt(aura, 0)
     this.playerAura = aura
+    this.playerAuraSprites = [softOutline, hotOutline]
+    this.syncPlayerAuraSprites(this.playerAnimationName ?? 'idle')
 
     this.playerAuraTween = this.tweens.add({
       targets: aura,
-      scaleX: 1.04 + tier * 0.04,
-      scaleY: 1.1 + tier * 0.05,
-      alpha: 0.44 + tier * 0.08,
-      duration: 720,
+      scaleX: 1.015 + tier * 0.006,
+      scaleY: 1.025 + tier * 0.008,
+      alpha: 0.62 + tier * 0.05,
+      duration: 640,
       yoyo: true,
       repeat: -1,
       ease: 'Sine.easeInOut'
     })
+  }
 
-    this.playerAuraFlameTween = this.tweens.add({
-      targets: flames,
-      y: -8 - tier * 4,
-      alpha: 0.42,
-      duration: 520,
-      yoyo: true,
-      repeat: -1,
-      ease: 'Sine.easeInOut',
-      delay: this.tweens.stagger(80)
-    })
+  createPlayerAuraSprite(color, scaleFactor, alpha) {
+    const textureKey = this.kaelSprite.texture.key
+    const frame = this.kaelSprite.frame?.name ?? 0
+    const sprite = this.add.sprite(0, 0, textureKey, frame)
+    sprite
+      .setOrigin(0.5, 1)
+      .setDepth(0)
+      .setTint(color)
+      .setAlpha(alpha)
+      .setBlendMode(Phaser.BlendModes.ADD)
+    sprite.setData('auraScaleFactor', scaleFactor)
+    return sprite
+  }
+
+  syncPlayerAuraSprites(name) {
+    if (!this.playerAuraSprites?.length || !this.kaelSprite) return
+
+    const animation = this.playerAnimations?.[name]
+    for (const sprite of this.playerAuraSprites) {
+      sprite
+        .stop()
+        .setAngle(0)
+        .setScale(this.kaelSpriteScale * (sprite.getData('auraScaleFactor') ?? 1.06))
+
+      if (animation?.sheet && typeof sprite.play === 'function') {
+        sprite
+          .setTexture(this.playerAnimationTextureKey(name), 0)
+          .play(this.playerAnimationKey(name), true)
+      } else {
+        sprite.setTexture(this.kaelSprite.texture.key, this.kaelSprite.frame?.name ?? 0)
+      }
+    }
   }
 
   pulsePlayerAura(power) {
@@ -1186,8 +1197,8 @@ export class BattleScene extends Phaser.Scene {
 
     this.tweens.add({
       targets: this.playerAura,
-      scaleX: 1.28 + (power.tier ?? 1) * 0.12,
-      scaleY: 1.34 + (power.tier ?? 1) * 0.15,
+      scaleX: 1.08 + (power.tier ?? 1) * 0.025,
+      scaleY: 1.1 + (power.tier ?? 1) * 0.03,
       alpha: 0.95,
       duration: 120,
       yoyo: true,
@@ -1197,9 +1208,8 @@ export class BattleScene extends Phaser.Scene {
 
   destroyPlayerAura() {
     this.playerAuraTween?.stop()
-    this.playerAuraFlameTween?.stop()
     this.playerAuraTween = null
-    this.playerAuraFlameTween = null
+    this.playerAuraSprites = null
     if (this.playerAura) {
       this.playerAura.destroy()
       this.playerAura = null
