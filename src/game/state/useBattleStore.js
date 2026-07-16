@@ -36,7 +36,7 @@ export const useBattleStore = create((set, get) => ({
     logBattleDebug(battle, 'Inicio de batalla')
   },
 
-  submitWord: async (rawWord) => {
+  submitWord: async (rawWord, selectedTileIds = []) => {
     const current = get().battle
     if (!current || current.status !== 'playing' || get().pending) return
 
@@ -49,7 +49,8 @@ export const useBattleStore = create((set, get) => ({
         current.letters,
         current.playedWords,
         get().language,
-        current.challengeWords
+        current.challengeWords,
+        selectedTileIds
       )
     } catch {
       // Error inesperado: se trata como falla de API (sin perder el turno)

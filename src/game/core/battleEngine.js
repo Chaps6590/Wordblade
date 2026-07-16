@@ -5,6 +5,7 @@ import { calculateDamage, attackTier } from './damageCalculator.js'
 import { applyLetterEffects, tickStatuses, hasStatus } from './letterEffects.js'
 import { enemyTurn, getEnemyDef, getActivePhase, applyWordReactions } from './enemyAI.js'
 import { refreshLetterRack, advanceTurn, checkBattleEnd } from './turnManager.js'
+import { buildLetterPower } from './letterPowerColors.js'
 
 // Motor principal de la batalla. Funciones puras sobre battleState:
 // el estado entra, se procesa el turno completo y salen los eventos
@@ -230,6 +231,7 @@ function attackWithWord(state, { word, usedTiles }, events) {
     secret: foundHiddenWord,
     tier,
     tileBonusDamage: damage.tileBonusDamage,
+    power: buildLetterPower(usedTiles),
     word,
     text
   })

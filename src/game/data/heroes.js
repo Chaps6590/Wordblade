@@ -74,7 +74,7 @@ export const HEROES = [
   {
     race: 'TIGRE',
     raceLabel: 'Sabios Tigre',
-    name: 'Rakan Filo Rojo',
+    name: 'Rhygar',
     title: 'Duelista de la garra escarlata',
     portrait: '/characters/heroes/rakan-filo-rojo.png',
     description: 'Ataques veloces, presión constante y furia precisa.',
@@ -83,7 +83,7 @@ export const HEROES = [
   {
     race: 'AGUILA',
     raceLabel: 'Sabios Águila',
-    name: 'Aelar Alacero',
+    name: 'Aeryn',
     title: 'Lancero del cielo rúnico',
     portrait: '/characters/heroes/aelar-alacero.png',
     animations: {

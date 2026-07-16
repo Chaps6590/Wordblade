@@ -47,12 +47,37 @@ function sceneMetrics(width, height) {
   }
 }
 
+function hexToPhaserColor(hex, fallback = 0xffd150) {
+  if (!hex) return fallback
+  const value = Number.parseInt(String(hex).replace('#', ''), 16)
+  return Number.isFinite(value) ? value : fallback
+}
+
+function colorComponents(color) {
+  return Phaser.Display.Color.IntegerToRGB(color)
+}
+
+function heroAsOpponentDef(hero) {
+  if (!hero) return null
+  return {
+    id: `rival-${hero.race.toLowerCase()}`,
+    name: hero.name,
+    race: hero.race,
+    spriteImage: hero.portrait,
+    animations: hero.animations ?? {},
+    spriteScale: { offsetY: 0 },
+    isHeroOpponent: true
+  }
+}
+
 export class BattleScene extends Phaser.Scene {
   constructor() {
     super('BattleScene')
   }
 
   preload() {
+    this.battleMode = this.game.wordbladeBattleMode ?? this.registry.get('battleMode') ?? 'adventure'
+    this.isDuelMode = this.battleMode === 'duel'
     const scenarioId = this.game.wordbladeScenarioId ?? this.registry.get('scenarioId')
     const scenario = getScenario(scenarioId)
     this.playerHero = HERO_BY_RACE[this.game.wordbladeHeroRace ?? this.registry.get('heroRace')] ?? HERO_BY_RACE.LOBO
@@ -67,6 +92,21 @@ export class BattleScene extends Phaser.Scene {
         frameWidth: animation.frameWidth,
         frameHeight: animation.frameHeight
       })
+    }
+
+    if (this.isDuelMode) {
+      const opponentRace = this.game.wordbladeOpponentHeroRace ?? this.registry.get('opponentHeroRace')
+      this.opponentHero = HERO_BY_RACE[opponentRace] ?? HERO_BY_RACE.LOBO
+      this.opponentHeroDef = heroAsOpponentDef(this.opponentHero)
+      this.load.image(this.enemyTextureKey(this.opponentHeroDef.id), this.opponentHero.portrait)
+      for (const [name, animation] of Object.entries(this.opponentHeroDef.animations ?? {})) {
+        if (!animation?.sheet) continue
+        this.load.spritesheet(this.enemyAnimationTextureKey(this.opponentHeroDef.id, name), animation.sheet, {
+          frameWidth: animation.frameWidth,
+          frameHeight: animation.frameHeight
+        })
+      }
+      return
     }
 
     if (scenario?.backgroundImage) {
@@ -91,7 +131,11 @@ export class BattleScene extends Phaser.Scene {
   create() {
     const scenarioId = this.game.wordbladeScenarioId ?? this.registry.get('scenarioId')
     const scenario = getScenario(scenarioId)
-    const enemyDef = scenario ? ENEMIES[getScenarioEncounter(scenario, 0).enemyId] : null
+    const enemyDef = this.isDuelMode
+      ? this.opponentHeroDef
+      : scenario
+        ? ENEMIES[getScenarioEncounter(scenario, 0).enemyId]
+        : null
 
     this.computeLayout()
 
@@ -100,6 +144,8 @@ export class BattleScene extends Phaser.Scene {
     this.visualQueue = []
     this.visualQueueActive = false
     this.playerDefeated = false
+    this.currentPlayerPower = null
+    this.playerAura = null
 
     this.startPlayerIdle()
     this.startEnemyIdle()
@@ -121,6 +167,7 @@ export class BattleScene extends Phaser.Scene {
     this.events.once(Phaser.Scenes.Events.SHUTDOWN, () => {
       this.visualQueue = []
       this.visualQueueActive = false
+      this.destroyPlayerAura()
       eventBus.off('battle-event', this.onBattleEvent)
       this.scale.off(Phaser.Scale.Events.RESIZE, this.onResize)
     })
@@ -158,6 +205,9 @@ export class BattleScene extends Phaser.Scene {
       this.kael.setData('baseY', this.groundY)
       if (this.kaelSprite) {
         this.kaelSpriteScale = this.fitSprite(this.kaelSprite, this.charMaxWidth, this.charMaxHeight)
+      }
+      if (this.currentPlayerPower) {
+        this.setPlayerAura(this.currentPlayerPower, true)
       }
     }
     if (this.playerShadow) {
@@ -318,6 +368,8 @@ export class BattleScene extends Phaser.Scene {
       .setScale(this.enemySpriteScale)
       .play(this.enemyAnimationKey(name), true)
 
+    if (this.enemyDef?.isHeroOpponent) this.enemySprite.setFlipX(true)
+
     return true
   }
 
@@ -326,6 +378,26 @@ export class BattleScene extends Phaser.Scene {
     const hitSprite = this.enemySprite
     hitSprite.once(`animationcomplete-${this.enemyAnimationKey('hit')}`, () => {
       if (this.enemySprite === hitSprite) this.setEnemyAnimation('idle')
+    })
+  }
+
+  playEnemyDefeat() {
+    this.enemyIdleTween?.pause()
+    if (this.setEnemyAnimation('defeat')) {
+      this.enemy?.setAngle(0).setScale(1)
+      return
+    }
+
+    if (!this.enemy) return
+    const baseY = this.enemy.getData('baseY') ?? this.groundY
+    this.tweens.add({
+      targets: this.enemy,
+      y: baseY + 16,
+      angle: 8,
+      scaleX: 0.92,
+      scaleY: 0.82,
+      duration: 280,
+      ease: 'Sine.easeOut'
     })
   }
 
@@ -348,6 +420,9 @@ export class BattleScene extends Phaser.Scene {
     switch (event.kind) {
       case 'playerAttack':
         this.enqueueVisual((done) => this.animatePlayerAttackSequence(event, done))
+        break
+      case 'playerAura':
+        this.setPlayerAura(event.power)
         break
       case 'enemyAttack':
         this.enqueueVisual((done) => this.animateEnemyAttack(event, done))
@@ -379,6 +454,9 @@ export class BattleScene extends Phaser.Scene {
         break
       case 'end':
         this.enqueueVisual((done) => this.animateBattleEnd(event, done))
+        break
+      case 'duelEnd':
+        this.enqueueVisual((done) => this.animateDuelEnd(event, done))
         break
     }
   }
@@ -413,6 +491,18 @@ export class BattleScene extends Phaser.Scene {
 
     this.showEndOverlay(event.text)
     done()
+  }
+
+  animateDuelEnd(event, done = () => {}) {
+    if (event.result === 'defeat') {
+      this.playPlayerDefeat()
+    } else if (event.result === 'victory') {
+      this.playEnemyDefeat()
+    } else if (event.result === 'draw') {
+      this.playPlayerDefeat()
+      this.playEnemyDefeat()
+    }
+    this.time.delayedCall(520, done)
   }
 
   createEnemy(enemyDef) {
@@ -467,6 +557,8 @@ export class BattleScene extends Phaser.Scene {
       .setDepth(1)
       .play(this.enemyAnimationKey(animationName))
 
+    if (enemyDef.isHeroOpponent) sprite.setFlipX(true)
+
     this.enemySprite = sprite
     this.enemy.add(sprite)
   }
@@ -481,6 +573,8 @@ export class BattleScene extends Phaser.Scene {
       .setOrigin(0.5, 1)
       .setY(ENEMY_IMAGE_GROUND_OFFSET)
       .setDepth(1)
+
+    if (enemyDef.isHeroOpponent) image.setFlipX(true).setY(enemyDef.spriteScale?.offsetY ?? 0)
 
     this.enemySprite = image
     this.enemy.add(image)
@@ -701,6 +795,9 @@ export class BattleScene extends Phaser.Scene {
     }
     this.playerAttackActive = true
 
+    const temporaryAura = event.power && !this.currentPlayerPower
+    if (temporaryAura) this.setPlayerAura(event.power)
+
     const startX = this.kael.getData('baseX') ?? this.kael.x
     const startY = this.kael.getData('baseY') ?? this.kael.y
     const strikeX = this.playerStrikeX()
@@ -722,12 +819,18 @@ export class BattleScene extends Phaser.Scene {
       }
       this.playerIdleTween?.resume()
       this.playerSpriteIdleTween?.resume()
+      if (temporaryAura) this.setPlayerAura(null)
       this.playerAttackActive = false
       done()
     }
 
     const applyHit = () => {
-      showSlash(this, this.enemy.x - 20, this.enemy.y, { color: event.magic ? 0xffee55 : 0xd6e6ff })
+      const attackColor = hexToPhaserColor(event.power?.hex, event.magic ? 0xffee55 : 0xd6e6ff)
+      this.pulsePlayerAura(event.power)
+      showSlash(this, this.enemy.x - 20, this.enemy.y, {
+        color: attackColor,
+        intensity: event.power?.tier ?? 1
+      })
       if (event.secret) {
         showFloatingText(this, this.enemy.x, this.enemy.y - 110, 'PALABRA SECRETA', {
           color: '#ffd700',
@@ -736,7 +839,7 @@ export class BattleScene extends Phaser.Scene {
         this.flash(0xffd700)
       }
       showFloatingText(this, this.enemy.x, this.enemy.y - 70, `-${event.amount}`, {
-        color: event.critical ? '#ffd700' : '#ff5555',
+        color: event.critical ? '#ffd700' : (event.power?.hex ?? '#ff5555'),
         fontSize: event.critical ? 32 : 24
       })
       this.playEnemyHit()
@@ -812,7 +915,12 @@ export class BattleScene extends Phaser.Scene {
       yoyo: true,
       ease: 'Power2',
       onYoyo: () => {
-        showSlash(this, this.enemy.x - 20, this.enemy.y, { color: event.magic ? 0xffee55 : 0xd6e6ff })
+        const attackColor = hexToPhaserColor(event.power?.hex, event.magic ? 0xffee55 : 0xd6e6ff)
+        this.pulsePlayerAura(event.power)
+        showSlash(this, this.enemy.x - 20, this.enemy.y, {
+          color: attackColor,
+          intensity: event.power?.tier ?? 1
+        })
         if (event.secret) {
           showFloatingText(this, this.enemy.x, this.enemy.y - 110, '¡PALABRA SECRETA!', {
             color: '#ffd700',
@@ -821,7 +929,7 @@ export class BattleScene extends Phaser.Scene {
           this.flash(0xffd700)
         }
         showFloatingText(this, this.enemy.x, this.enemy.y - 70, `-${event.amount}`, {
-          color: event.critical ? '#ffd700' : '#ff5555',
+          color: event.critical ? '#ffd700' : (event.power?.hex ?? '#ff5555'),
           fontSize: event.critical ? 32 : 24
         })
         this.playEnemyHit()
@@ -992,6 +1100,106 @@ export class BattleScene extends Phaser.Scene {
   shieldRing(x, y) {
     const ring = this.add.circle(x, y, 55).setStrokeStyle(3, 0x66aaff, 0.9).setDepth(80)
     this.tweens.add({ targets: ring, scale: 1.3, alpha: 0, duration: 500, onComplete: () => ring.destroy() })
+  }
+
+  setPlayerAura(power, force = false) {
+    this.currentPlayerPower = power
+    const signature = power ? `${power.hex}:${power.tier}:${power.charge}:${power.auraScale}` : ''
+    if (!force && this.playerAuraSignature === signature) return
+
+    this.destroyPlayerAura()
+    this.playerAuraSignature = signature
+    if (!power || !this.kael) return
+
+    const color = hexToPhaserColor(power.hex)
+    const rgb = colorComponents(color)
+    const tier = power.tier ?? 1
+    const auraScale = power.auraScale ?? 1
+    const auraWidth = this.charMaxWidth * (0.58 + tier * 0.12) * auraScale
+    const auraHeight = this.charMaxHeight * (0.7 + tier * 0.18) * auraScale
+    const aura = this.add.container(0, 0).setDepth(0)
+
+    const glow = this.add.graphics()
+    glow.fillStyle(color, 0.13 + tier * 0.025)
+    glow.fillEllipse(0, -auraHeight * 0.42, auraWidth, auraHeight)
+    glow.lineStyle(2 + tier, color, 0.34 + tier * 0.08)
+    glow.strokeEllipse(0, -auraHeight * 0.42, auraWidth * 0.82, auraHeight * 0.9)
+
+    const core = this.add.graphics()
+    core.fillStyle(color, 0.17 + tier * 0.04)
+    core.fillTriangle(0, -auraHeight * 0.98, -auraWidth * 0.22, -auraHeight * 0.12, auraWidth * 0.2, -auraHeight * 0.14)
+    core.fillEllipse(0, -auraHeight * 0.32, auraWidth * 0.48, auraHeight * 0.64)
+
+    const flameCount = 2 + tier
+    const flames = []
+    for (let index = 0; index < flameCount; index++) {
+      const flame = this.add.graphics()
+      const offset = (index - (flameCount - 1) / 2) * auraWidth * 0.16
+      const height = auraHeight * Phaser.Math.FloatBetween(0.42, 0.72)
+      flame.fillStyle(color, 0.22)
+      flame.fillTriangle(offset, -height, offset - auraWidth * 0.075, -auraHeight * 0.12, offset + auraWidth * 0.075, -auraHeight * 0.12)
+      flame.fillStyle(Phaser.Display.Color.GetColor(
+        Math.min(255, rgb.r + 42),
+        Math.min(255, rgb.g + 42),
+        Math.min(255, rgb.b + 42)
+      ), 0.16)
+      flame.fillEllipse(offset, -height * 0.48, auraWidth * 0.15, height * 0.7)
+      flames.push(flame)
+    }
+
+    aura.add([glow, ...flames, core])
+    aura.setAlpha(0.78)
+    this.kael.addAt(aura, 0)
+    this.playerAura = aura
+
+    this.playerAuraTween = this.tweens.add({
+      targets: aura,
+      scaleX: 1.04 + tier * 0.04,
+      scaleY: 1.1 + tier * 0.05,
+      alpha: 0.44 + tier * 0.08,
+      duration: 720,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut'
+    })
+
+    this.playerAuraFlameTween = this.tweens.add({
+      targets: flames,
+      y: -8 - tier * 4,
+      alpha: 0.42,
+      duration: 520,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
+      delay: this.tweens.stagger(80)
+    })
+  }
+
+  pulsePlayerAura(power) {
+    if (!power) return
+    if (!this.playerAura) this.setPlayerAura(power)
+    if (!this.playerAura) return
+
+    this.tweens.add({
+      targets: this.playerAura,
+      scaleX: 1.28 + (power.tier ?? 1) * 0.12,
+      scaleY: 1.34 + (power.tier ?? 1) * 0.15,
+      alpha: 0.95,
+      duration: 120,
+      yoyo: true,
+      ease: 'Sine.easeOut'
+    })
+  }
+
+  destroyPlayerAura() {
+    this.playerAuraTween?.stop()
+    this.playerAuraFlameTween?.stop()
+    this.playerAuraTween = null
+    this.playerAuraFlameTween = null
+    if (this.playerAura) {
+      this.playerAura.destroy()
+      this.playerAura = null
+    }
   }
 
   hitCharacter(container, direction) {

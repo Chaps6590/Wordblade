@@ -6,7 +6,7 @@ import { BattleScene } from './scenes/BattleScene.js'
 // Monta el canvas de Phaser dentro de React.
 // Phaser solo renderiza y anima: el estado vive en useBattleStore.
 
-export function PhaserGame({ scenarioId, heroRace = 'LOBO' }) {
+export function PhaserGame({ scenarioId, heroRace = 'LOBO', opponentHeroRace = 'LOBO', battleMode = 'adventure' }) {
   const containerRef = useRef(null)
   const gameRef = useRef(null)
 
@@ -36,6 +36,8 @@ export function PhaserGame({ scenarioId, heroRace = 'LOBO' }) {
         preBoot: (bootingGame) => {
           bootingGame.wordbladeScenarioId = scenarioId
           bootingGame.wordbladeHeroRace = heroRace
+          bootingGame.wordbladeOpponentHeroRace = opponentHeroRace
+          bootingGame.wordbladeBattleMode = battleMode
         }
       },
       scene: [BootScene, BattleScene]
@@ -47,7 +49,7 @@ export function PhaserGame({ scenarioId, heroRace = 'LOBO' }) {
       if (container) container.replaceChildren()
       gameRef.current = null
     }
-  }, [scenarioId, heroRace])
+  }, [scenarioId, heroRace, opponentHeroRace, battleMode])
 
   return <div ref={containerRef} className="phaser-container" />
 }

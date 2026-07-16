@@ -45,10 +45,10 @@
   --game-content-max: 1600px;
   --game-panel-max: 760px;
   --game-card-min: 220px;
-  --game-battle-console-w: clamp(300px, 29vw, 470px);
+  --game-battle-console-w: clamp(318px, 30vw, 490px);
   --game-board-size: min(34vh, 380px);
   --game-board-size-mobile: min(48vh, 236px);
-  --game-letter-board-w: min(27vh, 300px);
+  --game-letter-board-w: min(31vh, 322px);
   --game-letter-tile-min: var(--game-touch-min);
   --game-character-height: min(56vh, 500px);
   --game-character-height-mobile: min(39vh, 260px);

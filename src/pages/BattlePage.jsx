@@ -11,6 +11,7 @@ import { BattleBoardPanel, CurrentWordDisplay } from '../components/BattleBoardP
 import { CollapsibleBattlePanel } from '../components/CollapsibleBattlePanel.jsx'
 import { eventBus } from '../game/phaser/eventBus.js'
 import { useAuth } from '../auth/useAuth.js'
+import { buildLetterPower } from '../game/core/letterPowerColors.js'
 
 export function BattlePage() {
   const { scenarioId } = useParams()
@@ -72,20 +73,27 @@ export function BattlePage() {
 
   const handleTileClick = (tile) => {
     if (!playing || validating || tile.locked || selectedTileIds.includes(tile.id)) return
+    const nextSelectedTileIds = [...selectedTileIds, tile.id]
+    const selectedTiles = nextSelectedTileIds
+      .map((id) => battle.letters.find((candidate) => candidate.id === id))
+      .filter(Boolean)
     setWord((currentWord) => currentWord.length < 16 ? currentWord + tile.value : currentWord)
-    setSelectedTileIds((currentIds) => [...currentIds, tile.id])
+    setSelectedTileIds(nextSelectedTileIds)
+    eventBus.emit('battle-event', { kind: 'playerAura', power: buildLetterPower(selectedTiles) })
   }
 
   const handleSubmit = (value) => {
-    submitWord(value)
+    submitWord(value, selectedTileIds)
     setWord('')
     setSelectedTileIds([])
+    eventBus.emit('battle-event', { kind: 'playerAura', power: null })
   }
 
   const handleClear = () => {
     if (!playing || validating || !word) return
     setWord('')
     setSelectedTileIds([])
+    eventBus.emit('battle-event', { kind: 'playerAura', power: null })
     eventBus.emit('battle-event', { kind: 'enemyLaugh' })
   }
 

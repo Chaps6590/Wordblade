@@ -8,6 +8,8 @@ import { LetterTile } from '../components/LetterTile.jsx'
 import { WordInput } from '../components/WordInput.jsx'
 import { HealthBar } from '../components/HealthBar.jsx'
 import { BattleLog } from '../components/BattleLog.jsx'
+import { PhaserGame } from '../game/phaser/PhaserGame.jsx'
+import { eventBus } from '../game/phaser/eventBus.js'
 
 // Duelo 1v1 en tiempo real. Fases: menu -> lobby -> duel -> finished.
 // El server es dueño de la sala, la grilla (idéntica para ambos), el
@@ -59,10 +61,20 @@ export function MultiplayerPage() {
         : `${byName} usó ${playedWord} y te pegó ${damage}.`
       if (foundHiddenWord) text = `¡PALABRA OCULTA! ${text}`
       pushLog(text, mine ? 'playerAttack' : 'enemyAttack')
+      eventBus.emit('battle-event', {
+        kind: mine ? 'playerAttack' : 'enemyAttack',
+        amount: damage,
+        critical: foundHiddenWord,
+        secret: foundHiddenWord
+      })
     }
     const onEnd = (state) => {
       setDuel(state)
       setPhase('finished')
+      eventBus.emit('battle-event', {
+        kind: 'duelEnd',
+        result: state.winnerId === null ? 'draw' : state.winnerId === player?.id ? 'victory' : 'defeat'
+      })
       pushLog('El duelo terminó.', 'end')
     }
     const onError = ({ error: message }) => setError(message)
@@ -296,6 +308,16 @@ export function MultiplayerPage() {
               <span className="duel-secret">Oculta: {'◆'.repeat(duel.hiddenWordLength)} (+35, para el primero)</span>
             )}
           </div>
+
+          {you && rival && (
+            <section className="battle-stage duel-arena" aria-label="Arena del duelo">
+              <PhaserGame
+                battleMode="duel"
+                heroRace={you.race ?? player?.race ?? 'LOBO'}
+                opponentHeroRace={rival.race ?? 'LOBO'}
+              />
+            </section>
+          )}
 
           {rival && (
             <HealthBar name={rival.name} hp={rival.hp} maxHp={100} side="right" />

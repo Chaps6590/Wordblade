@@ -14,7 +14,7 @@ import { checkWord } from '../../services/api.js'
 export const MIN_WORD_LENGTH = 3
 
 // Chequeos que no necesitan red: longitud, repetida y letras disponibles.
-function validateStructure(rawWord, tiles, playedWords) {
+function validateStructure(rawWord, tiles, playedWords, selectedTileIds = null) {
   const word = normalizeWord(rawWord)
 
   if (word.length < MIN_WORD_LENGTH) {
@@ -25,7 +25,9 @@ function validateStructure(rawWord, tiles, playedWords) {
     return invalid(word, `Ya usaste la palabra ${word}.`)
   }
 
-  const usedTiles = matchTiles(word, tiles)
+  const usedTiles = selectedTileIds?.length
+    ? matchSelectedTiles(word, tiles, selectedTileIds)
+    : matchTiles(word, tiles)
   if (usedTiles === null) {
     return invalid(word, 'No tenés las letras necesarias (o están bloqueadas).')
   }
@@ -40,8 +42,8 @@ export function validateWord(rawWord, tiles, playedWords) {
   return { valid: true, reason: null, word: displayWord(rawWord), usedTiles: structure.usedTiles }
 }
 
-export async function validateWordHybrid(rawWord, tiles, playedWords, language = 'es', trustedWords = []) {
-  const structure = validateStructure(rawWord, tiles, playedWords)
+export async function validateWordHybrid(rawWord, tiles, playedWords, language = 'es', trustedWords = [], selectedTileIds = null) {
+  const structure = validateStructure(rawWord, tiles, playedWords, selectedTileIds)
   if (!structure.valid) return structure
   const { word, usedTiles } = structure
 
@@ -104,6 +106,20 @@ function matchTiles(word, tiles) {
     if (idx === -1) return null
     used.push(available[idx])
     available.splice(idx, 1)
+  }
+  return used
+}
+
+function matchSelectedTiles(word, tiles, selectedTileIds) {
+  if (selectedTileIds.length !== word.length) return null
+
+  const used = []
+  const usedIds = new Set()
+  for (let index = 0; index < word.length; index++) {
+    const tile = tiles.find((candidate) => candidate.id === selectedTileIds[index])
+    if (!tile || tile.locked || usedIds.has(tile.id) || tile.value !== word[index]) return null
+    used.push(tile)
+    usedIds.add(tile.id)
   }
   return used
 }
