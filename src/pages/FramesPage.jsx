@@ -14,6 +14,7 @@ export function FramesPage() {
   const labEntries = useMemo(() => Object.entries(actor?.animations ?? {}), [actor])
   const [animationName, setAnimationName] = useState(labEntries[0]?.[0])
   const [previewRun, setPreviewRun] = useState(0)
+  const [previewFrame, setPreviewFrame] = useState(null)
   const animation = labEntries.find(([name]) => name === animationName)?.[1] ?? labEntries[0]?.[1]
   const activeName = labEntries.find(([name]) => name === animationName)?.[0] ?? labEntries[0]?.[0]
   const sheetState = usePreloadedSheet(animation?.sheet, `${actor?.id}-${activeName}-${previewRun}`)
@@ -23,11 +24,13 @@ export function FramesPage() {
     const nextEntries = Object.entries(nextActor?.animations ?? {})
     setActorId(id)
     setAnimationName(nextEntries[0]?.[0])
+    setPreviewFrame(null)
     setPreviewRun((run) => run + 1)
   }
 
   function selectAnimation(name) {
     setAnimationName(name)
+    setPreviewFrame(null)
     setPreviewRun((run) => run + 1)
   }
 
@@ -49,7 +52,10 @@ export function FramesPage() {
         </button>
         <div className="frames-heading">
           <h1>Laboratorio de Frames</h1>
-          <p>{actor.name} · {getAnimationLabel(activeName, animation)}</p>
+          <p className="frames-current-frame" aria-live="polite">
+            {actor.name} · {getAnimationLabel(activeName, animation)}
+            {previewFrame ? ` · Frame ${previewFrame.current}/${previewFrame.total}` : ''}
+          </p>
         </div>
         <div className="frames-metadata">
           {getMetadataBadges(animation).map((badge) => (
@@ -67,6 +73,7 @@ export function FramesPage() {
           animation={animation}
           label={`${actor.name}: ${getAnimationLabel(activeName, animation)}`}
           sheetState={sheetState}
+          onFrameChange={setPreviewFrame}
         />
         <span className="frames-ground-shadow" aria-hidden="true" />
       </section>
@@ -186,7 +193,7 @@ function usePreloadedSheet(path, cacheScope) {
   return sheetState
 }
 
-function FrameLabPreview({ animation, label, sheetState }) {
+function FrameLabPreview({ animation, label, sheetState, onFrameChange }) {
   const timeline = useMemo(() => getPreviewTimeline(animation, label), [animation, label])
   const [step, setStep] = useState(timeline[0] ?? null)
 
@@ -200,6 +207,10 @@ function FrameLabPreview({ animation, label, sheetState }) {
     function showNextStep() {
       const current = timeline[index]
       setStep(current)
+      onFrameChange?.({
+        current: current.frame + 1,
+        total: current.animation.frames ?? 1
+      })
       timeoutId = window.setTimeout(() => {
         if (cancelled) return
         index = (index + 1) % timeline.length
@@ -213,7 +224,7 @@ function FrameLabPreview({ animation, label, sheetState }) {
       cancelled = true
       window.clearTimeout(timeoutId)
     }
-  }, [timeline])
+  }, [timeline, onFrameChange])
 
   if (!step) return null
   if (sheetState.status === 'error' || sheetState.status === 'missing') {
@@ -246,9 +257,6 @@ function FrameLabPreview({ animation, label, sheetState }) {
           style={spriteStyle}
         />
       </span>
-      <strong className="frames-live-counter">
-        {step.label} {step.frame + 1}/{frames}
-      </strong>
     </div>
   )
 }
