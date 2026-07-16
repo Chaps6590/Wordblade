@@ -187,6 +187,16 @@ export const HEROES = [
         frameRate: 9,
         repeat: 0,
         holdLastFrame: true
+      },
+      victory: {
+        label: 'Victoria',
+        sheet: '/characters/heroes/aeryn/animations/victory.png',
+        frameWidth: 512,
+        frameHeight: 512,
+        frames: 6,
+        frameRate: 9,
+        repeat: -1,
+        yoyo: true
       }
     },
     description: 'Visión táctica, dominio del viento y alcance letal.',
