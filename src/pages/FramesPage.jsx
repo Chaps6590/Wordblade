@@ -8,7 +8,7 @@ const ASSET_VERSION = import.meta.env.VITE_APP_COMMIT || 'dev'
 
 export function FramesPage() {
   const navigate = useNavigate()
-  const actors = getAnimatedActors()
+  const actors = useMemo(() => getAnimatedActors(), [])
   const [actorId, setActorId] = useState(actors[0]?.id)
   const actor = actors.find((candidate) => candidate.id === actorId) ?? actors[0]
   const labEntries = useMemo(() => Object.entries(actor?.animations ?? {}), [actor])
@@ -17,7 +17,8 @@ export function FramesPage() {
   const [previewFrame, setPreviewFrame] = useState(null)
   const animation = labEntries.find(([name]) => name === animationName)?.[1] ?? labEntries[0]?.[1]
   const activeName = labEntries.find(([name]) => name === animationName)?.[0] ?? labEntries[0]?.[0]
-  const sheetState = usePreloadedSheet(animation?.sheet, `${actor?.id}-${activeName}-${previewRun}`)
+  const preloadedSheets = usePreloadedAnimationSheets(actor?.id, labEntries)
+  const sheetState = preloadedSheets.getSheetState(animation?.sheet)
 
   function selectActor(id) {
     const nextActor = actors.find((candidate) => candidate.id === id)
@@ -148,49 +149,92 @@ function getAnimatedActors() {
   return [...heroes, ...enemies]
 }
 
-function usePreloadedSheet(path, cacheScope) {
-  const [sheetState, setSheetState] = useState(() => ({
-    status: path ? 'loading' : 'missing',
-    url: path ? versionedAssetUrl(path, `${ASSET_VERSION}-initial`) : '',
-    path
-  }))
+function usePreloadedAnimationSheets(actorId, entries) {
+  const sheets = useMemo(() => {
+    const uniqueSheets = new Map()
+    const cacheVersion = `${ASSET_VERSION}-${actorId ?? 'actor'}`
+
+    for (const [, animation] of entries) {
+      if (!animation?.sheet || uniqueSheets.has(animation.sheet)) continue
+      uniqueSheets.set(animation.sheet, {
+        path: animation.sheet,
+        url: versionedAssetUrl(animation.sheet, cacheVersion)
+      })
+    }
+
+    return Array.from(uniqueSheets.values())
+  }, [actorId, entries])
+  const sheetKey = useMemo(() => sheets.map((sheet) => `${sheet.path}|${sheet.url}`).join('\n'), [sheets])
+  const [sheetStates, setSheetStates] = useState({})
 
   useEffect(() => {
-    if (!path) {
-      setSheetState({ status: 'missing', url: '', path })
+    if (sheets.length === 0) {
+      setSheetStates({})
       return undefined
     }
 
-    const url = versionedAssetUrl(path, `${ASSET_VERSION}-${cacheScope}-${Date.now()}`)
     let cancelled = false
-    const image = new Image()
+    const images = []
+    const initialStates = Object.fromEntries(
+      sheets.map((sheet) => [sheet.path, { status: 'loading', ...sheet }])
+    )
 
-    setSheetState({ status: 'loading', url, path })
+    setSheetStates(initialStates)
 
-    image.onload = () => {
-      if (!cancelled) setSheetState({ status: 'loaded', url, path })
+    for (const sheet of sheets) {
+      const image = new Image()
+      images.push(image)
+
+      image.onload = async () => {
+        try {
+          await image.decode?.()
+        } catch {
+          // Loading succeeded; decode may be unavailable or already complete.
+        }
+
+        if (cancelled) return
+        setSheetStates((current) => {
+          if (current[sheet.path]?.url !== sheet.url) return current
+          return {
+            ...current,
+            [sheet.path]: { status: 'loaded', ...sheet }
+          }
+        })
+      }
+      image.onerror = () => {
+        if (cancelled) return
+        setSheetStates((current) => {
+          if (current[sheet.path]?.url !== sheet.url) return current
+          return {
+            ...current,
+            [sheet.path]: { status: 'error', ...sheet }
+          }
+        })
+      }
+      image.src = sheet.url
     }
-    image.onerror = () => {
-      if (!cancelled) setSheetState({ status: 'error', url, path })
-    }
-    image.src = url
 
     return () => {
       cancelled = true
-      image.onload = null
-      image.onerror = null
+      for (const image of images) {
+        image.onload = null
+        image.onerror = null
+      }
     }
-  }, [path, cacheScope])
+  }, [sheetKey, sheets])
 
-  if (sheetState.path !== path) {
-    return {
-      status: path ? 'loading' : 'missing',
-      url: path ? versionedAssetUrl(path, `${ASSET_VERSION}-${cacheScope}`) : '',
-      path
+  return useMemo(() => ({
+    getSheetState(path) {
+      if (!path) return { status: 'missing', url: '', path }
+
+      const sheet = sheets.find((candidate) => candidate.path === path)
+      return sheetStates[path] ?? {
+        status: sheet ? 'loading' : 'missing',
+        url: sheet?.url ?? versionedAssetUrl(path),
+        path
+      }
     }
-  }
-
-  return sheetState
+  }), [sheets, sheetStates])
 }
 
 function FrameLabPreview({ animation, label, sheetState, onFrameChange }) {
