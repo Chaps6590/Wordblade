@@ -92,7 +92,7 @@ export const HEROES = [
       attack: {
         label: 'Salto y ataque',
         sheet: '/characters/heroes/rhygar/animations/attack-leap-slash.png',
-        frameWidth: 640,
+        frameWidth: 512,
         frameHeight: 512,
         frames: 6,
         frameRate: 14,

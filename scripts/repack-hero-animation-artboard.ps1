@@ -6,6 +6,8 @@ param(
   [int]$Frames = 6,
   [int]$TargetFrameWidth = 512,
   [int]$TargetFrameHeight = 512,
+  [int]$MaxContentWidth = 0,
+  [int]$MaxContentHeight = 0,
   [int]$GroundMargin = 26,
   [int]$AlphaThreshold = 10
 )
@@ -14,7 +16,15 @@ $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.Drawing
 
 $sourcePath = (Resolve-Path -LiteralPath $Source).Path
-$destinationPath = if ($Destination) { $Destination } else { $sourcePath }
+$destinationPath = if ($Destination) {
+  if (Test-Path -LiteralPath $Destination) {
+    (Resolve-Path -LiteralPath $Destination).Path
+  } else {
+    $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($Destination)
+  }
+} else {
+  $sourcePath
+}
 $savePath = if ([System.String]::Equals($sourcePath, $destinationPath, [System.StringComparison]::OrdinalIgnoreCase)) {
   "$destinationPath.tmp"
 } else {
@@ -61,12 +71,22 @@ try {
 
   for ($frame = 0; $frame -lt $Frames; $frame++) {
     $bounds = Get-OpaqueBounds $sourceImage $frame $sourceFrameWidth $sourceFrameHeight $AlphaThreshold
-    $targetX = ($frame * $TargetFrameWidth) + [int](($TargetFrameWidth - $bounds.Width) / 2)
-    $targetY = [int]($TargetFrameHeight - $GroundMargin - $bounds.Height)
+    $scale = 1.0
+    if ($MaxContentWidth -gt 0 -and $bounds.Width -gt $MaxContentWidth) {
+      $scale = [Math]::Min($scale, $MaxContentWidth / $bounds.Width)
+    }
+    if ($MaxContentHeight -gt 0 -and $bounds.Height -gt $MaxContentHeight) {
+      $scale = [Math]::Min($scale, $MaxContentHeight / $bounds.Height)
+    }
+
+    $targetWidth = [int][Math]::Round($bounds.Width * $scale)
+    $targetHeight = [int][Math]::Round($bounds.Height * $scale)
+    $targetX = ($frame * $TargetFrameWidth) + [int](($TargetFrameWidth - $targetWidth) / 2)
+    $targetY = [int]($TargetFrameHeight - $GroundMargin - $targetHeight)
     if ($targetY -lt 0) { $targetY = 0 }
 
     $sourceRect = [System.Drawing.Rectangle]::new(($frame * $sourceFrameWidth) + $bounds.X, $bounds.Y, $bounds.Width, $bounds.Height)
-    $targetRect = [System.Drawing.Rectangle]::new($targetX, $targetY, $bounds.Width, $bounds.Height)
+    $targetRect = [System.Drawing.Rectangle]::new($targetX, $targetY, $targetWidth, $targetHeight)
     $graphics.DrawImage($sourceImage, $targetRect, $sourceRect, [System.Drawing.GraphicsUnit]::Pixel)
   }
 
