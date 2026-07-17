@@ -281,7 +281,8 @@ function FrameLabPreview({ animation, label, sheetState, onFrameChange }) {
 
   const frames = step.animation.frames ?? 1
   const style = {
-    '--preview-aspect': step.animation.frameWidth / step.animation.frameHeight
+    '--preview-aspect': step.animation.frameWidth / step.animation.frameHeight,
+    '--preview-scale': step.animation.previewScale ?? 1
   }
   const spriteStyle = getSpriteSheetStyle(step.animation, step.frame)
 

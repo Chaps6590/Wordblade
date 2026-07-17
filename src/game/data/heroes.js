@@ -148,7 +148,8 @@ export const HEROES = [
         frames: 6,
         frameRate: 7,
         repeat: -1,
-        yoyo: true
+        yoyo: true,
+        previewScale: 1.08
       },
       idleCasual: {
         label: 'Idle casual',
@@ -167,7 +168,8 @@ export const HEROES = [
         frameHeight: 512,
         frames: 6,
         frameRate: 14,
-        repeat: 0
+        repeat: 0,
+        previewScale: 1.16
       },
       hit: {
         label: 'Herido',

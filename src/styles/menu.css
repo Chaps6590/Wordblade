@@ -2467,7 +2467,7 @@
   max-width: min(70%, 440px);
   aspect-ratio: var(--preview-aspect, 1);
   overflow: hidden;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%) scale(var(--preview-scale, 1));
   filter: drop-shadow(0 16px 12px rgba(0, 0, 0, 0.62));
 }
 
