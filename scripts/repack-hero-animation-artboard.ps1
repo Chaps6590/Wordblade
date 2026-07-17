@@ -6,6 +6,7 @@ param(
   [int]$Frames = 6,
   [int]$TargetFrameWidth = 512,
   [int]$TargetFrameHeight = 512,
+  [double]$ContentScale = 1,
   [int]$MaxContentWidth = 0,
   [int]$MaxContentHeight = 0,
   [int]$GroundMargin = 26,
@@ -71,7 +72,7 @@ try {
 
   for ($frame = 0; $frame -lt $Frames; $frame++) {
     $bounds = Get-OpaqueBounds $sourceImage $frame $sourceFrameWidth $sourceFrameHeight $AlphaThreshold
-    $scale = 1.0
+    $scale = $ContentScale
     if ($MaxContentWidth -gt 0 -and $bounds.Width -gt $MaxContentWidth) {
       $scale = [Math]::Min($scale, $MaxContentWidth / $bounds.Width)
     }
