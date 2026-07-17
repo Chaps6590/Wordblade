@@ -73,10 +73,10 @@ try {
   for ($frame = 0; $frame -lt $Frames; $frame++) {
     $bounds = Get-OpaqueBounds $sourceImage $frame $sourceFrameWidth $sourceFrameHeight $AlphaThreshold
     $scale = $ContentScale
-    if ($MaxContentWidth -gt 0 -and $bounds.Width -gt $MaxContentWidth) {
+    if ($MaxContentWidth -gt 0) {
       $scale = [Math]::Min($scale, $MaxContentWidth / $bounds.Width)
     }
-    if ($MaxContentHeight -gt 0 -and $bounds.Height -gt $MaxContentHeight) {
+    if ($MaxContentHeight -gt 0) {
       $scale = [Math]::Min($scale, $MaxContentHeight / $bounds.Height)
     }
 
